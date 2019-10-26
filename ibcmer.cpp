@@ -1,7 +1,7 @@
 /* Penn Bauman
  * pennbauman@protonmail.com
  */
-#define VERSION 0.0
+#define VERSION 0.1
 
 #include <iostream>
 #include <string>
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 			return 0;
 		}
 		if (current == "--version") {
-			cout << "Version " << VERSION << " with " << ADDR << " memory slots." << endl;
+			cout << "IBCMer version " << fixed << setprecision(1) << VERSION << " with " << ADDR << " memory slots." << endl;
 			return 0;
 		}
 	}
@@ -48,7 +48,6 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
-	//breaks->push(18);
 	string code = argv[1];
 	program p = program();
 	p.init(code, breaks, strict);
@@ -68,17 +67,6 @@ int main(int argc, char* argv[]) {
 			break;
 		}
 	}
-	/*
-	for (int i = 0; i < 29; i++) {
-		p.printMem(i);
-	} // */
-	
-	/*
-	doubleByte b = doubleByte("a104");
-	b.print();
-	cout << b.uint() << endl;
-	cout << b.sint() << endl;
-	*/
 
 	return 1;
 }
