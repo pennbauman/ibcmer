@@ -16,14 +16,18 @@ clean:
 
 out/program.o: program.cpp sortStack.cpp \
 		program.h sortStack.h
+	@mkdir -p out
 	$(CXX) -c program.cpp -o out/program.o
 
 out/doubleByte.o: doubleByte.cpp doubleByte.h
+	@mkdir -p out
 	$(CXX) -c doubleByte.cpp -o out/doubleByte.o
 
 out/sortStack.o: sortStack.cpp intNode.cpp \
 		sortStack.h intNode.h
+	@mkdir -p out
 	$(CXX) -c sortStack.cpp -o out/sortStack.o
 
 out/intNode.o: intNode.cpp intNode.h
+	@mkdir -p out
 	$(CXX) -c intNode.cpp -o out/intNode.o
