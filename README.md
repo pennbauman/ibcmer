@@ -61,3 +61,6 @@ Runs a number of lines and then returns to debugging mode. Will default to one l
 
 `view [address]`
 Prints out the contents of the memory address (specified in hex). Prints out all of memory if no address is specified.
+
+`exit`
+Ends program immediately.

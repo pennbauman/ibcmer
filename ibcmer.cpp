@@ -124,6 +124,8 @@ int main(int argc, char* argv[]) {
 						doubleByte temp = doubleByte(input.substr(5));
 						p.printMem(temp.uint());
 					}
+				} else if (input == "exit") {
+					return 0;
 				} else {
 					cout << "Unknown command." << endl;
 				}

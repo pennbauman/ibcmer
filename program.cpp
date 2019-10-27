@@ -79,7 +79,7 @@ int program::step(bool loud) {
 			return 0;
 		case '1': // I/O
 			if (loud)
-				cout << "I/O   ";
+				cout << "i/o   ";
 			if (command.bat(4)) {
 				if (loud)
 					cout << "(ACC)" << acc.str() << endl;
@@ -147,42 +147,42 @@ int program::step(bool loud) {
 				cout << "add   " << "(ACC)" << acc.str() << " - [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
 			acc.add(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << result << endl;
+				cout << " = " << setw(4) << acc.str() << endl;
 			break;
 		case '6': // sub
 			if (loud)
 				cout << "sub   " << "(ACC)" << acc.str() << " - [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
 			acc.sub(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << result << endl;
+				cout << " = " << setw(4) << acc.str() << endl;
 			break;
 		case '7': // and
 			if (loud)
 				cout << "and   " << "(ACC)" << acc.str() << " & [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
 			acc.band(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << result << endl;
+				cout << " = " << setw(4) << acc.str() << endl;
 			break;
 		case '8': // or
 			if (loud)
 				cout << "or    " << "(ACC)" << acc.str() << " | [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
 			acc.bor(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << result << endl;
+				cout << " = " << setw(4) << acc.str() << endl;
 			break;
 		case '9': // xor
 			if (loud)
 				cout << "xor   " << "(ACC)" << acc.str() << " ^ [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
 			acc.bxor(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << result << endl;
+				cout << " = " << setw(4) << acc.str() << endl;
 			break;
 		case 'a': // not
 			if (loud)
 				cout << "not   " << "(ACC)" << acc.str() << " !";
 			acc.bnot();
 			if (loud)
-				cout << " = " << setw(4) << result << endl;
+				cout << " = " << setw(4) << acc.str() << endl;
 			break;
 		case 'b': // nop
 			if (loud)
@@ -263,6 +263,8 @@ void program::printMem(unsigned int i, bool formated) const {
 }
 
 bool checkHex(string s) {
+	if (s.size() == 0)
+		return false;
 	for (int i = 0; i < s.size(); i++) {
 		switch(s.at(i)) {
 			case '0': break;
