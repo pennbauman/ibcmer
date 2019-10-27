@@ -64,6 +64,10 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	return true;
 }
 int program::step(bool loud) {
+	if (counter == ADDR) {
+		cerr << "program overrun" << endl;
+		return 3;
+	}
 	doubleByte command = doubleByte(mem[counter]);
 	if (loud)
 		cout << hex << "[" << setfill('0') << setw(3) << counter << "]" << setw(4) << mem[counter] << "  ";

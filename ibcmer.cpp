@@ -33,7 +33,21 @@ int main(int argc, char* argv[]) {
 	for (int i = 1; i < argc; i++) {
 		current = argv[i];
 		if ((current == "--help") || (current == "-h")) {
-			cout << "help" << endl;
+			cout << "Usage: ibcmer [file] [options]" << endl;
+			cout << "  --version       Print version and memory info." << endl;
+			cout << "  -h, --help      Print this help menu." << endl;
+			cout << "  --strict        Strictly follow format rules." << endl;
+			cout << "  -c, --check     Check line numbers." << endl;
+			cout << "  -b <numbers>    Sets break-points." << endl;
+			cout << "  --step          Starts program in debug mode." << endl;
+			cout << "  --quiet         Don't print detailed output." << endl;
+			cout << endl;
+			cout << "Debug Enviorment: " << endl;
+			cout << "  run             Exit debugging and run program." << endl;
+			cout << "  step [number]   Runs n commands then return to debug," << endl;
+			cout << "                   defaults to running one command." << endl;
+			cout << "  view [address]  Print contents of memory address," << endl;
+			cout << "                   or all memory if none specified." << endl;
 			return 0;
 		}
 		if (current == "--version") {
@@ -50,7 +64,7 @@ int main(int argc, char* argv[]) {
 		current = argv[i];
 		if (current == "--strict") {
 			strict = true;
-		} else if (current == "--check") {
+		} else if ((current == "--check") || (current == "-c")) {
 			strict = true;
 			check = true;
 		} else if (current == "-b") {

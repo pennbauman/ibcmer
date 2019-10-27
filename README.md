@@ -38,11 +38,11 @@ These options will effect the way IBCMer read and executes files. They must be l
 `--strict`
 Prevents the program from ignoring empty lines.
 
-`--check`
+`-c, --check`
 Checks for proper line numbering (3 digit, hexadecimal, after opcode). Implies `--strict`.
 
 `-b <number> [numbers...]`
-Sets a break-point at the listed number. Multiple numbers can be specified for multiple breakpoints.
+Sets a break-point at the listed number. Multiple numbers can be specified for multiple break-points.
 
 `--step`
 Steps through each line individually. Effectively places a break-point at line 0.
@@ -51,13 +51,13 @@ Steps through each line individually. Effectively places a break-point at line 0
 Removes detailed output outside of debugging.
 
 #### Break-Point Commands
-These command can be used in the break-point environment.
+These command can be used in debugging mode.
 
 `run`
 Runs to program as normal (until the next break-point).
 
 `step [number]`
-Runs a number of lines and then returns to the debug environment. Will default to one line if not specified.
+Runs a number of lines and then returns to debugging mode. Will default to one line if not specified.
 
 `view [address]`
 Prints out the contents of the memory address (specified in hex). Prints out all of memory if no address is specified.
