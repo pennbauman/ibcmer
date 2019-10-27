@@ -16,7 +16,7 @@ program::~program() {
 }
 
 
-bool program::init(string codeFile, stack<int>* b, bool strict) {
+bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	string line;
 	ifstream file(codeFile.c_str());
 	int i = 0;
@@ -30,6 +30,19 @@ bool program::init(string codeFile, stack<int>* b, bool strict) {
 			if (checkHex(line.substr(0,4))) {
 				temp = doubleByte(line.substr(0,4));
 				mem[i] = temp.uint();
+				if (check) {
+					//cout << line.substr(5,3) << endl;
+					if (checkHex(line.substr(5,3))) {
+						doubleByte temp = doubleByte("0" + line.substr(5,3));
+						if (temp.uint() != i) {
+							cout << "Improper line number at line " << i << endl;
+							return false;
+						}
+					} else {
+						cout << "Improper line number at line " << i << endl;
+						return false;
+					}
+				}
 			} else {
 				if (((line == "") || (line.substr(0,4) == "    ")) && !strict) {
 					cout << "_" << endl;

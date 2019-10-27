@@ -12,6 +12,14 @@
 #include "doubleByte.h"
 using namespace std;
 
+bool isNum(string s) {
+	for (int i = 0; i < s.size(); i++) {
+		if (!isdigit(s.at(i)))
+			return false;
+	}
+	return true;
+}
+
 int main(int argc, char* argv[]) {
 	if (sizeof(short int) != 2) {
 		cerr << "PANIC" << endl;
@@ -34,15 +42,24 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	bool strict = false;
+	bool check = false;
 	stack<int>* breaks = new stack<int>();
 	for (int i = 2; i < argc; i++) {
 		current = argv[i];
 		if (current == "--strict") {
-			cout << "yes" << endl;
 			strict = true;
+		} else if (current == "--check") {
+			strict = true;
+			check = true;
 		} else if (current == "-b") {
-			i++;
-			breaks->push(atoi(argv[i]));
+			if (isNum(argv[i+1])) {
+				cerr << "-b requires at least one break-point, break-points must be numbers." << endl;
+				return 1;
+			}
+			do {
+				i++;
+				breaks->push(atoi(argv[i]));
+			} while (isNum(argv[i+1]));
 		} else {
 			cerr << "unknown parameter: " << argv[i] << endl;
 			return 1;
@@ -50,7 +67,9 @@ int main(int argc, char* argv[]) {
 	}
 	string code = argv[1];
 	program p = program();
-	p.init(code, breaks, strict);
+	if (!p.init(code, breaks, strict, check)) {
+		return 1;
+	}
 	//p.print();
 	int result = 0;
 	while (true) {

@@ -38,5 +38,8 @@ These options will effect the way IBCMer read and executes files. They must be l
 `--strict`
 Prevents the program from ignoring empty lines.
 
-`-b <number>`
-Sets a break-point at the listed number.
+`--check`
+Checks for proper line numbering (3 digit, hexidecial, after opcode). Implies `--strict`.
+
+`-b <number> [numbers...]`
+Sets a break-point at the listed number. Multiple numbers can be specified for multiple breakpoints.

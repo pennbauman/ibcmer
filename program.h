@@ -22,7 +22,7 @@ class program {
 		program();
 		~program();
 
-		bool init(string codeFile, stack<int>* b, bool strict);
+		bool init(string codeFile, stack<int>* b, bool strict, bool check);
 		int step();
 		// 0 = helt
 		// 1 = success
