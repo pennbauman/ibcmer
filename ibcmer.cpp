@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
 	}
 	bool strict = false;
 	bool check = false;
+	int step = -1;
 	stack<int>* breaks = new stack<int>();
 	for (int i = 2; i < argc; i++) {
 		current = argv[i];
@@ -52,14 +53,19 @@ int main(int argc, char* argv[]) {
 			strict = true;
 			check = true;
 		} else if (current == "-b") {
-			if (isNum(argv[i+1])) {
+			if (!isNum(argv[i+1])) {
 				cerr << "-b requires at least one break-point, break-points must be numbers." << endl;
+				cout << argv[i+1] << endl;
 				return 1;
 			}
 			do {
 				i++;
 				breaks->push(atoi(argv[i]));
+				if (i + 1 == argc)
+					break;
 			} while (isNum(argv[i+1]));
+		} else if (current == "--step") {
+			step = 1;
 		} else {
 			cerr << "unknown parameter: " << argv[i] << endl;
 			return 1;
@@ -73,13 +79,40 @@ int main(int argc, char* argv[]) {
 	//p.print();
 	int result = 0;
 	while (true) {
+		step--;
 		result = p.step();
 		if (result == 0)
 			break;
-		if (result == 2) {
-			cout << "breakpoint" << endl;
-			p.print();
-			break;
+		if ((result == 2) || (step == 0)) {
+			string input = "";
+			while (true) {
+				cout << "~ ";
+				getline(cin, input);
+				if (input == "run") {
+					step = -1;
+					break;
+				} else if (input == "step") {
+					step = 1;
+					break;
+				} else if (input.substr(0,4) == "step") {
+					if (isNum(input.substr(5))) {
+						step = atoi(input.substr(5).c_str());
+						break;
+					} else {
+						cout << "step requires a number." << endl;
+					}
+				} else if (input == "view") {
+					p.print();
+				} else if (input.substr(0,4) == "view") {
+					if ((checkHex(input.substr(5))) && (input.size() < 9)) {
+						doubleByte temp = doubleByte(input.substr(5));
+						p.printMem(temp.uint());
+					}
+				} else {
+					cout << "Unknown command." << endl;
+				}
+			}
+			//p.print();
 		}
 		if (result == 3) {
 			cout << "error?" << endl;

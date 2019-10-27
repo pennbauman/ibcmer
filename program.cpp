@@ -33,7 +33,7 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 				if (check) {
 					//cout << line.substr(5,3) << endl;
 					if (checkHex(line.substr(5,3))) {
-						doubleByte temp = doubleByte("0" + line.substr(5,3));
+						temp = doubleByte("0" + line.substr(5,3));
 						if (temp.uint() != i) {
 							cout << "Improper line number at line " << i << endl;
 							return false;
@@ -67,7 +67,7 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 }
 int program::step() {
 	doubleByte command = doubleByte(mem[counter]);
-	cout << hex << "[" << setfill('0') << setw(3) << counter << "]" << setw(4) << mem[counter] << " : ";
+	cout << hex << "[" << setfill('0') << setw(3) << counter << "]" << setw(4) << mem[counter] << "  ";
 	//command.print();
 	unsigned short int result = 0;
 	switch(command.cat(0)) {
@@ -90,7 +90,7 @@ int program::step() {
 				cout << endl;
 				if (command.bat(5)) {
 					cout << "Input ASCII char: ";
-					cin >> in;
+					getline(cin, in);
 					if (in.size() == 1) {
 						unsigned short int a = in.at(0);
 						acc = doubleByte(a);
@@ -100,7 +100,7 @@ int program::step() {
 					}
 				} else {
 					cout << "Input 4-digit hex: ";
-					cin >> in;
+					getline(cin, in);
 					if ((checkHex(in)) && (in.size() <= 4)) {
 						acc = doubleByte(in);
 					} else {
