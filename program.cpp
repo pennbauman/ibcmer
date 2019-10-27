@@ -27,11 +27,11 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 				return false;
 			}
 			if (checkHex(line.substr(0,4))) {
-				temp = doubleByte(line.substr(0,4));
+				temp.setVal(line.substr(0,4));
 				mem[i] = temp.uint();
 				if (check) {
 					if (checkHex(line.substr(5,3))) {
-						temp = doubleByte("0" + line.substr(5,3));
+						temp.setVal(line.substr(5,3));
 						if (temp.uint() != i) {
 							cout << "Improper line number at line " << i << endl;
 							return false;
@@ -98,7 +98,7 @@ int program::step(bool loud) {
 					getline(cin, in);
 					if (in.size() == 1) {
 						unsigned short int a = in.at(0);
-						acc = doubleByte(a);
+						acc.setVal(a);
 					} else {
 						cout << "improper ascii char" << endl;
 						return 3;
@@ -107,7 +107,7 @@ int program::step(bool loud) {
 					cout << "Input 4-digit hex: ";
 					getline(cin, in);
 					if ((checkHex(in)) && (in.size() <= 4)) {
-						acc = doubleByte(in);
+						acc.setVal(in);
 					} else {
 						cerr << "unreadable hex word" << endl;
 						return 3;
@@ -133,7 +133,7 @@ int program::step(bool loud) {
 		case '3': // load
 			if (loud)
 				cout << "load  [" << hex << setfill('0') << setw(3) << command.addr() << "]";
-			acc = doubleByte(mem[command.addr()]);
+			acc.setVal(mem[command.addr()]);
 			if (loud)
 				cout << acc.str() << endl;
 			break;
@@ -145,55 +145,44 @@ int program::step(bool loud) {
 		case '5': // add
 			if (loud)
 				cout << "add   " << "(ACC)" << acc.str() << " - [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
-			result = mem[command.addr()];
-			result = acc.add(result);
+			acc.add(mem[command.addr()]);
 			if (loud)
 				cout << " = " << setw(4) << result << endl;
-			acc = doubleByte(result);
 			break;
 		case '6': // sub
 			if (loud)
 				cout << "sub   " << "(ACC)" << acc.str() << " - [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
-			result = mem[command.addr()];
-			result = acc.sub(result);
+			acc.sub(mem[command.addr()]);
 			if (loud)
 				cout << " = " << setw(4) << result << endl;
-			acc = doubleByte(result);
 			break;
 		case '7': // and
 			if (loud)
 				cout << "and   " << "(ACC)" << acc.str() << " & [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
-			result = mem[command.addr()];
-			result = acc.band(result);
+			acc.band(mem[command.addr()]);
 			if (loud)
 				cout << " = " << setw(4) << result << endl;
-			acc = doubleByte(result);
 			break;
 		case '8': // or
 			if (loud)
 				cout << "or    " << "(ACC)" << acc.str() << " | [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
-			result = mem[command.addr()];
-			result = acc.bor(result);
+			acc.bor(mem[command.addr()]);
 			if (loud)
 				cout << " = " << setw(4) << result << endl;
-			acc = doubleByte(result);
 			break;
 		case '9': // xor
 			if (loud)
 				cout << "xor   " << "(ACC)" << acc.str() << " ^ [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
-			result = mem[command.addr()];
-			result = acc.bxor(result);
+			acc.bxor(mem[command.addr()]);
 			if (loud)
 				cout << " = " << setw(4) << result << endl;
-			acc = doubleByte(result);
 			break;
 		case 'a': // not
 			if (loud)
 				cout << "not   " << "(ACC)" << acc.str() << " !";
-			result = acc.bnot();
+			acc.bnot();
 			if (loud)
 				cout << " = " << setw(4) << result << endl;
-			acc = doubleByte(result);
 			break;
 		case 'b': // nop
 			if (loud)
@@ -228,7 +217,7 @@ int program::step(bool loud) {
 			if (loud)
 				cout << "brl   [" << hex << setfill('0') << setw(3) << command.addr() << "]  (ACC)";
 			counter++;
-			acc = doubleByte(counter);
+			acc.setVal(counter);
 			if (loud)
 				cout << acc.str() << endl;
 			counter = command.addr() - 1;

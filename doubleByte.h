@@ -17,6 +17,10 @@ class doubleByte {
 		doubleByte(string hex);
 		~doubleByte();
 
+		void setVal(unsigned short int a);
+		void setVal(string hex);
+		void print() const;
+
 		unsigned short int uint() const;
 		signed short int sint() const;
 		string str() const;
@@ -27,14 +31,12 @@ class doubleByte {
 		
 		void shiftLeft(int n, bool wrap);
 		void shiftRight(int n, bool wrap);
-		unsigned short int add(unsigned short int a);
-		unsigned short int sub(unsigned short int a);
-		unsigned short int band(unsigned short int a);
-		unsigned short int bor(unsigned short int a);
-		unsigned short int bxor(unsigned short int a);
-		unsigned short int bnot();
-
-		void print() const;
+		void add(unsigned short int a);
+		void sub(unsigned short int a);
+		void band(unsigned short int a);
+		void bor(unsigned short int a);
+		void bxor(unsigned short int a);
+		void bnot();
 
 	private:
 		bool val[16];

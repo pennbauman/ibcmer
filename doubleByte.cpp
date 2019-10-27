@@ -10,6 +10,16 @@ doubleByte::doubleByte() {
 	}
 }
 doubleByte::doubleByte(unsigned short int a) {
+	setVal(a);
+}
+doubleByte::doubleByte(string hex) {
+	setVal(hex);
+}
+doubleByte::~doubleByte() {
+
+}
+
+void doubleByte::setVal(unsigned short int a) {
 	for (int i = 0; i < 16; i++) {
 		if (a >= pow(2,(15-i))) {
 			val[i] = true;
@@ -19,7 +29,7 @@ doubleByte::doubleByte(unsigned short int a) {
 		}
 	}
 }
-doubleByte::doubleByte(string hex) {
+void doubleByte::setVal(string hex) {
 	while (hex.size() < 4)
 		hex = "0" + hex;
 	for (int i = 0; i < 4; i++) {
@@ -161,8 +171,13 @@ doubleByte::doubleByte(string hex) {
 		}
 	}
 }
-doubleByte::~doubleByte() {
-
+void doubleByte::print() const {
+	for (int i = 0; i < 16; i++) {
+		cout << val[i];
+		if ((i+1)%4 == 0)
+			cout << " ";
+	}
+	cout << endl;
 }
 
 unsigned short int doubleByte::uint() const {
@@ -300,37 +315,22 @@ void doubleByte::shiftRight(int n, bool wrap) {
 			val[0] = temp;
 	}
 }
-unsigned short int doubleByte::add(unsigned short int a) {
-	unsigned short int temp = uint();
-	return temp + a;
+void doubleByte::add(unsigned short int a) {
+	setVal(uint() + a);
 }
-unsigned short int doubleByte::sub(unsigned short int a) {
-	unsigned short int temp = uint();
-	return temp - a;
+void doubleByte::sub(unsigned short int a) {
+	setVal(uint() - a);
 }
-unsigned short int doubleByte::band(unsigned short int a) {
-	unsigned short int temp = uint();
-	return temp & a;
+void doubleByte::band(unsigned short int a) {
+	setVal(uint() & a);
 }
-unsigned short int doubleByte::bor(unsigned short int a) {
-	unsigned short int temp = uint();
-	return temp | a;
+void doubleByte::bor(unsigned short int a) {
+	setVal(uint() | a);
 }
-unsigned short int doubleByte::bxor(unsigned short int a) {
-	unsigned short int temp = uint();
-	return temp ^ a;
+void doubleByte::bxor(unsigned short int a) {
+	setVal(uint() ^ a);
 }
-unsigned short int doubleByte::bnot() {
-	unsigned short int temp = uint();
-	return ~temp;
+void doubleByte::bnot() {
+	setVal(~uint());
 }
 
-
-void doubleByte::print() const {
-	for (int i = 0; i < 16; i++) {
-		cout << val[i];
-		if ((i+1)%4 == 0)
-			cout << " ";
-	}
-	cout << endl;
-}
