@@ -286,7 +286,8 @@ void doubleByte::shiftLeft(int n, bool wrap) {
 		for (int j = 0; j < 15; j++) {
 			val[j] = val[j+1];
 		}
-		val[15] = temp;
+		if (wrap)
+			val[15] = temp;
 	}
 }
 void doubleByte::shiftRight(int n, bool wrap) {
@@ -295,7 +296,8 @@ void doubleByte::shiftRight(int n, bool wrap) {
 		for (int j = 15; j > 1; j--) {
 			val[j] = val[j-1];
 		}
-		val[0] = temp;
+		if (wrap)
+			val[0] = temp;
 	}
 }
 unsigned short int doubleByte::add(unsigned short int a) {
