@@ -23,8 +23,8 @@ class program {
 		~program();
 
 		bool init(string codeFile, stack<int>* b, bool strict, bool check);
-		int step();
-		// 0 = helt
+		int step(bool loud);
+		// 0 = halt
 		// 1 = success
 		// 2 = breakpoint
 		// 3 = error
@@ -32,7 +32,6 @@ class program {
 		unsigned int pid();
 
 		void print() const;
-		//void printPID() const;
 		void printMem() const;
 		void printMem(unsigned int i) const;
 		void printMem(unsigned int i, bool formated) const;
@@ -42,8 +41,6 @@ class program {
 		doubleByte acc;
 		unsigned short int counter;
 		sortStack breaks;
-
-		//void memInit();
 };
 
 bool checkHex(string s);

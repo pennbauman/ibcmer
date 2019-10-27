@@ -47,6 +47,9 @@ Sets a break-point at the listed number. Multiple numbers can be specified for m
 `--step`
 Steps through each line individually. Effectively places a break-point at line 0.
 
+`-q, --quiet`
+Removes detailed output outside of debugging.
+
 #### Break-Point Commands
 These command can be used in the break-point environment.
 
