@@ -28,7 +28,7 @@ These options will preform there function and then exit the program preventing i
 Prints out a help menu listing command line options and debugging commands.
 
 `--version`
-Prints out version information and memory slots.
+Prints out version number.
 
 #### Regular Options
 These options will effect the way IBCMer read and executes files. They must be listed after the code file.
@@ -40,7 +40,7 @@ Prevents the program from ignoring empty lines.
 Checks for proper line numbering (3 digit in hexadecimal immediately after the op-code). Implies `--strict`.
 
 `-b <number> [numbers...]`
-Sets a break-point at the listed number. Multiple numbers can be specified for multiple break-points.
+Sets a break-point at the listed line number. Multiple numbers can be specified for multiple break-points. All numbers should be given in hexadecimal.
 
 `--step`
 Steps through each line individually. Effectively places a break-point at line 0.

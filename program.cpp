@@ -58,6 +58,7 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	// Load breakpoints from stack
 	while (!b->empty()) {
 		breaks.insert(b->top());
+		cout << b->top() << endl;
 		b->pop();
 	}
 	return true;
@@ -232,7 +233,7 @@ int program::step(bool loud) {
 	}
 	counter++;
 	// Check break-point
-	if (breaks.count(counter) == 1) {
+	if (breaks.count(counter - 1) == 1) {
 		return 2;
 	}
 	return 1;

@@ -1,7 +1,7 @@
 /* Penn Bauman
  * pennbauman@protonmail.com
  */
-#define VERSION 0.2
+#define VERSION 0.3
 
 #include <iostream>
 #include <string>
@@ -22,20 +22,23 @@ bool isNum(string s) {
 // Print help menu
 void printHelp() {
 	cout << "Usage: ibcmer [file] [options]" << endl;
-	cout << "  --version       Print version and memory info." << endl;
-	cout << "  -h, --help      Print this help menu." << endl;
-	cout << "  --strict        Strictly follow format rules." << endl;
-	cout << "  -c, --check     Check line numbers." << endl;
-	cout << "  -b <numbers>    Sets break-points." << endl;
-	cout << "  --step          Starts program in debug mode." << endl;
-	cout << "  --quiet         Don't print detailed output." << endl;
+	cout << "  --version        Print version and memory info." << endl;
+	cout << "  -h, --help       Print this help menu." << endl;
+	cout << "  --strict         Strictly follow format rules." << endl;
+	cout << "  -c, --check      Check line numbers." << endl;
+	cout << "  -b <numbers>     Sets break-points (listed in hex)." << endl;
+	cout << "  --step           Starts program in debug mode." << endl;
+	cout << "  --quiet          Don't print detailed output." << endl;
 	cout << endl;
 	cout << "Debug Enviorment: " << endl;
-	cout << "  run             Exit debugging and run program." << endl;
-	cout << "  step [number]   Runs n commands then return to debug," << endl;
-	cout << "                   defaults to running one command." << endl;
-	cout << "  view [address]  Print contents of memory address," << endl;
-	cout << "                   or all memory if none specified." << endl;
+	cout << "  run                    Exit debbugging and run program." << endl;
+	cout << "  step [number]          Runs n commands then return to debug," << endl;
+	cout << "                           defaults to running one command." << endl;
+	cout << "  view [address|all]     Print contents of given memory address," << endl;
+	cout << "                           all occupied memory if nothing is specified," << endl;
+	cout << "                           or all memory all is specified." << endl;
+	cout << "  set <address> <value>  Set memory at given address to value." << endl;
+	cout << "  exit                   Ends program immediately." << endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -59,7 +62,7 @@ int main(int argc, char* argv[]) {
 			return 0;
 		}
 		if (current == "--version") {
-			cout << "IBCMer version " << fixed << setprecision(1) << VERSION << " with " << ADDR << " memory slots." << endl;
+			cout << "IBCMer version " << fixed << setprecision(1) << VERSION << endl;
 			return 0;
 		}
 	}
@@ -68,6 +71,7 @@ int main(int argc, char* argv[]) {
 	bool check = false;
 	int step = -1;
 	int loud = true;
+	doubleByte temp;
 	stack<int>* breaks = new stack<int>();
 	for (int i = 2; i < argc; i++) {
 		current = argv[i];
@@ -77,16 +81,17 @@ int main(int argc, char* argv[]) {
 			strict = true;
 			check = true;
 		} else if (current == "-b") {
-			if (!isNum(argv[i+1])) {
+			if (!checkHex(argv[i+1])) {
 				cerr << "ERROR: -b requires at least one break-point, break-points must be numbers." << endl;
 				return 1;
 			}
 			do {
 				i++;
-				breaks->push(atoi(argv[i]));
+				temp.setVal(argv[i]);
+				breaks->push(temp.uint());
 				if (i + 1 == argc)
 					break;
-			} while (isNum(argv[i+1]));
+			} while (checkHex(argv[i+1]));
 		} else if (current == "--step") {
 			step = 1;
 		} else if ((current == "--quiet") || (current == "-q")) {
@@ -133,7 +138,7 @@ int main(int argc, char* argv[]) {
 					p.print();
 				} else if (input.substr(0,4) == "view") {
 					if ((checkHex(input.substr(5))) && (input.size() < 9)) {
-						doubleByte temp = doubleByte(input.substr(5));
+						temp = doubleByte(input.substr(5));
 						p.printMem(temp.uint());
 					}
 				} else if (input.substr(0,3) == "set") {

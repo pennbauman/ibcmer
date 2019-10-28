@@ -10,7 +10,7 @@ final:
 	$(CXX) -O2 ibcmer.cpp program.cpp doubleByte.cpp -o ibcmer
 
 clean:
-	-rm -f out/*.o a.out ibcmer
+	@rm -f out/*.o a.out ibcmer
 
 out/program.o: program.cpp doubleByte.cpp \
 		program.h doubleByte.h
