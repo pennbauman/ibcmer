@@ -21,9 +21,9 @@ doubleByte::~doubleByte() {}
 // Mutators
 void doubleByte::setVal(unsigned short int a) {
 	for (int i = 0; i < 16; i++) {
-		if (a >= pow(2,(15-i))) {
+		if (a >= pow2[i]) {
 			val[i] = true;
-			a -= pow(2,(15-i));
+			a -= pow2[i];
 		} else {
 			val[i] = false;
 		}
@@ -176,16 +176,16 @@ void doubleByte::setVal(string hex) {
 unsigned short int doubleByte::uint() const { // unsigned int
 	unsigned short int fin = 0;
 	for (int i = 0; i < 16; i++) {
-		fin += val[i]*pow(2,(15-i));
+		fin += val[i]*pow2[i];
 	}
 	return fin;
 }
 signed short int doubleByte::sint() const { // signed int
 	signed short int fin = 0;
 	if (val[0])
-		fin -= 32768;
+		fin -= pow2[0];
 	for (int i = 1; i < 16; i++) {
-		fin += val[i]*pow(2,(15-i));
+		fin += val[i]*pow2[i];
 	}
 	return fin;
 }
@@ -274,14 +274,14 @@ bool doubleByte::bat(int i) const { // boolean at index
 unsigned int doubleByte::addr() const { // address component of doubleByte
 	unsigned int fin = 0;
 	for (int i = 4; i < 16; i++) {
-		fin += val[i]*pow(2,(15-i));
+		fin += val[i]*pow2[i];
 	}
 	return fin;
 }
 char doubleByte::ascii() const { // ascii component of doubleByte
 	char fin = 0;
 	for (int i = 8; i < 16; i++) {
-		fin += val[i]*pow(2,(15-i));
+		fin += val[i]*pow2[i];
 	}
 	return fin;
 	
@@ -334,4 +334,3 @@ void doubleByte::bxor(unsigned short int a) {
 void doubleByte::bnot() {
 	setVal(~uint());
 }
-

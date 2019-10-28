@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <string>
-#include <cmath>
 using namespace std;
 
 class doubleByte {
@@ -41,7 +40,11 @@ class doubleByte {
 		void bxor(unsigned short int a);
 		void bnot();
 
+
 	private:
+		// Powers of 2
+		unsigned short int pow2[16] = {32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1};
+
 		// Values
 		bool val[16];
 };
