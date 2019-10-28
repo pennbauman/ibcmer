@@ -6,8 +6,6 @@ CXX=clang++
 ibcmer: ibcmer.cpp out/program.o out/doubleByte.o out/sortStack.o out/intNode.o
 	$(CXX) ibcmer.cpp out/*.o
 
-#program.o doubleByte.o sortStack.o intNode.o
-
 final:
 	$(CXX) -O2 ibcmer.cpp program.cpp doubleByte.cpp sortStack.cpp intNode.cpp -o ibcmer
 

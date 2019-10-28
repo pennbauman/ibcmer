@@ -12,6 +12,3 @@ intNode::intNode(int i) {
 	val = i;
 	next = NULL;
 }
-intNode::~intNode() {
-	//cout << "x" << endl;
-}

@@ -10,7 +10,6 @@ class intNode {
 	public:
 		intNode();
 		intNode(int i);
-		~intNode();
 	
 	private:
 		int val;

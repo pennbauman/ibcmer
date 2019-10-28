@@ -4,18 +4,15 @@
 #include "program.h"
 using namespace std;
 
+// Constructors
 program::program() {
 	for (int i = 0; i < ADDR; i++) {
 		mem[i] = 0;
 	}
 	counter = 0;
 }
-program::~program() {
-
-}
-
-
 bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
+	// Load memory from code file
 	string line;
 	ifstream file(codeFile.c_str());
 	int i = 0;
@@ -23,54 +20,58 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	if (file.is_open()) {
 		while (getline(file,line)) {
 			if (i == ADDR) {
-				cerr << "instruction overflow" << endl;
+				cerr << "ERROR: Instructions overflow memory." << endl;
 				return false;
 			}
 			if (checkHex(line.substr(0,4))) {
+				// Set memory
 				temp.setVal(line.substr(0,4));
 				mem[i] = temp.uint();
 				if (check) {
+					// Check line number if appropriate
 					if (checkHex(line.substr(5,3))) {
 						temp.setVal(line.substr(5,3));
 						if (temp.uint() != i) {
-							cout << "Improper line number at line " << i << endl;
+							cerr << "ERROR: Improper line number at line " << i << "." << endl;
 							return false;
 						}
 					} else {
-						cout << "Improper line number at line " << i << endl;
+						cerr << "ERROR: Improper line number at line " << i << "." << endl;
 						return false;
 					}
 				}
 			} else {
-				if (((line == "") || (line.substr(0,4) == "    ")) && !strict) {
-					cout << "_" << endl;
-				} else {
-					cerr << "improper instructions at " << i << " : " << line << endl;
-					cerr << line.substr(0,4) << checkHex(line.substr(0,4)) << endl;
+				// Check if line can be ignored
+				if (!((line == "") || (line.substr(0,4) == "    ")) || strict) {
+					cerr << "ERROR: Improper instructions at " << hex << i << " '" << line.substr(0,4) << "'" << endl;
 					return false;
 				}
 			}
 			i++;
 		}
 	} else {
-		cerr << ".ibcm file not opened" << endl;
+		cerr << "ERROR: " << codeFile << " not openable." << endl;
 		return false;
 	}
 	file.close();
+	// Load breakpoints from stack
 	while (!b->empty()) {
 		breaks.push(b->top());
 		b->pop();
 	}
 	return true;
 }
+
+// Run
 int program::step(bool loud) {
 	if (counter == ADDR) {
-		cerr << "program overrun" << endl;
+		cerr << "ERROR: Program overran memory." << endl;
 		return 3;
 	}
+	// Load command
 	doubleByte command = doubleByte(mem[counter]);
 	if (loud)
-		cout << hex << "[" << setfill('0') << setw(3) << counter << "]" << setw(4) << mem[counter] << "  ";
+		cout << hex << "[" << setfill('0') << setw(3) << counter << "]" << command.str() << "  ";
 	unsigned short int result = 0;
 	switch(command.cat(0)) {
 		case '0': // halt
@@ -100,7 +101,7 @@ int program::step(bool loud) {
 						unsigned short int a = in.at(0);
 						acc.setVal(a);
 					} else {
-						cout << "improper ascii char" << endl;
+						cerr << "ERROR: Improper ASCII character." << endl;
 						return 3;
 					}
 				} else {
@@ -109,7 +110,7 @@ int program::step(bool loud) {
 					if ((checkHex(in)) && (in.size() <= 4)) {
 						acc.setVal(in);
 					} else {
-						cerr << "unreadable hex word" << endl;
+						cerr << "ERROR: Unreadable hex word." << endl;
 						return 3;
 					}
 				}
@@ -117,7 +118,7 @@ int program::step(bool loud) {
 			break;
 		case '2': // shift
 			if (loud)
-				cout << "shift (ACC)";
+				cout << "shift (ACC)" << acc.str() << " -> (ACC)";
 			for (int i = 12; i < 16; i++) {
 				if (command.bat(i))
 					result += pow(2, (15-i));
@@ -144,7 +145,7 @@ int program::step(bool loud) {
 			break;
 		case '5': // add
 			if (loud)
-				cout << "add   " << "(ACC)" << acc.str() << " - [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
+				cout << "add   " << "(ACC)" << acc.str() << " + [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
 			acc.add(mem[command.addr()]);
 			if (loud)
 				cout << " = " << setw(4) << acc.str() << endl;
@@ -226,6 +227,7 @@ int program::step(bool loud) {
 			return 3;
 	}
 	counter++;
+	// Check break-point
 	if (breaks.top() == counter) {
 		breaks.pop();
 		return 2;
@@ -233,10 +235,10 @@ int program::step(bool loud) {
 	return 1;
 }
 
+// Printing
 unsigned int program::pid() {
 	return counter;
 }
-
 void program::print() const {
 	cout << "PID: " << hex << setfill('0') << setw(3) << counter << "  ACC: " << setw(4) << acc.uint() << endl;
 	printMem();
@@ -262,6 +264,7 @@ void program::printMem(unsigned int i, bool formated) const {
 	}
 }
 
+// Utilities
 bool checkHex(string s) {
 	if (s.size() == 0)
 		return false;

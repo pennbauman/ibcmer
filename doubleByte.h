@@ -11,16 +11,17 @@ using namespace std;
 
 class doubleByte {
 	public:
+		// Constructors
 		doubleByte();
 		doubleByte(unsigned short int a);
-		doubleByte(signed short int a);
 		doubleByte(string hex);
 		~doubleByte();
 
+		// Mutators
 		void setVal(unsigned short int a);
 		void setVal(string hex);
-		void print() const;
 
+		// Accessors
 		unsigned short int uint() const;
 		signed short int sint() const;
 		string str() const;
@@ -28,7 +29,9 @@ class doubleByte {
 		bool bat(int i) const;
 		unsigned int addr() const;
 		char ascii() const;
+		void print() const;
 		
+		// Operators
 		void shiftLeft(int n, bool wrap);
 		void shiftRight(int n, bool wrap);
 		void add(unsigned short int a);
@@ -39,6 +42,7 @@ class doubleByte {
 		void bnot();
 
 	private:
+		// Values
 		bool val[16];
 };
 

@@ -4,6 +4,7 @@
 #include "doubleByte.h"
 using namespace std;
 
+// Constructors
 doubleByte::doubleByte() {
 	for (int i = 0; i < 16; i++) {
 		val[i] = false;
@@ -15,10 +16,9 @@ doubleByte::doubleByte(unsigned short int a) {
 doubleByte::doubleByte(string hex) {
 	setVal(hex);
 }
-doubleByte::~doubleByte() {
+doubleByte::~doubleByte() {}
 
-}
-
+// Mutators
 void doubleByte::setVal(unsigned short int a) {
 	for (int i = 0; i < 16; i++) {
 		if (a >= pow(2,(15-i))) {
@@ -167,27 +167,20 @@ void doubleByte::setVal(string hex) {
 				val[(4*i)+3] = true;
 				break;
 			default:
-				cerr << "error making doubleByte" << endl;
+				cerr << "ERROR: Unknown hex while making doubleByte." << endl;
 		}
 	}
 }
-void doubleByte::print() const {
-	for (int i = 0; i < 16; i++) {
-		cout << val[i];
-		if ((i+1)%4 == 0)
-			cout << " ";
-	}
-	cout << endl;
-}
 
-unsigned short int doubleByte::uint() const {
+// Accessors
+unsigned short int doubleByte::uint() const { // unsigned int
 	unsigned short int fin = 0;
 	for (int i = 0; i < 16; i++) {
 		fin += val[i]*pow(2,(15-i));
 	}
 	return fin;
 }
-signed short int doubleByte::sint() const {
+signed short int doubleByte::sint() const { // signed int
 	signed short int fin = 0;
 	if (val[0])
 		fin -= 32768;
@@ -196,7 +189,7 @@ signed short int doubleByte::sint() const {
 	}
 	return fin;
 }
-string doubleByte::str() const {
+string doubleByte::str() const { // hexidecimal string
 	string fin = "";
 	fin += cat(0);
 	fin += cat(1);
@@ -204,9 +197,9 @@ string doubleByte::str() const {
 	fin += cat(3);
 	return fin;
 }
-char doubleByte::cat(int i) const {
+char doubleByte::cat(int i) const { // char at index
 	if ((i < 0) || (i > 3)) {
-		cerr << "improper char index" << endl;
+		cerr << "ERROR: Improper char index." << endl;
 		return '!';
 	}
 	if (val[(4*i)+0]) {
@@ -271,21 +264,21 @@ char doubleByte::cat(int i) const {
 		}
 	}
 }
-bool doubleByte::bat(int i) const {
+bool doubleByte::bat(int i) const { // boolean at index
 	if ((i < 0) || (i > 15)) {
-		cerr << "improper char index" << endl;
+		cerr << "ERROR: Improper char index." << endl;
 		return false;
 	}
 	return val[i];
 }
-unsigned int doubleByte::addr() const {
+unsigned int doubleByte::addr() const { // address component of doubleByte
 	unsigned int fin = 0;
 	for (int i = 4; i < 16; i++) {
 		fin += val[i]*pow(2,(15-i));
 	}
 	return fin;
 }
-char doubleByte::ascii() const {
+char doubleByte::ascii() const { // ascii component of doubleByte
 	char fin = 0;
 	for (int i = 8; i < 16; i++) {
 		fin += val[i]*pow(2,(15-i));
@@ -293,8 +286,16 @@ char doubleByte::ascii() const {
 	return fin;
 	
 }
+void doubleByte::print() const { // print binary repersentation of doubleByte
+	for (int i = 0; i < 16; i++) {
+		cout << val[i];
+		if ((i+1)%4 == 0)
+			cout << " ";
+	}
+	cout << endl;
+}
 
-
+// Operators
 void doubleByte::shiftLeft(int n, bool wrap) {
 	for (int i = 0; i < n; i++) {
 		bool temp = val[0];

@@ -1,7 +1,7 @@
 /* Penn Bauman
  * pennbauman@protonmail.com
  */
-#define VERSION 0.1
+#define VERSION 0.2
 
 #include <iostream>
 #include <string>
@@ -12,6 +12,7 @@
 #include "doubleByte.h"
 using namespace std;
 
+// Check if string is a number
 bool isNum(string s) {
 	for (int i = 0; i < s.size(); i++) {
 		if (!isdigit(s.at(i)))
@@ -19,35 +20,43 @@ bool isNum(string s) {
 	}
 	return true;
 }
+// Print help menu
+void printHelp() {
+	cout << "Usage: ibcmer [file] [options]" << endl;
+	cout << "  --version       Print version and memory info." << endl;
+	cout << "  -h, --help      Print this help menu." << endl;
+	cout << "  --strict        Strictly follow format rules." << endl;
+	cout << "  -c, --check     Check line numbers." << endl;
+	cout << "  -b <numbers>    Sets break-points." << endl;
+	cout << "  --step          Starts program in debug mode." << endl;
+	cout << "  --quiet         Don't print detailed output." << endl;
+	cout << endl;
+	cout << "Debug Enviorment: " << endl;
+	cout << "  run             Exit debugging and run program." << endl;
+	cout << "  step [number]   Runs n commands then return to debug," << endl;
+	cout << "                   defaults to running one command." << endl;
+	cout << "  view [address]  Print contents of memory address," << endl;
+	cout << "                   or all memory if none specified." << endl;
+}
 
 int main(int argc, char* argv[]) {
+	// Check if short ints are 2 bytes
 	if (sizeof(short int) != 2) {
-		cerr << "PANIC" << endl;
+		cerr << "PANIC: data values are the wrong size." << endl;
 	}
+	// Check parameters are given
 	if (argc < 2) {
-		cerr << "requires parameters, set --help" << endl;
+		cerr << "ERROR: Requires parameters." << endl;
+		cerr << endl;
+		printHelp();
 		return 1;
 	}
-
+	// Check for stand alone parameters
 	string current;
 	for (int i = 1; i < argc; i++) {
 		current = argv[i];
 		if ((current == "--help") || (current == "-h")) {
-			cout << "Usage: ibcmer [file] [options]" << endl;
-			cout << "  --version       Print version and memory info." << endl;
-			cout << "  -h, --help      Print this help menu." << endl;
-			cout << "  --strict        Strictly follow format rules." << endl;
-			cout << "  -c, --check     Check line numbers." << endl;
-			cout << "  -b <numbers>    Sets break-points." << endl;
-			cout << "  --step          Starts program in debug mode." << endl;
-			cout << "  --quiet         Don't print detailed output." << endl;
-			cout << endl;
-			cout << "Debug Enviorment: " << endl;
-			cout << "  run             Exit debugging and run program." << endl;
-			cout << "  step [number]   Runs n commands then return to debug," << endl;
-			cout << "                   defaults to running one command." << endl;
-			cout << "  view [address]  Print contents of memory address," << endl;
-			cout << "                   or all memory if none specified." << endl;
+			printHelp();
 			return 0;
 		}
 		if (current == "--version") {
@@ -55,6 +64,7 @@ int main(int argc, char* argv[]) {
 			return 0;
 		}
 	}
+	// Interate through parameters
 	bool strict = false;
 	bool check = false;
 	int step = -1;
@@ -69,8 +79,7 @@ int main(int argc, char* argv[]) {
 			check = true;
 		} else if (current == "-b") {
 			if (!isNum(argv[i+1])) {
-				cerr << "-b requires at least one break-point, break-points must be numbers." << endl;
-				cout << argv[i+1] << endl;
+				cerr << "ERROR: -b requires at least one break-point, break-points must be numbers." << endl;
 				return 1;
 			}
 			do {
@@ -84,21 +93,25 @@ int main(int argc, char* argv[]) {
 		} else if ((current == "--quiet") || (current == "-q")) {
 			loud = false;
 		} else {
-			cerr << "unknown parameter: " << argv[i] << endl;
+			cerr << "ERROR: Unknown parameter '" << argv[i] << "'" << endl;
 			return 1;
 		}
 	}
+	// Initialize program and memory
 	string code = argv[1];
 	program p = program();
 	if (!p.init(code, breaks, strict, check)) {
 		return 1;
 	}
+	// Run program
 	int result = 0;
 	while (true) {
 		step--;
 		result = p.step((loud || (step >= 0)));
+		// Check for halt
 		if (result == 0)
 			break;
+		// Check for breakpoint and go into debug mode
 		if ((result == 2) || (step == 0)) {
 			string input = "";
 			while (true) {
@@ -115,7 +128,7 @@ int main(int argc, char* argv[]) {
 						step = atoi(input.substr(5).c_str());
 						break;
 					} else {
-						cout << "step requires a number." << endl;
+						cerr << "ERROR: Step requires a number." << endl;
 					}
 				} else if (input == "view") {
 					p.print();
@@ -127,12 +140,13 @@ int main(int argc, char* argv[]) {
 				} else if (input == "exit") {
 					return 0;
 				} else {
-					cout << "Unknown command." << endl;
+					cerr << "ERROR: Unknown command." << endl;
 				}
 			}
 		}
+		// Check for errors
 		if (result == 3) {
-			cout << "error?" << endl;
+			cerr << "error?" << endl;
 			break;
 		}
 	}
