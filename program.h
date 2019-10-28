@@ -22,12 +22,13 @@ class program {
 		program();
 		bool init(string codeFile, stack<int>* b, bool strict, bool check);
 
-		// Run
+		// Run Time
 		int step(bool loud);
 		// 0 = halt
 		// 1 = success
 		// 2 = breakpoint
 		// 3 = error
+		bool setMem(unsigned short int a, unsigned short int val);
 
 		// Printing
 		unsigned int pid();

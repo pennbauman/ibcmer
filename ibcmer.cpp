@@ -136,6 +136,25 @@ int main(int argc, char* argv[]) {
 						doubleByte temp = doubleByte(input.substr(5));
 						p.printMem(temp.uint());
 					}
+				} else if (input.substr(0,3) == "set") {
+					if (input.size() == 3) {
+						cerr << " Set requies and address and a value." << endl;
+					}
+					for (int i1 = 1; i1 < input.size()-5; i1++) {
+						if (input.at(4+i1) == ' ') {
+							if (checkHex(input.substr(4, i1)) && checkHex(input.substr(5+i1)) && (i1 < 4) && (input.size()-5-i1 < 5)) {
+								doubleByte temp1 = doubleByte(input.substr(4, i1));
+								doubleByte temp2 = doubleByte(input.substr(5+i1));
+								if (!p.setMem(temp1.uint(), temp2.uint())) {
+									cerr << " Invalid memory address." << endl;
+								}
+							} else {
+								cerr << " Improperly formated address or value." << endl;
+							}
+						}
+					}
+					
+				
 				} else if (input == "exit") {
 					return 0;
 				} else {

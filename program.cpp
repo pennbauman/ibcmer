@@ -63,7 +63,7 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	return true;
 }
 
-// Run
+// Run Time
 int program::step(bool loud) {
 	if (counter == ADDR) {
 		cerr << "ERROR: Program overran memory." << endl;
@@ -237,6 +237,12 @@ int program::step(bool loud) {
 	}
 	return 1;
 }
+bool program::setMem(unsigned short int a, unsigned short int val) {
+	if (a >= ADDR)
+		return false;
+	mem[a] = val;
+	return true;
+}
 
 // Printing
 unsigned int program::pid() {
@@ -257,7 +263,7 @@ void program::printMem(unsigned int i) const {
 void program::printMem(unsigned int i, bool formated) const {
 	if (i >= ADDR)
 		return;
-	cout << "[" << setfill('0') << setw(3) << hex << i << "] " << setfill('0') << setw(4) << hex << mem[i];
+	cout << "[" << setfill('0') << setw(3) << hex << i << "]" << setfill('0') << setw(4) << hex << mem[i];
 	if (formated) {
 	   cout << "    ";
 		if ((i+1)%4 == 0)
