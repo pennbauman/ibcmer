@@ -3,7 +3,7 @@ IBCM Operation Codes
 0 halt
 	// exit program
 	000 = unused
-1 input/output
+1 i/o
 	// input to or output from accumulator
 	0 = read hex
 	4 = read ascii char

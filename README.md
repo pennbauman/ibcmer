@@ -7,11 +7,11 @@ The Itty Bitty Computing Machine (IBCM) is a mock machine language design at The
 
 IBCM runs with 4096 16 bit memory slots (numbered 000 to fff), a 16 bit accumulator, and a program counter. All memory, the accumulator, and the counter are initialized to zero. When started it runs the command in the memory slot indicated by the counter and increments the counter, repeating until it reaches a halt command.
 
-.ibcm files are formated so that the first 4 characters of each line repersent the 16 bits of each memory slots in hexadecimal (all following characters are typically ignored). These values are loaded into memory when the program starts and are used both as the instructions for the program and the data it runs on. The operation codes for IBCM are listed in [ibcm-op-codes.txt](ibcm-op-codes.txt).
+.ibcm files are formatted so that the first 4 characters of each line repentant the 16 bits of each memory slots in hexadecimal (all following characters are typically ignored). These values are loaded into memory when the program starts and are used both as the instructions for the program and the data it runs on. The operation codes for IBCM are listed in [ibcm-op-codes.txt](ibcm-op-codes.txt).
 
 
 ## Installation
-On linux run the following in the ibcmer directory, it requires root access:
+On Linux run the following in the ibcmer directory, it requires root access:
 
 	./install.sh
 
