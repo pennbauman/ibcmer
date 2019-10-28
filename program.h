@@ -11,8 +11,8 @@
 #include <iomanip>
 #include <string>
 #include <stack>
+#include <unordered_set>
 
-#include "sortStack.h"
 #include "doubleByte.h"
 using namespace std;
 
@@ -41,7 +41,7 @@ class program {
 		unsigned short int mem[ADDR];
 		doubleByte acc;
 		unsigned short int counter;
-		sortStack breaks;
+		unordered_set<int> breaks;
 };
 
 // Utilities

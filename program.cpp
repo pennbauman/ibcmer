@@ -10,6 +10,7 @@ program::program() {
 		mem[i] = 0;
 	}
 	counter = 0;
+	breaks = unordered_set<int>(7);
 }
 bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	// Load memory from code file
@@ -56,7 +57,7 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	file.close();
 	// Load breakpoints from stack
 	while (!b->empty()) {
-		breaks.push(b->top());
+		breaks.insert(b->top());
 		b->pop();
 	}
 	return true;
@@ -228,8 +229,7 @@ int program::step(bool loud) {
 	}
 	counter++;
 	// Check break-point
-	if (breaks.top() == counter) {
-		breaks.pop();
+	if (breaks.count(counter) == 1) {
 		return 2;
 	}
 	return 1;

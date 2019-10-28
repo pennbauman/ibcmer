@@ -8,7 +8,6 @@
 #include <stack>
 
 #include "program.h"
-#include "sortStack.h"
 #include "doubleByte.h"
 using namespace std;
 
