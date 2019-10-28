@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 						step = atoi(input.substr(5).c_str());
 						break;
 					} else {
-						cerr << "ERROR: Step requires a number." << endl;
+						cerr << " Step requires a number." << endl;
 					}
 				} else if (input == "view") {
 					p.print();
@@ -139,13 +139,12 @@ int main(int argc, char* argv[]) {
 				} else if (input == "exit") {
 					return 0;
 				} else {
-					cerr << "ERROR: Unknown command." << endl;
+					cerr << " Unknown command." << endl;
 				}
 			}
 		}
 		// Check for errors
 		if (result == 3) {
-			cerr << "error?" << endl;
 			break;
 		}
 	}

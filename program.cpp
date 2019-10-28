@@ -95,24 +95,26 @@ int program::step(bool loud) {
 				string in;
 				if (loud)
 					cout << endl;
-				if (command.bat(5)) {
-					cout << "Input ASCII char: ";
-					getline(cin, in);
-					if (in.size() == 1) {
-						unsigned short int a = in.at(0);
-						acc.setVal(a);
+				while (true) {
+					if (command.bat(5)) {
+						cout << "Input ASCII char: ";
+						getline(cin, in);
+						if (in.size() == 1) {
+							unsigned short int a = in.at(0);
+							acc.setVal(a);
+							break;
+						} else {
+							cerr << "  Improper ASCII character." << endl;
+						}
 					} else {
-						cerr << "ERROR: Improper ASCII character." << endl;
-						return 3;
-					}
-				} else {
-					cout << "Input 4-digit hex: ";
-					getline(cin, in);
-					if ((checkHex(in)) && (in.size() <= 4)) {
-						acc.setVal(in);
-					} else {
-						cerr << "ERROR: Unreadable hex word." << endl;
-						return 3;
+						cout << "Input 4-digit hex: ";
+						getline(cin, in);
+						if ((checkHex(in)) && (in.size() <= 4)) {
+							acc.setVal(in);
+							break;
+						} else {
+							cerr << "  Unreadable hex word." << endl;
+						}
 					}
 				}
 			}
@@ -224,7 +226,8 @@ int program::step(bool loud) {
 				cout << acc.str() << endl;
 			counter = command.addr() - 1;
 			break;
-		default:
+		default: // unknown op code
+			cerr << "ERROR: Unknown operation code." << endl;
 			return 3;
 	}
 	counter++;
