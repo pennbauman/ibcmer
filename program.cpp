@@ -251,11 +251,23 @@ unsigned int program::pid() {
 }
 void program::print() const {
 	cout << "PID: " << hex << setfill('0') << setw(3) << counter << "  ACC: " << setw(4) << acc.uint() << endl;
-	printMem();
+	print(true);
 }
-void program::printMem() const {
+void program::print(bool all) const {
+	bool zero = false;
 	for (int i = 0; i < ADDR; i++) {
 		printMem(i, true);
+		if (((i+1)%4 == 0) && !all) {
+			zero = true;
+			for (int j = i+1; j < ADDR; j++) {
+				if (mem[j] != 0) {
+					zero = false;
+					break;
+				}
+			}
+			if (zero)
+				break;
+		}
 	}
 }
 void program::printMem(unsigned int i) const {

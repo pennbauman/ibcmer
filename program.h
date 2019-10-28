@@ -34,7 +34,7 @@ class program {
 		// Printing
 		unsigned int pid();
 		void print() const;
-		void printMem() const;
+		void print(bool all) const;
 		void printMem(unsigned int i) const;
 		void printMem(unsigned int i, bool formated) const;
 

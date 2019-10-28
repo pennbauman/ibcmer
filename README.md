@@ -52,13 +52,13 @@ Removes detailed output outside of debugging.
 These command can be used in debugging mode.
 
 `run`
-Runs to program as normal (until the next break-point).
+Runs the program as normal (until the next break-point).
 
 `step [number]`
-Runs a number of lines and then returns to debugging mode. Will default to one line if not specified.
+Runs a number of lines and then returns to debugging mode. Will default to one line if a number is not specified.
 
-`view [address]`
-Prints out the contents of the memory address (specified in hex). Prints out all of memory if no address is specified.
+`view [address|all]`
+By default, this prints out the contents of all occupied memory addresses. If an address is provide, this prints out the contents of the given memory address (specified in hex). If `all` is specified, this prints out the contents of all memory addresses.
 
 `set <address> <value>`
 Sets the value of the given address (both specified in hex).

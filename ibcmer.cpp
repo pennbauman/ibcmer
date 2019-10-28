@@ -30,13 +30,13 @@ void printHelp() {
 	cout << "  --step           Starts program in debug mode." << endl;
 	cout << "  --quiet          Don't print detailed output." << endl;
 	cout << endl;
-	cout << "Debug Enviorment: " << endl;
-	cout << "  run                    Exit debbugging and run program." << endl;
+	cout << "Debug Environment: " << endl;
+	cout << "  run                    Exit debugging and run program." << endl;
 	cout << "  step [number]          Runs n commands then return to debug," << endl;
 	cout << "                           defaults to running one command." << endl;
 	cout << "  view [address|all]     Print contents of given memory address," << endl;
 	cout << "                           all occupied memory if nothing is specified," << endl;
-	cout << "                           or all memory all is specified." << endl;
+	cout << "                           or all memory 'all' is specified." << endl;
 	cout << "  set <address> <value>  Set memory at given address to value." << endl;
 	cout << "  exit                   Ends program immediately." << endl;
 }
@@ -135,7 +135,9 @@ int main(int argc, char* argv[]) {
 						cerr << " Step requires a number." << endl;
 					}
 				} else if (input == "view") {
-					p.print();
+					p.print(false);
+				} else if (input == "view all") {
+					p.print(true);
 				} else if (input.substr(0,4) == "view") {
 					if ((checkHex(input.substr(5))) && (input.size() < 9)) {
 						temp = doubleByte(input.substr(5));
