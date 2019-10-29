@@ -58,7 +58,6 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	// Load breakpoints from stack
 	while (!b->empty()) {
 		breaks.insert(b->top());
-		cout << b->top() << endl;
 		b->pop();
 	}
 	return true;
