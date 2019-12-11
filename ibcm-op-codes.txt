@@ -41,7 +41,7 @@ IBCM Operation Codes
 	### = address
 A not
 	// apply bitwise not to accumulator
-	### = address
+	000 = unused
 B nop
 	// do nothing
 	000 = unused
