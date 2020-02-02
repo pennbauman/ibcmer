@@ -22,10 +22,10 @@ bool isNum(string s) {
 // Print help menu
 void printHelp() {
 	cout << "Usage: ibcmer [file] [options]" << endl;
-	cout << "  --version        Print version and memory info." << endl;
-	cout << "  -h, --help       Print this help menu." << endl;
+	cout << "  --version        Print version and memory information." << endl;
+	cout << "  --help, -h       Print this help menu." << endl;
 	cout << "  --strict         Strictly follow format rules." << endl;
-	cout << "  -c, --check      Check line numbers." << endl;
+	cout << "  --check, -c      Check line numbers." << endl;
 	cout << "  -b <numbers>     Sets break-points (listed in hex)." << endl;
 	cout << "  --step           Starts program in debug mode." << endl;
 	cout << "  --quiet          Don't print detailed output." << endl;
