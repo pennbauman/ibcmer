@@ -6,34 +6,10 @@
 #include <string.h>
 #include <ctype.h>
 
-
-#define C_NONE "\33[0m"
-#define C_BOLD "\33[1m"
-#define C_ITALIC "\33[3m"
-//#define black = "\33[30m"
-#define C_RED "\33[31m"
-#define C_GREEN "\33[32m"
-#define C_YELLOW "\33[33m"
-//#define blue = "\33[34m"
-//#define violet = "\33[35m"
-//#define cyan = "\33[36m"
-//#define white = "\33[37m"
+#include "text.h"
 
 #define MEM_SIZE 4096
 #define VERSION "0.2"
-#define HELP "\33[1mIBCMer Usage\33[0m\n\
-\n\
- $ ibcmer [code-file.ibcm] [options]\n\
-\n\
-Options:\n\
-     --version    Prints version information\n\
- -h, --help       Prints this help information\n\
- -c, --check      Checks the code file for proper line numbers\n\
- -q, --quiet      Prevents printing of detailed program output during execution"
-     //--help-ibcm  Prints information about the IBCM language\n\
-#define HELP_IBCM "\33[1mIBCM Information\33[0m\n\n\
-IBCM runs with 4096 16 bit memory slots (numbered 000 to fff), a 16 bit accumulator, and a program counter. All memory, the accumulator, and the counter are initialized to zero. When started it runs the command in the memory slot indicated by the counter and increments the counter, repeating until it reaches a halt command.\n\n\
-.ibcm files are formatted so that the first 4 characters of each line repentant the 16 bits of each memory slots in hexadecimal (all following characters are typically ignored). These values are loaded into memory when the program starts and are used both as the instructions for the program and the data it runs on. The operation codes for IBCM are listed in [ibcm-op-codes.txt](ibcm-op-codes.txt)."
 
 // Global variables
 unsigned short ACC = 0;
@@ -288,9 +264,9 @@ int main(int argc, char **argv) {
 					(0 == strcmp("-h", argv[i]))) {
 				printf("%s\n", HELP);
 				return 0;
-			//} else if (0 == strcmp("--help-ibcm", argv[i])) {
-				//printf("%s\n", HELP_IBCM);
-				//return 0;
+			} else if (0 == strcmp("--help-ibcm", argv[i])) {
+				printf("%s\n", HELP_IBCM);
+				return 0;
 			} else if ((0 == strcmp("--check", argv[i])) ||
 					(0 == strcmp("-c", argv[i]))) {
 				OPT_CHECK = 1;
