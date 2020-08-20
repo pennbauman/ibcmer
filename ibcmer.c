@@ -6,7 +6,34 @@
 #include <string.h>
 #include <ctype.h>
 
+
+#define C_NONE "\33[0m"
+#define C_BOLD "\33[1m"
+#define C_ITALIC "\33[3m"
+//#define black = "\33[30m"
+#define C_RED "\33[31m"
+#define C_GREEN "\33[32m"
+#define C_YELLOW "\33[33m"
+//#define blue = "\33[34m"
+//#define violet = "\33[35m"
+//#define cyan = "\33[36m"
+//#define white = "\33[37m"
+
 #define MEM_SIZE 4096
+#define VERSION "0.2"
+#define HELP "\33[1mIBCMer Usage\33[0m\n\
+\n\
+ $ ibcmer [code-file.ibcm] [options]\n\
+\n\
+Options:\n\
+     --version    Prints version information\n\
+ -h, --help       Prints this help information\n\
+ -c, --check      Checks the code file for proper line numbers\n\
+ -q, --quiet      Prevents printing of detailed program output during execution"
+     //--help-ibcm  Prints information about the IBCM language\n\
+#define HELP_IBCM "\33[1mIBCM Information\33[0m\n\n\
+IBCM runs with 4096 16 bit memory slots (numbered 000 to fff), a 16 bit accumulator, and a program counter. All memory, the accumulator, and the counter are initialized to zero. When started it runs the command in the memory slot indicated by the counter and increments the counter, repeating until it reaches a halt command.\n\n\
+.ibcm files are formatted so that the first 4 characters of each line repentant the 16 bits of each memory slots in hexadecimal (all following characters are typically ignored). These values are loaded into memory when the program starts and are used both as the instructions for the program and the data it runs on. The operation codes for IBCM are listed in [ibcm-op-codes.txt](ibcm-op-codes.txt)."
 
 // Global variables
 unsigned short ACC = 0;
@@ -44,7 +71,7 @@ signed char check_line_num(char* line, unsigned short line_num) {
 // Execute one command and progess the program
 void step(int volume) {
 	if (PC == MEM_SIZE) {
-		printf("Error: Program overran memory\n");
+		printf("%sError:%s Program overran memory\n", C_RED, C_NONE);
 		exit(1);
 	}
 	if (volume > 0)
@@ -108,7 +135,8 @@ void step(int volume) {
 					printf("Output: %c\n", ACC);
 					break;
 				default:
-					printf("\nError: Invalid I/O operation code\n");
+					printf("\n%sError:%s Invalid I/O operation code\n",
+							C_RED, C_NONE);
 					exit(1);
 			}
 			break;
@@ -146,6 +174,10 @@ void step(int volume) {
 						printf("[ACC]%04x = [ACC]%04x => %x\n",
 								temp, ACC, distance);
 					break;
+				default:
+					printf("\n%sError:%s Invalid shift operation code\n",
+							C_RED, C_NONE);
+					exit(1);
 			}
 			ACC = temp;
 			break;
@@ -249,19 +281,32 @@ int main(int argc, char **argv) {
 	char* src_path = "";
 	for (int i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
-			if ((0 == strcmp("--check", argv[i])) || (0 == strcmp("-c", argv[i]))) {
+			if (0 == strcmp("--version", argv[i])) {
+				printf("IBCMer v%s\n", VERSION);
+				return 0;
+			} else if ((0 == strcmp("--help", argv[i])) ||
+					(0 == strcmp("-h", argv[i]))) {
+				printf("%s\n", HELP);
+				return 0;
+			//} else if (0 == strcmp("--help-ibcm", argv[i])) {
+				//printf("%s\n", HELP_IBCM);
+				//return 0;
+			} else if ((0 == strcmp("--check", argv[i])) ||
+					(0 == strcmp("-c", argv[i]))) {
 				OPT_CHECK = 1;
-			} else if ((0 == strcmp("--quiet", argv[i])) || (0 == strcmp("-q", argv[i]))) {
+			} else if ((0 == strcmp("--quiet", argv[i])) ||
+					(0 == strcmp("-q", argv[i]))) {
 				OPT_VOLUME = 0;
 			} else {
-				printf("Error: Unkown options '%s'\n", argv[i]);
+				printf("%sError:%s Unkown options '%s'\n", C_RED, C_NONE, argv[i]);
 				return 1;
 			}
 		} else {
 			if (src_path[0] == '\0') {
 				src_path = argv[i];
 			} else {
-				printf("Error: Multiple files provided, only one allowed\n");
+				printf("%sError:%s Multiple files provided, only one allowed\n",
+						C_RED, C_NONE);
 				return 1;
 			}
 		}
@@ -269,12 +314,12 @@ int main(int argc, char **argv) {
 
 	// Open code file
 	if (strlen(src_path) == 0) {
-		printf("Error: A code file must be provided\n");
+		printf("%sError:%s A code file must be provided\n", C_RED, C_NONE);
 		return 1;
 	}
 	FILE *src = fopen(src_path, "r");
 	if (src == NULL) {
-		printf("Error: Code file '%s' not found\n", src_path);
+		printf("%sError:%s Code file '%s' not found\n", C_RED, C_NONE, src_path);
 		return 1;
 	}
 	char ch, line[256];
@@ -287,19 +332,18 @@ int main(int argc, char **argv) {
 			int j = 0;
 			for (; j < 4; j++) {
 				if (! isxdigit(line[j])) {
-					printf("Error: Invalid operation code on line %d of '%s'\n",
-							num + 1, src_path);
-					printf("\n|  %s\n\n", line);
+					printf("%sError:%s Invalid operation code on line %d of '%s'\n",
+							C_RED, C_NONE, num + 1, src_path);
+					printf("\n| %s%s%s\n\n", C_YELLOW, line, C_NONE);
 					return 1;
 				}
 			}
 			// Check for invalid line number
 			if (OPT_CHECK) {
 				if (check_line_num(line, num)) {
-					printf("%d\n", check_line_num(line, num));
-					printf("Error: Improper line number on line %d of '%s'\n",
-							num + 1, src_path);
-					printf("\n|  %s\n\n", line);
+					printf("%sError:%s Improper line number on line %d of '%s'\n",
+							C_RED, C_NONE, num + 1, src_path);
+					printf("\n| %s%s%s\n\n", C_YELLOW, line, C_NONE);
 					return 1;
 				}
 			}
