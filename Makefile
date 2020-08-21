@@ -2,8 +2,8 @@
 # pennbauman@protonmail.com
 CC=clang
 
-ibcmer: ibcmer.c
+ibcmer: ibcmer.c text.h
 	$(CC) ibcmer.c -o ibcmer
 
 test: ibcmer
-	./ibcmer tests/summation.ibcm
+	./ibcmer tests/summation.ibcm -s

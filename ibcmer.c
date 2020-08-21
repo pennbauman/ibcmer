@@ -1,5 +1,4 @@
-// IBCMer
-//   Penn Bauman
+// IBCMer   Penn Bauman
 //   pennbauman@protonmail.com
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,7 +8,7 @@
 #include "text.h"
 
 #define MEM_SIZE 4096
-#define VERSION "0.2"
+#define VERSION "0.3"
 
 // Global variables
 unsigned short ACC = 0;
@@ -18,7 +17,43 @@ unsigned short MEM[MEM_SIZE];
 // Options
 unsigned char OPT_CHECK = 0;
 unsigned char OPT_VOLUME = 1;
-unsigned char OPT_STEP = 0;
+// Debug variables
+unsigned char DEBUG_STEP = 0;
+unsigned short *DEBUG_BREAKPOINTS;
+unsigned short DEBUG_BREAKS_COUNT = 0;
+unsigned short DEBUG_BREAKS_MAX = 0;
+
+
+
+// Check if breakpoint exists
+signed char is_breakpoint(unsigned short num) {
+	for (int i = 0; i < DEBUG_BREAKS_COUNT; i++) {
+		if (DEBUG_BREAKPOINTS[i] == num)
+			return 4;
+	}
+	return 0;
+}
+// Add new breakpoint
+void add_breakpoint(unsigned short num) {
+	if (is_breakpoint(num))
+		return;
+	if (DEBUG_BREAKS_MAX == 0) {
+		DEBUG_BREAKPOINTS = malloc(sizeof(short)*16);
+		DEBUG_BREAKS_MAX = 16;
+	}
+	DEBUG_BREAKS_COUNT++;
+	if (DEBUG_BREAKS_COUNT == DEBUG_BREAKS_MAX) {
+		unsigned short *temp = malloc(sizeof(short)*DEBUG_BREAKS_MAX*2);
+		for (int i = 0; i < DEBUG_BREAKS_MAX; i++) {
+			temp[i] = DEBUG_BREAKPOINTS[i];
+		}
+		DEBUG_BREAKS_MAX *= 2;
+		free(DEBUG_BREAKPOINTS);
+		DEBUG_BREAKPOINTS = temp;
+	}
+	DEBUG_BREAKPOINTS[DEBUG_BREAKS_COUNT-1] = num;
+	//printf("b: %d %d\n", DEBUG_BREAKS_COUNT-1, num);
+}
 
 // Check line numbers
 signed char check_line_num(char* line, unsigned short line_num) {
@@ -247,6 +282,213 @@ void step(int volume) {
 	PC++;
 }
 
+// debug commands
+void debug(char *cmd) {
+	// Step command
+	if ((0 == strcmp("\n", cmd)) || (0 == strcmp("step\n", cmd))) {
+		step(1);
+	// Run command
+	} else if (0 == strcmp("run\n", cmd)) {
+		DEBUG_STEP = 0;
+		step(1);
+	// Exit command
+	} else if (0 == strcmp("exit\n", cmd)) {
+		exit(0);
+
+	// View command
+	} else if ((cmd[0] == 'v') && (cmd[1] == 'i') &&
+			(cmd[2] == 'e') && (cmd[3] == 'w')) {
+		char address1[4];
+		char address2[4];
+		// Move to arguement and check that it is present
+		int i = 4;
+		while (cmd[i] == ' ')
+			i++;
+		// Check for view all
+		if ((cmd[i] == 'a') && (cmd[i+1] == 'l') && (cmd[i+2] == 'l')) {
+			i += 3;
+			while (cmd[i] == ' ')
+				i++;
+			// Check additional arguement are not provided
+			if (cmd[i] != '\n') {
+				printf("  Invalid address\n");
+				printf("   Usage: view [all|address|address-address]\n");
+				return;
+			}
+			// Find last non-zero memory value
+			unsigned short j = MEM_SIZE - 1;
+			while (MEM[j] == 0)
+				j--;
+			j += 2;
+			// Print memory
+			unsigned char width = 0;
+			unsigned char width_max = 8;
+			char *w = getenv("WIDTH");
+			if (w != NULL)
+				width_max = strtol(w, NULL, 10)/11;
+			for (int k = 0; k <= j; k++) {
+				if (width + 1 > width_max) {
+					printf("\n");
+					width = 0;
+				}
+				printf("  [%03x]%04x", k, MEM[k]);
+				width += 1;
+			}
+			printf("\n");
+			return;
+		}
+		if (cmd[i] == '\n') {
+			printf("  Missing address\n");
+			printf("   Usage: view [all|address|address-address]\n");
+			return;
+		}
+		if (i == 4) {
+			printf("  Unknown command\n");
+			return;
+		}
+		// Read first address
+		int j = 0;
+		while (isxdigit(cmd[i])) {
+			if (j == 3) {
+				printf("  Invalid address, too long\n");
+				return;
+			}
+			address1[j] = cmd[i];
+			j++;
+			i++;
+		}
+		address1[j] = '\0';
+		while (cmd[i] == ' ')
+			i++;
+		// Print value if only one address is present
+		if (cmd[i] == '\n') {
+			printf("  [%03x]%04x\n", (unsigned short)strtol(address1, NULL, 16),
+					MEM[strtol(address1, NULL, 16)]);
+			return;
+		}
+		// Check a second address is not provided without a dash
+		if (isxdigit(cmd[i])) {
+			printf("  Invalid format\n   To enter a range use 'address-address'\n");
+			return;
+		}
+		// Check if first address is not all hex
+		if ((j == 0) || (cmd[i] != '-')) {
+			printf("  Invalid address, must be hexadecimal\n");
+			return;
+		}
+		// Move to second address
+		i++;
+		while (cmd[i] == ' ')
+			i++;
+		// Read second address
+		j = 0;
+		while (isxdigit(cmd[i])) {
+			if (j == 3) {
+				printf("  Invalid address, too long\n");
+				return;
+			}
+			address2[j] = cmd[i];
+			j++;
+			i++;
+		}
+		while (cmd[i] == ' ')
+			i++;
+		// Check if second address is not all hex
+		if ((j == 0) || (cmd[i] != '\n')) {
+			printf("  Invalid address, must be hexadecimal\n");
+			return;
+		}
+		address2[j] = '\0';
+		unsigned short a1 = strtol(address1, NULL, 16);
+		unsigned short a2 = strtol(address2, NULL, 16);
+		if (a2 > a1) {
+			unsigned char width = 0;
+			unsigned char width_max = 8;
+			char *w = getenv("WIDTH");
+			if (w != NULL)
+				width_max = strtol(w, NULL, 10)/11;
+			for (int k = a1; k <= a2; k++) {
+				if (width + 1 > width_max) {
+					printf("\n");
+					width = 0;
+				}
+				printf("  [%03x]%04x", k, MEM[k]);
+				width += 1;
+			}
+			printf("\n");
+			return;
+		} else {
+			printf("  Invalid range\n");
+			return;
+		}
+
+	// Set command
+	} else if ((cmd[0] == 's') && (cmd[1] == 'e') &&
+			(cmd[2] == 't')) {
+		char address[4];
+		char value[5];
+		// Move to arguements and check that they are present
+		int i = 3;
+		while (cmd[i] == ' ')
+			i++;
+		if (cmd[i] == '\n') {
+			printf("  Missing address\n   Usage: set [address] [value]\n");
+			return;
+		}
+		if (i == 3) {
+			printf("  Unknown command\n");
+			return;
+		}
+		// Read first arguement (address)
+		int j = 0;
+		while (isxdigit(cmd[i])) {
+			if (j == 3) {
+				printf("  Invalid address, too long\n");
+				return;
+			}
+			address[j] = cmd[i];
+			j++;
+			i++;
+		}
+		// Check if first arguement is not all hex
+		if ((j == 0) || (cmd[i] != ' ')) {
+			printf("  Invalid address, must be hexadecimal\n");
+			return;
+		}
+		address[j] = '\0';
+		while (cmd[i] == ' ')
+			i++;
+		// Check second arguement is present
+		if (cmd[i] == '\n') {
+			printf("  Missing value\n   Usage: set [address] [value]\n");
+			return;
+		}
+		// Read second arguement (value)
+		j = 0;
+		while (isxdigit(cmd[i])) {
+			if (j == 4) {
+				printf("  Invalid value, too long\n");
+				return;
+			}
+			value[j] = cmd[i];
+			j++;
+			i++;
+		}
+		while (cmd[i] == ' ')
+			i++;
+		// Check if second arguement is not all hex
+		if ((j == 0) || (cmd[i] != '\n')) {
+			printf("  Invalid value, must be hexadecimal\n");
+			return;
+		}
+		value[j] = '\0';
+		// Set memory value
+		MEM[strtol(address, NULL, 16)] = strtol(value, NULL, 16);
+	} else {
+		printf("  Unknown command\n");
+	}
+}
+
 int main(int argc, char **argv) {
 	// Setup memory
 	for (int i = 0; i < MEM_SIZE; i++) {
@@ -273,8 +515,50 @@ int main(int argc, char **argv) {
 			} else if ((0 == strcmp("--quiet", argv[i])) ||
 					(0 == strcmp("-q", argv[i]))) {
 				OPT_VOLUME = 0;
+			} else if ((0 == strcmp("--step", argv[i])) ||
+					(0 == strcmp("-s", argv[i]))) {
+				add_breakpoint(0);
+			} else if ((0 == strcmp("--break", argv[i])) ||
+					(0 == strcmp("-b", argv[i]))) {
+				i++;
+				signed char is_num = 0;
+				for (int j = 0; j < strlen(argv[i]); j++) {
+					if (isxdigit(argv[i][j])) {
+						continue;
+					} else if (argv[i][j] == ',') {
+						is_num = 1;
+					} else {
+						is_num = 2;
+						break;
+					}
+				}
+				if (is_num == 2) {
+					printf("%sError:%s Invalid breakpoint '%s'\n",
+							C_RED, C_NONE, argv[i]);
+					return 1;
+				} else if (is_num == 1) {
+					char num[4];
+					int k = 0;
+					for (int j = 0; j < strlen(argv[i])+1; j++) {
+						if (! isxdigit(argv[i][j])) {
+							if (k == 0) {
+								printf("%sError:%s Invalid breakpoints '%s'\n",
+										C_RED, C_NONE, argv[i]);
+								return 1;
+							}
+							num[k] = '\0';
+							add_breakpoint(strtol(num, NULL, 16));
+							k = 0;
+						} else {
+							num[k] = argv[i][j];
+							k++;
+						}
+					}
+				} else {
+					add_breakpoint(strtol(argv[i], NULL, 16));
+				}
 			} else {
-				printf("%sError:%s Unkown options '%s'\n", C_RED, C_NONE, argv[i]);
+				printf("%sError:%s Unknown options '%s'\n", C_RED, C_NONE, argv[i]);
 				return 1;
 			}
 		} else {
@@ -336,10 +620,24 @@ int main(int argc, char **argv) {
 			line[i++] = ch;
 		}
 	}
-	
+
+	for (int i = 0; i < DEBUG_BREAKS_COUNT; i++) {
+		printf("b: %x\n", DEBUG_BREAKPOINTS[i]);
+	}
+
 	// Run program
 	while (1) {
-		step(OPT_VOLUME);
+		if (is_breakpoint(PC)) {
+			DEBUG_STEP = 4;
+		}
+		if (DEBUG_STEP) {
+			printf("[%03x]: ", PC);
+			char input[64];
+			fgets(input, 64, stdin);
+			debug(input);
+		} else {
+			step(OPT_VOLUME);
+		}
 	}
 	return 0;
 }

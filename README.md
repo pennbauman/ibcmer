@@ -1,5 +1,5 @@
 # IBCMer
-A command line IBCM executor written in C
+A command line IBCM executor and debugger written in C
 
 
 ## Installation
@@ -23,9 +23,24 @@ Run the installation script, which requires root privileges:
 
 - `-q`, `--quiet` Prevents printing of detailed program output during execution.
 
+- `-s`, `--step` Starts the program in debugging mode.
+
+- `-b [points]`, `--break [points]` Sets breakpoint(s) to enter debugging mode. A single points is provided as a single hexadecimal number. Multiple points can be added by providing a comma separated list of hexadecimal numbers (no spaces).
+
+### Debug Commands
+- `exit` Exits the program.
+
+- `run` Exits debugging mode and runs the program normally.
+
+- `step` Executes one step of the program.
+
+-  `view [address]` Print the contents of memory. If a single hexadecimal address is provided, that memory slot is printed. If two address are provided separated by a `-` the range between them is printed. If `all` is provided then the range of memory containing values is printed.
+
+- `set [address] [value]` Sets the value of a memory slot, both the address and the value are provided as hexadecimal numbers.
+
 
 ## IBCM
-The Itty Bitty Computing Machine (IBCM) is a mock machine language design at The University of Virginia for use in introductory computer science classes. An online simulator and further details can be found at [pegasus.cs.virginia.edu/ibcm](http://pegasus.cs.virginia.edu/ibcm/index.html). All IBCM documentaion and source code is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International](http://creativecommons.org/licenses/by-sa/4.0/).
+The Itty Bitty Computing Machine (IBCM) is a mock machine language design at The University of Virginia for use in introductory computer science classes. An online simulator and further details can be found at [pegasus.cs.virginia.edu/ibcm](http://pegasus.cs.virginia.edu/ibcm/index.html). All IBCM documentation and source code is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International](http://creativecommons.org/licenses/by-sa/4.0/).
 
 IBCM runs with 4096 16 bit memory slots, a 16 bit accumulator, and a 12 bit program counter. All memory, the accumulator, and the counter are initialized to zero and code is then loaded into memory. When executed it runs the command in the memory slot indicated by the program counter (see below) and increments the counter, repeating until it reaches a halt command.
 
@@ -99,7 +114,7 @@ Jump the program counter to the address.
 Jump the program counter to the address if the value of the accumulator is zero.
 - `###` Address to jump to
 
-#### `E` Jump if less (jmpl)
+#### `E` Jump if Less Than (jmpl)
 Jump the program counter to the address if the value of the accumulator is negative.
 - `###` Address to jump to
 
