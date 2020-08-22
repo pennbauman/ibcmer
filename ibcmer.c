@@ -129,7 +129,7 @@ void step(int volume) {
 					while (1) {
 						printf("Input char: ");
 						fgets(input, 64, stdin);
-						if (strlen(input) > 1) {
+						if (strlen(input) > 2) {
 							printf("  Invalid char input, multiple characters\n");
 						} else {
 							ACC = input[0];
@@ -140,10 +140,14 @@ void step(int volume) {
 					}
 					break;
 				case 8:
-					printf("Output: %04x\n", ACC);
+					if (volume > 1)
+						printf("Output: ");
+					printf("%04x\n", ACC);
 					break;
 				case 12:
-					printf("Output: %c\n", ACC);
+					if (volume > 1)
+						printf("Output: ");
+					printf("%c\n", ACC);
 					break;
 				default:
 					printf("\n%sError:%s Invalid I/O operation code\n",
