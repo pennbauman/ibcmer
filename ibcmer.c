@@ -1,4 +1,4 @@
-// IBCMer   Penn Bauman
+// IBCMer - Penn Bauman
 //   pennbauman@protonmail.com
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #include "text.h"
 
 #define MEM_SIZE 4096
-#define VERSION "0.4"
+#define VERSION "0.4.1"
 
 // Global variables
 unsigned short ACC = 0;
@@ -108,6 +108,8 @@ void step(int volume) {
 						fgets(input, 64, stdin);
 						if (strlen(input) > 5) {
 							printf("  Invalid hex input, too long\n");
+						} else if (strlen(input) < 2) {
+							printf("  Missing hex input\n");
 						} else {
 							char valid = 1;
 							for (int i = 0; i < strlen(input) - 1; i++) {
@@ -131,6 +133,8 @@ void step(int volume) {
 						fgets(input, 64, stdin);
 						if (strlen(input) > 2) {
 							printf("  Invalid char input, multiple characters\n");
+						} else if (strlen(input) < 2) {
+							printf("  Missing char input\n");
 						} else {
 							ACC = input[0];
 							if (volume > 0)
