@@ -8,7 +8,7 @@
 #include "text.h"
 
 #define MEM_SIZE 4096
-#define VERSION "0.3"
+#define VERSION "0.4"
 
 // Global variables
 unsigned short ACC = 0;
