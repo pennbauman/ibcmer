@@ -19,4 +19,4 @@ else
 fi
 
 echo Installing
-#sudo cp ibcmer /bin/
+sudo cp ibcmer /bin/
