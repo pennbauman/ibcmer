@@ -121,7 +121,3 @@ Jump the program counter to the address if the value of the accumulator is negat
 #### `F` Branch & Link (brl)
 Set the value of the accumulator to the program counter plus 1 and jump to address.
 - `###` Address to jump to
-
-
-## Sources & License
-This project and all code it contains is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International](http://creativecommons.org/licenses/by-sa/4.0/). Files within the tests/ directory are written by [Aaron Bloomfield](https://github.com/aaronbloomfield) and are also available at [github.com/uva-cs/pdr](https://github.com/uva-cs/pdr/tree/master/ibcm).

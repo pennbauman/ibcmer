@@ -8,7 +8,7 @@ gcc -O2 ibcmer.c -o ibcmer
 echo "Done"
 
 echo -n "Testing..."
-output=$(./ibcmer tests/all-ops.ibcm -c -q <<< a)
+output=$(./ibcmer test.ibcm -c -q <<< a)
 if [[ "${output:23:4}" = "19ed" ]] && [[ "${output:28:1}" == "!" ]]; then
 	echo "Passed"
 else
