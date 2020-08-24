@@ -8,7 +8,7 @@
 #include "text.h"
 
 #define MEM_SIZE 4096
-#define VERSION "0.4.1"
+#define VERSION "0.5.0"
 
 // Global variables
 unsigned short ACC = 0;
@@ -514,7 +514,8 @@ int main(int argc, char **argv) {
 					(0 == strcmp("-h", argv[i]))) {
 				printf("%s\n", HELP);
 				return 0;
-			} else if (0 == strcmp("--help-ibcm", argv[i])) {
+			} else if ((0 == strcmp("--ibcm-info", argv[i])) ||
+					(0 == strcmp("-i", argv[i]))) {
 				printf("%s\n", HELP_IBCM);
 				return 0;
 			} else if ((0 == strcmp("--check", argv[i])) ||
