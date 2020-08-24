@@ -9,7 +9,7 @@
 // Defines
 #include "text.h"
 #define MEM_SIZE 4096
-#define VERSION "0.5.1"
+#define VERSION "0.5.2"
 
 // Global variables
 unsigned short ACC = 0;
@@ -337,15 +337,46 @@ void step(int volume) {
 
 // Run debug commands
 void debug(char *cmd) {
+	unsigned short i = 0;
+	while (cmd[i] == ' ')
+		cmd = &cmd[1];
 	// Step command
-	if ((0 == strcmp("\n", cmd)) || (0 == strcmp("step\n", cmd))) {
+	if (0 == strcmp("\n", cmd)) {
 		step(1);
+	} else if ((cmd[0] == 's') && (cmd[1] == 't') &&
+			(cmd[2] == 'e') && (cmd[3] == 'p')) {
+		i = 4;
+		while (cmd[i] == ' ')
+			i++;
+		if ((cmd[i] != '\n') && (i == 4)) {
+			printf("  Unknown command\n");
+			return;
+		}
+		step(1);
+
 	// Run command
-	} else if (0 == strcmp("run\n", cmd)) {
+	} else if ((cmd[0] == 's') && (cmd[1] == 'u') &&
+			(cmd[2] == 'n')) {
+		i = 3;
+		while (cmd[i] == ' ')
+			i++;
+		if ((cmd[i] != '\n') && (i == 3)) {
+			printf("  Unknown command\n");
+			return;
+		}
 		DEBUG_STEP = 0;
 		step(1);
+
 	// Exit command
-	} else if (0 == strcmp("exit\n", cmd)) {
+	} else if ((cmd[0] == 'e') && (cmd[1] == 'x') &&
+			(cmd[2] == 'i') && (cmd[3] == 't')) {
+		i = 4;
+		while (cmd[i] == ' ')
+			i++;
+		if ((cmd[i] != '\n') && (i == 4)) {
+			printf("  Unknown command\n");
+			return;
+		}
 		exit(0);
 
 	// View command
@@ -354,7 +385,7 @@ void debug(char *cmd) {
 		char address1[4];
 		char address2[4];
 		// Move to arguement and check that it is present
-		int i = 4;
+		i = 4;
 		while (cmd[i] == ' ')
 			i++;
 		// Check spaces follow 'view'
@@ -486,7 +517,7 @@ void debug(char *cmd) {
 		char address[4];
 		char value[5];
 		// Move to arguements and check that they are present
-		int i = 3;
+		i = 3;
 		while (cmd[i] == ' ')
 			i++;
 		if (cmd[i] == '\n') {
