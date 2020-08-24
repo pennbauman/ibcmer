@@ -2,11 +2,13 @@
 //   Penn Bauman
 //   pennbauman@protonmail.com
 
+// Colors
 #define C_NONE "\33[0m"
 #define C_BOLD "\33[1m"
 #define C_RED "\33[31m"
 #define C_YELLOW "\33[33m"
 
+// Main help text
 #define HELP "\33[1mIBCMer Usage\33[0m\n\
 \n\
 ]$ ibcmer [code-file.ibcm] [options]\n\
@@ -32,6 +34,7 @@ Debug Commands:\n\
   set [address] [value]  Sets the value of a memory slot, both numbers must be\n\
                           provided as hexadecimal"
 
+// IBCM information text
 #define HELP_IBCM "\33[1mIBCM Information\33[0m\n\
 IBCM runs with 4096 16 bit memory slots, a 16 bit accumulator, and a 12 bit program counter.\n\
 Code is loaded from the first 4 characters (formatted as hex) of each line of the code file.\n\

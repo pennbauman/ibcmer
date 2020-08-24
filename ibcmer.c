@@ -1,14 +1,15 @@
-// IBCMer - Penn Bauman
+// IBCMer
+//   Penn Bauman
 //   pennbauman@protonmail.com
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
+// Defines
 #include "text.h"
-
 #define MEM_SIZE 4096
-#define VERSION "0.5.0"
+#define VERSION "0.5.1"
 
 // Global variables
 unsigned short ACC = 0;
@@ -35,12 +36,15 @@ signed char is_breakpoint(unsigned short num) {
 }
 // Add new breakpoint
 void add_breakpoint(unsigned short num) {
+	// Skip duplicates
 	if (is_breakpoint(num))
 		return;
+	// Create breakpoint array if necessary
 	if (DEBUG_BREAKS_MAX == 0) {
 		DEBUG_BREAKPOINTS = malloc(sizeof(short)*16);
 		DEBUG_BREAKS_MAX = 16;
 	}
+	// Grows breakpoint vector possibly copying array
 	DEBUG_BREAKS_COUNT++;
 	if (DEBUG_BREAKS_COUNT == DEBUG_BREAKS_MAX) {
 		unsigned short *temp = malloc(sizeof(short)*DEBUG_BREAKS_MAX*2);
@@ -51,18 +55,21 @@ void add_breakpoint(unsigned short num) {
 		free(DEBUG_BREAKPOINTS);
 		DEBUG_BREAKPOINTS = temp;
 	}
+	// Writes new breakpoints
 	DEBUG_BREAKPOINTS[DEBUG_BREAKS_COUNT-1] = num;
-	//printf("b: %d %d\n", DEBUG_BREAKS_COUNT-1, num);
 }
 
-// Check line numbers
+// Check line numbers are properly formatted
 signed char check_line_num(char* line, unsigned short line_num) {
 	int i = 4;
+	// Check there are spaces after the command
 	if ((line[i] != ' ') && (line[i] != '\t'))
 		return 1;
+	// Skip over whitespace
 	while ((line[i] == ' ') || (line[i] == '\t')) {
 		i++;
 	}
+	//Pasre number
 	int j = 0;
 	char num[4];
 	while ((line[i+j] != ' ') && (line[i+j] != '\t')) {
@@ -74,6 +81,7 @@ signed char check_line_num(char* line, unsigned short line_num) {
 		j++;
 	}
 	num[j] = '\0';
+	// Compare to expected number
 	if (line_num != strtol(num, NULL, 16))
 		return 4;
 	return 0;
@@ -81,19 +89,24 @@ signed char check_line_num(char* line, unsigned short line_num) {
 
 // Execute one command and progess the program
 void step(int volume) {
+	// Check for memory overflow
 	if (PC == MEM_SIZE) {
 		printf("%sError:%s Program overran memory\n", C_RED, C_NONE);
 		exit(1);
 	}
 	if (volume > 0)
 		printf("[%03x]%04x  ", PC, MEM[PC]);
+	// Setup address value
 	unsigned short address = MEM[PC] << 4;
 	address = address >> 4;
+	// Check command
 	switch (MEM[PC] >> 12) {
+		// Halt
 		case 0:
 			if (volume > 0)
 				printf("halt\n");
 			exit(0);
+		// I/O
 		case 1:
 			if (volume > 0)
 				printf("i/o\n");
@@ -101,21 +114,26 @@ void step(int volume) {
 			type = type << 4;
 			type = type >> 4;
 			char input[64];
+			// Check I/O type
 			switch (type) {
+				// Hex input
 				case 0:
 					while (1) {
 						printf("Input hex: ");
 						fgets(input, 64, stdin);
+						// Check length is 4
 						if (strlen(input) > 5) {
 							printf("  Invalid hex input, too long\n");
 						} else if (strlen(input) < 2) {
 							printf("  Missing hex input\n");
 						} else {
+							// Check all characters are valid hex
 							char valid = 1;
 							for (int i = 0; i < strlen(input) - 1; i++) {
 								if (! isxdigit(input[i]))
 									valid = 0;
 							}
+							// Read hex value
 							if (valid) {
 								ACC = strtol(input, NULL, 16);
 								if (volume > 0)
@@ -128,14 +146,17 @@ void step(int volume) {
 					}
 					break;
 				case 4:
+				// Char input
 					while (1) {
 						printf("Input char: ");
 						fgets(input, 64, stdin);
+						// Check length is 1
 						if (strlen(input) > 2) {
 							printf("  Invalid char input, multiple characters\n");
 						} else if (strlen(input) < 2) {
 							printf("  Missing char input\n");
 						} else {
+							// Read char value
 							ACC = input[0];
 							if (volume > 0)
 								printf("  [ACC]%04x\n", ACC);
@@ -143,56 +164,67 @@ void step(int volume) {
 						}
 					}
 					break;
+				// Hex ouput
 				case 8:
 					if (volume > 1)
 						printf("Output: ");
 					printf("%04x\n", ACC);
 					break;
+				// Char ouput
 				case 12:
 					if (volume > 1)
 						printf("Output: ");
 					printf("%c\n", ACC);
 					break;
+				// Check invalid subcommands
 				default:
 					printf("\n%sError:%s Invalid I/O operation code\n",
 							C_RED, C_NONE);
 					exit(1);
 			}
 			break;
+		// Shift
 		case 2:
 			if (volume > 0)
 				printf("shift ");
+			// Get direction value
 			unsigned char direction = MEM[PC] >> 8;
 			direction = direction << 4;
 			direction = direction >> 4;
+			// Get distance value
 			unsigned char distance = MEM[PC] << 4;
 			distance = distance >> 4;
 			unsigned short temp = 0;
 			switch (direction) {
+				// Shift left, insert 0s
 				case 0:
 					temp = ACC << distance;
 					if (volume > 0)
 						printf("[ACC]%04x = [ACC]%04x << %x\n",
 								temp, ACC, distance);
 					break;
+				// Shift right, insert 0s
 				case 4:
 					temp = ACC >> distance;
 					if (volume > 0)
 						printf("[ACC]%04x = [ACC]%04x >> %x\n",
 								temp, ACC, distance);
 					break;
+				// Rotate left, wrap
 				case 8:
 					temp = (ACC << distance) + (ACC >> (16 - distance));
 					if (volume > 0)
 						printf("[ACC]%04x = [ACC]%04x <= %x\n",
 								temp, ACC, distance);
 					break;
+				// Rotate right, wrap
 				case 12:
 					temp = (ACC >> distance) + (ACC << (16 - distance));
 					if (volume > 0)
 						printf("[ACC]%04x = [ACC]%04x => %x\n",
 								temp, ACC, distance);
 					break;
+				// Check invalid subcommands
 				default:
 					printf("\n%sError:%s Invalid shift operation code\n",
 							C_RED, C_NONE);
@@ -200,46 +232,54 @@ void step(int volume) {
 			}
 			ACC = temp;
 			break;
+		// Load value
 		case 3:
 			if (volume > 0)
 				printf("load  [ACC]%04x\n", ACC);
 			ACC = MEM[address];
 			break;
+		// Store value
 		case 4:
 			if (volume > 0)
 				printf("store [%03x]%04x\n", address, ACC);
 			MEM[address] = ACC;
 			break;
+		// Add
 		case 5:
 			if (volume > 0)
 				printf("add   [ACC]%04x = [ACC]%04x + [%03x]%04x\n",
 						ACC + MEM[address], ACC, address, MEM[address]);
 			ACC += MEM[address];
 			break;
+		// Subtract
 		case 6:
 			if (volume > 0)
 				printf("sub   [ACC]%04x = [ACC]%04x - [%03x]%04x\n",
 						ACC - MEM[address], ACC, address, MEM[address]);
 			ACC -= MEM[address];
 			break;
+		// AND
 		case 7:
 			if (volume > 0)
 				printf("and   [ACC]%04x = [ACC]%04x & [%03x]%04x\n",
 						ACC & MEM[address], ACC, address, MEM[address]);
 			ACC &= MEM[address];
 			break;
+		// OR
 		case 8:
 			if (volume > 0)
 				printf("or    [ACC]%04x = [ACC]%04x | [%03x]%04x\n",
 						ACC | MEM[address], ACC, address, MEM[address]);
 			ACC |= MEM[address];
 			break;
+		// XOR
 		case 9:
 			if (volume > 0)
 				printf("xor   [ACC]%04x = [ACC]%04x ^ [%03x]%04x\n",
 						ACC ^ MEM[address], ACC, address, MEM[address]);
 			ACC ^= MEM[address];
 			break;
+		// NOT
 		case 10:
 			if (volume > 0) {
 				unsigned short temp = ~ACC;
@@ -247,15 +287,18 @@ void step(int volume) {
 			}
 			ACC = ~ACC;
 			break;
+		// Nothing
 		case 11:
 			if (volume > 0)
 				printf("nop\n");
 			break;
+		// Jump
 		case 12:
 			if (volume > 0)
 				printf("jmp   [%03x]\n", address);
 			PC = address - 1;
 			break;
+		// Jump, ACC = 0
 		case 13:
 			if (volume > 0)
 				printf("jmpe  ");
@@ -268,6 +311,7 @@ void step(int volume) {
 					printf("[ACC]%04x\n", ACC);
 			}
 			break;
+		// Jump, ACC < 0
 		case 14:
 			if (volume > 0)
 				printf("jmpl  ");
@@ -280,6 +324,7 @@ void step(int volume) {
 					printf("[ACC]%04x\n", ACC);
 			}
 			break;
+		// Branch & Link
 		case 15:
 			if (volume > 0)
 				printf("brl   [%03x]  [ACC]%04x\n", address, PC + 1);
@@ -290,7 +335,7 @@ void step(int volume) {
 	PC++;
 }
 
-// debug commands
+// Run debug commands
 void debug(char *cmd) {
 	// Step command
 	if ((0 == strcmp("\n", cmd)) || (0 == strcmp("step\n", cmd))) {
@@ -312,6 +357,11 @@ void debug(char *cmd) {
 		int i = 4;
 		while (cmd[i] == ' ')
 			i++;
+		// Check spaces follow 'view'
+		if (i == 4) {
+			printf("  Unknown command\n");
+			return;
+		}
 		// Check for view all
 		if ((cmd[i] == 'a') && (cmd[i+1] == 'l') && (cmd[i+2] == 'l')) {
 			i += 3;
@@ -335,6 +385,7 @@ void debug(char *cmd) {
 			if (w != NULL)
 				width_max = strtol(w, NULL, 10)/11;
 			for (int k = 0; k <= j; k++) {
+				// Check for line break
 				if (width + 1 > width_max) {
 					printf("\n");
 					width = 0;
@@ -345,13 +396,10 @@ void debug(char *cmd) {
 			printf("\n");
 			return;
 		}
+		// Check for missing address
 		if (cmd[i] == '\n') {
 			printf("  Missing address\n");
 			printf("   Usage: view [all|address|address-address]\n");
-			return;
-		}
-		if (i == 4) {
-			printf("  Unknown command\n");
 			return;
 		}
 		// Read first address
@@ -410,12 +458,14 @@ void debug(char *cmd) {
 		unsigned short a1 = strtol(address1, NULL, 16);
 		unsigned short a2 = strtol(address2, NULL, 16);
 		if (a2 > a1) {
+			// Print values in range
 			unsigned char width = 0;
 			unsigned char width_max = 8;
 			char *w = getenv("WIDTH");
 			if (w != NULL)
 				width_max = strtol(w, NULL, 10)/11;
 			for (int k = a1; k <= a2; k++) {
+				// Check for line break
 				if (width + 1 > width_max) {
 					printf("\n");
 					width = 0;
@@ -507,30 +557,38 @@ int main(int argc, char **argv) {
 	char* src_path = "";
 	for (int i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
+			// --version
 			if (0 == strcmp("--version", argv[i])) {
 				printf("IBCMer v%s\n", VERSION);
 				return 0;
+			// --help, -h
 			} else if ((0 == strcmp("--help", argv[i])) ||
 					(0 == strcmp("-h", argv[i]))) {
 				printf("%s\n", HELP);
 				return 0;
+			// --ibcm-info, -i
 			} else if ((0 == strcmp("--ibcm-info", argv[i])) ||
 					(0 == strcmp("-i", argv[i]))) {
 				printf("%s\n", HELP_IBCM);
 				return 0;
+			// --check, -c
 			} else if ((0 == strcmp("--check", argv[i])) ||
 					(0 == strcmp("-c", argv[i]))) {
 				OPT_CHECK = 1;
+			// --quiet, -q
 			} else if ((0 == strcmp("--quiet", argv[i])) ||
 					(0 == strcmp("-q", argv[i]))) {
 				OPT_VOLUME = 0;
+			// --step, -s
 			} else if ((0 == strcmp("--step", argv[i])) ||
 					(0 == strcmp("-s", argv[i]))) {
 				add_breakpoint(0);
+			// --break, -b [point(s)]
 			} else if ((0 == strcmp("--break", argv[i])) ||
 					(0 == strcmp("-b", argv[i]))) {
 				i++;
 				signed char is_num = 0;
+				// Check next arguement is all hex and commas
 				for (int j = 0; j < strlen(argv[i]); j++) {
 					if (isxdigit(argv[i][j])) {
 						continue;
@@ -541,6 +599,7 @@ int main(int argc, char **argv) {
 						break;
 					}
 				}
+				// Error for bad formatting
 				if (is_num == 2) {
 					printf("%sError:%s Invalid breakpoint '%s'\n",
 							C_RED, C_NONE, argv[i]);
@@ -548,8 +607,10 @@ int main(int argc, char **argv) {
 				} else if (is_num == 1) {
 					char num[4];
 					int k = 0;
+					// Read numbers from list
 					for (int j = 0; j < strlen(argv[i])+1; j++) {
 						if (! isxdigit(argv[i][j])) {
+							// Check for adjacent commas
 							if (k == 0) {
 								printf("%sError:%s Invalid breakpoints '%s'\n",
 										C_RED, C_NONE, argv[i]);
@@ -570,6 +631,7 @@ int main(int argc, char **argv) {
 				printf("%sError:%s Unknown options '%s'\n", C_RED, C_NONE, argv[i]);
 				return 1;
 			}
+		// Get code file path
 		} else {
 			if (src_path[0] == '\0') {
 				src_path = argv[i];
@@ -586,11 +648,13 @@ int main(int argc, char **argv) {
 		printf("%sError:%s A code file must be provided\n", C_RED, C_NONE);
 		return 1;
 	}
+	// Check code file exists
 	FILE *src = fopen(src_path, "r");
 	if (src == NULL) {
 		printf("%sError:%s Code file '%s' not found\n", C_RED, C_NONE, src_path);
 		return 1;
 	}
+	// Read from code file
 	char ch, line[256];
 	unsigned int check, num = 0;
 	int i = 0;
@@ -616,7 +680,7 @@ int main(int argc, char **argv) {
 					return 1;
 				}
 			}
-			//printf("%s\n  %d\n", line, check);
+			// Parse command and save it to memory
 			char hex[5];
 			for (int i = 0; i < 4; i++) {
 				hex[i] = line[i];
@@ -630,20 +694,19 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	for (int i = 0; i < DEBUG_BREAKS_COUNT; i++) {
-		printf("b: %x\n", DEBUG_BREAKPOINTS[i]);
-	}
-
 	// Run program
 	while (1) {
+		// Check breakpoints
 		if (is_breakpoint(PC)) {
 			DEBUG_STEP = 4;
 		}
+		// Get debug command if necessary
 		if (DEBUG_STEP) {
 			printf("[%03x]: ", PC);
 			char input[64];
 			fgets(input, 64, stdin);
 			debug(input);
+		// Otherwise continue program
 		} else {
 			step(OPT_VOLUME);
 		}
