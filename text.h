@@ -19,6 +19,7 @@ Options:\n\
  -i, --ibcm-info         Prints information about IBCM\n\
  -c, --check             Checks the code file for proper line numbers\n\
  -q, --quiet             Prevents printing of detailed program output\n\
+     --silent            Prevents all printing except output (including prompts)\n\
  -s, --step              Starts the program in debugging mode\n\
  -b, --break [nums]      Sets breakpoints to enter debugging mode, a single hex\n\
                           number or a comma seperated list (no spaces)\n\

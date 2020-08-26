@@ -8,13 +8,13 @@ gcc -O2 ibcmer.c -o ibcmer
 echo "Done"
 
 echo -n "Testing..."
-output=$(./ibcmer test.ibcm -c -q <<< a)
-if [[ "${output:23:4}" = "19ed" ]] && [[ "${output:28:1}" == "!" ]]; then
+output=$(./ibcmer test.ibcm --check --silent <<< a)
+if [[ "$output" = "19ed!" ]]; then
 	echo "Passed"
 else
 	echo -e "\033[0;31mError\033[0m"
-	echo "  Expected: '19ed !'"
-	echo "  Received: '${output:23:4} ${output:28:1}'"
+	echo "  Expected: '19ed!'"
+	echo "  Received: '$output'"
 	exit 1
 fi
 

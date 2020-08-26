@@ -9,7 +9,7 @@
 // Defines
 #include "text.h"
 #define MEM_SIZE 4096
-#define VERSION "0.5.1"
+#define VERSION "0.6.0"
 
 // Global variables
 unsigned short ACC = 0;
@@ -17,7 +17,7 @@ unsigned short PC = 0;
 unsigned short MEM[MEM_SIZE];
 // Options
 unsigned char OPT_CHECK = 0;
-unsigned char OPT_VOLUME = 1;
+unsigned char OPT_VOLUME = 2;
 // Debug variables
 unsigned char DEBUG_STEP = 0;
 unsigned short *DEBUG_BREAKPOINTS;
@@ -94,7 +94,7 @@ void step(int volume) {
 		printf("%sError:%s Program overran memory\n", C_RED, C_NONE);
 		exit(1);
 	}
-	if (volume > 0)
+	if (volume > 1)
 		printf("[%03x]%04x  ", PC, MEM[PC]);
 	// Setup address value
 	unsigned short address = MEM[PC] << 4;
@@ -103,12 +103,12 @@ void step(int volume) {
 	switch (MEM[PC] >> 12) {
 		// Halt
 		case 0:
-			if (volume > 0)
+			if (volume > 1)
 				printf("halt\n");
 			exit(0);
 		// I/O
 		case 1:
-			if (volume > 0)
+			if (volume > 1)
 				printf("i/o\n");
 			unsigned char type = MEM[PC] >> 8;
 			type = type << 4;
@@ -119,7 +119,8 @@ void step(int volume) {
 				// Hex input
 				case 0:
 					while (1) {
-						printf("Input hex: ");
+						if (volume > 0)
+							printf("Input hex: ");
 						fgets(input, 64, stdin);
 						// Check length is 4
 						if (strlen(input) > 5) {
@@ -136,7 +137,7 @@ void step(int volume) {
 							// Read hex value
 							if (valid) {
 								ACC = strtol(input, NULL, 16);
-								if (volume > 0)
+								if (volume > 1)
 									printf("  [ACC]%04x\n", ACC);
 								break;
 							} else {
@@ -148,7 +149,8 @@ void step(int volume) {
 				case 4:
 				// Char input
 					while (1) {
-						printf("Input char: ");
+						if (volume > 0)
+							printf("Input char: ");
 						fgets(input, 64, stdin);
 						// Check length is 1
 						if (strlen(input) > 2) {
@@ -158,7 +160,7 @@ void step(int volume) {
 						} else {
 							// Read char value
 							ACC = input[0];
-							if (volume > 0)
+							if (volume > 1)
 								printf("  [ACC]%04x\n", ACC);
 							break;
 						}
@@ -166,15 +168,19 @@ void step(int volume) {
 					break;
 				// Hex ouput
 				case 8:
-					if (volume > 0)
+					if (volume > 1)
 						printf("Output: ");
-					printf("%04x\n", ACC);
+					printf("%04x", ACC);
+					if (volume > 0)
+						printf("\n");
 					break;
 				// Char ouput
 				case 12:
-					if (volume > 0)
+					if (volume > 1)
 						printf("Output: ");
-					printf("%c\n", ACC);
+					printf("%c", ACC);
+					if (volume > 0)
+						printf("\n");
 					break;
 				// Check invalid subcommands
 				default:
@@ -185,7 +191,7 @@ void step(int volume) {
 			break;
 		// Shift
 		case 2:
-			if (volume > 0)
+			if (volume > 1)
 				printf("shift ");
 			// Get direction value
 			unsigned char direction = MEM[PC] >> 8;
@@ -199,28 +205,28 @@ void step(int volume) {
 				// Shift left, insert 0s
 				case 0:
 					temp = ACC << distance;
-					if (volume > 0)
+					if (volume > 1)
 						printf("[ACC]%04x = [ACC]%04x << %x\n",
 								temp, ACC, distance);
 					break;
 				// Shift right, insert 0s
 				case 4:
 					temp = ACC >> distance;
-					if (volume > 0)
+					if (volume > 1)
 						printf("[ACC]%04x = [ACC]%04x >> %x\n",
 								temp, ACC, distance);
 					break;
 				// Rotate left, wrap
 				case 8:
 					temp = (ACC << distance) + (ACC >> (16 - distance));
-					if (volume > 0)
+					if (volume > 1)
 						printf("[ACC]%04x = [ACC]%04x <= %x\n",
 								temp, ACC, distance);
 					break;
 				// Rotate right, wrap
 				case 12:
 					temp = (ACC >> distance) + (ACC << (16 - distance));
-					if (volume > 0)
+					if (volume > 1)
 						printf("[ACC]%04x = [ACC]%04x => %x\n",
 								temp, ACC, distance);
 					break;
@@ -234,54 +240,54 @@ void step(int volume) {
 			break;
 		// Load value
 		case 3:
-			if (volume > 0)
+			if (volume > 1)
 				printf("load  [ACC]%04x\n", ACC);
 			ACC = MEM[address];
 			break;
 		// Store value
 		case 4:
-			if (volume > 0)
+			if (volume > 1)
 				printf("store [%03x]%04x\n", address, ACC);
 			MEM[address] = ACC;
 			break;
 		// Add
 		case 5:
-			if (volume > 0)
+			if (volume > 1)
 				printf("add   [ACC]%04x = [ACC]%04x + [%03x]%04x\n",
 						ACC + MEM[address], ACC, address, MEM[address]);
 			ACC += MEM[address];
 			break;
 		// Subtract
 		case 6:
-			if (volume > 0)
+			if (volume > 1)
 				printf("sub   [ACC]%04x = [ACC]%04x - [%03x]%04x\n",
 						ACC - MEM[address], ACC, address, MEM[address]);
 			ACC -= MEM[address];
 			break;
 		// AND
 		case 7:
-			if (volume > 0)
+			if (volume > 1)
 				printf("and   [ACC]%04x = [ACC]%04x & [%03x]%04x\n",
 						ACC & MEM[address], ACC, address, MEM[address]);
 			ACC &= MEM[address];
 			break;
 		// OR
 		case 8:
-			if (volume > 0)
+			if (volume > 1)
 				printf("or    [ACC]%04x = [ACC]%04x | [%03x]%04x\n",
 						ACC | MEM[address], ACC, address, MEM[address]);
 			ACC |= MEM[address];
 			break;
 		// XOR
 		case 9:
-			if (volume > 0)
+			if (volume > 1)
 				printf("xor   [ACC]%04x = [ACC]%04x ^ [%03x]%04x\n",
 						ACC ^ MEM[address], ACC, address, MEM[address]);
 			ACC ^= MEM[address];
 			break;
 		// NOT
 		case 10:
-			if (volume > 0) {
+			if (volume > 1) {
 				unsigned short temp = ~ACC;
 				printf("not   [ACC]%04x = ~ [ACC]%04x\n", temp, ACC);
 			}
@@ -289,44 +295,44 @@ void step(int volume) {
 			break;
 		// Nothing
 		case 11:
-			if (volume > 0)
+			if (volume > 1)
 				printf("nop\n");
 			break;
 		// Jump
 		case 12:
-			if (volume > 0)
+			if (volume > 1)
 				printf("jmp   [%03x]\n", address);
 			PC = address - 1;
 			break;
 		// Jump, ACC = 0
 		case 13:
-			if (volume > 0)
+			if (volume > 1)
 				printf("jmpe  ");
 			if (ACC == 0) {
-				if (volume > 0)
+				if (volume > 1)
 					printf("[%03x]\n", address);
 				PC = address - 1;
 			} else {
-				if (volume > 0)
+				if (volume > 1)
 					printf("[ACC]%04x\n", ACC);
 			}
 			break;
 		// Jump, ACC < 0
 		case 14:
-			if (volume > 0)
+			if (volume > 1)
 				printf("jmpl  ");
 			if (ACC >> 15 == 1) {
-				if (volume > 0)
+				if (volume > 1)
 					printf("[%03x]\n", address);
 				PC = address - 1;
 			} else {
-				if (volume > 0)
+				if (volume > 1)
 					printf("[ACC]%04x\n", ACC);
 			}
 			break;
 		// Branch & Link
 		case 15:
-			if (volume > 0)
+			if (volume > 1)
 				printf("brl   [%03x]  [ACC]%04x\n", address, PC + 1);
 			ACC = PC + 1;
 			PC = address - 1;
@@ -609,6 +615,9 @@ int main(int argc, char **argv) {
 			// --quiet, -q
 			} else if ((0 == strcmp("--quiet", argv[i])) ||
 					(0 == strcmp("-q", argv[i]))) {
+				OPT_VOLUME = 1;
+			// -- silent
+			} else if (0 == strcmp("--silent", argv[i])) {
 				OPT_VOLUME = 0;
 			// --step, -s
 			} else if ((0 == strcmp("--step", argv[i])) ||
