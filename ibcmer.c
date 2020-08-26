@@ -9,7 +9,7 @@
 // Defines
 #include "text.h"
 #define MEM_SIZE 4096
-#define VERSION "0.5.2"
+#define VERSION "0.5.1"
 
 // Global variables
 unsigned short ACC = 0;
@@ -166,13 +166,13 @@ void step(int volume) {
 					break;
 				// Hex ouput
 				case 8:
-					if (volume > 1)
+					if (volume > 0)
 						printf("Output: ");
 					printf("%04x\n", ACC);
 					break;
 				// Char ouput
 				case 12:
-					if (volume > 1)
+					if (volume > 0)
 						printf("Output: ");
 					printf("%c\n", ACC);
 					break;
@@ -355,7 +355,7 @@ void debug(char *cmd) {
 		step(1);
 
 	// Run command
-	} else if ((cmd[0] == 's') && (cmd[1] == 'u') &&
+	} else if ((cmd[0] == 'r') && (cmd[1] == 'u') &&
 			(cmd[2] == 'n')) {
 		i = 3;
 		while (cmd[i] == ' ')
@@ -365,7 +365,7 @@ void debug(char *cmd) {
 			return;
 		}
 		DEBUG_STEP = 0;
-		step(1);
+		step(OPT_VOLUME);
 
 	// Exit command
 	} else if ((cmd[0] == 'e') && (cmd[1] == 'x') &&
