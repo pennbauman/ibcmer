@@ -1,32 +1,32 @@
 b000 000  nop
 1400 001  input char
-400d 002  store d[1]
+400d 002  store data[1]
 1000 003  input hex
-700d 004  and d[1]
-800e 005  or d[2]
-500f 006  add d[3]
-6010 007  sub d[4]
-2802 008  shift <= 2
-2c0a 009  shift => 5
-2001 00a  shift << 1
-2403 00b  shift >> 3
+700d 004  and data[1]
+800e 005  or data[2]
+500f 006  add data[3]
+6010 007  sub data[4]
+2802 008  shift <= 2 wrapping
+2c0a 009  shift => 5 wrapping
+2001 00a  shift << 1 non-wrapping
+2403 00b  shift >> 3 non-wrapping
 c011 00c  jmp
-0000 00d    d[1]
-9f03 00e    d[2]
-a2b8 00f    d[3]
-8c54 010    d[4]
+0000 00d    data[1]
+9f03 00e    data[2]
+a2b8 00f    data[3]
+8c54 010    data[4]
 1800 011  print hex
 dfff 012  jmpe (fails)
-300e 013  load d[2]
-900e 014  xor d[2]
-d019 015  jmpe (over skipped)
+300e 013  load data[2]
+900e 014  xor data[2]
+d019 015  jmpe (skip over)
 0000 016    skipped
 0000 017    skipped
 0000 018    skipped
-300d 019  load d[1]
+300d 019  load data[1]
 efff 01a  jmpl (fails)
 a000 01b  not
-e020 01c  jmpl (over skipped)
+e020 01c  jmpl (skip over)
 0000 01d    skipped
 0000 01e    skipped
 0000 01f    skipped
