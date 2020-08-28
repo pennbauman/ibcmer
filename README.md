@@ -23,9 +23,11 @@ Run the installation script, which requires root privileges.
 
 - `-q`, `--quiet` Prevents printing of detailed program output during execution.
 
+- `--silent` Prevents printing of anything except program output, even input prompts and newlines after output. Useful for running program with automated input.
+
 - `-s`, `--step` Starts the program in debugging mode.
 
-- `-b [points]`, `--break [points]` Sets breakpoint(s) to enter debugging mode. A single points can be provided as a single hexadecimal number. Multiple points can be added by providing a comma separated list of hexadecimal numbers, without spaces.
+- `-b [point(s)]`, `--break [point(s)]` Sets breakpoint(s) to enter debugging mode. A single points can be provided as a single hexadecimal number. Multiple points can be added by providing a comma separated list of hexadecimal numbers, without spaces.
 
 ### Debug Commands
 Used when in debug mode. If no command is given step in run.
@@ -61,9 +63,9 @@ Exit Program and halt execution.
 #### `1` Input & Output (i/o)
 Input to or Output from the accumulator.
 
-| `1` | `-` | `0` | `-` |
-|:---:|:----|:----|:----|
-| Command | `0` Input a hexadecimal number to the accumulator<br/>`4` Input a ASCII character to the accumulator<br/>`8` Print the hexadecimal value of the accumulator<br/>`c` Print the ASCII character from the accumulator | Unused | Distance to move the bits |
+| `1` | `-` | `00` |
+|:---:|:----|:----|
+| Command | `0` Input a hexadecimal number to the accumulator<br/>`4` Input a ASCII character to the accumulator<br/>`8` Print the hexadecimal value of the accumulator<br/>`c` Print the ASCII character from the accumulator | Unused |
 
 #### `2` Shift
 Shift the bits of the accumulator.
