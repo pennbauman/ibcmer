@@ -11,10 +11,11 @@
 #define MEM_SIZE 4096
 #define VERSION "0.6.0"
 
+
 // Global variables
-unsigned short ACC = 0;
-unsigned short PC = 0;
-unsigned short MEM[MEM_SIZE];
+unsigned short ACC = 0; // Accumulator
+unsigned short PC = 0; // Program counter
+unsigned short MEM[MEM_SIZE]; // Program memory
 // Options
 unsigned char OPT_CHECK = 0;
 unsigned char OPT_VOLUME = 2;
@@ -64,34 +65,34 @@ signed char check_line_num(char* line, unsigned short line_num) {
 	int i = 4;
 	// Check there are spaces after the command
 	if ((line[i] != ' ') && (line[i] != '\t'))
-		return 1;
+		return i;
 	// Skip over whitespace
-	while ((line[i] == ' ') || (line[i] == '\t')) {
+	while ((line[i] == ' ') || (line[i] == '\t'))
 		i++;
-	}
 	//Pasre number
 	int j = 0;
 	char num[4];
 	while ((line[i+j] != ' ') && (line[i+j] != '\t')) {
 		if (! isxdigit(line[i + j]))
-			return 2;
-		if (j > 3)
-			return 3;
+			return i + j;
+		if (j > 2)
+			return i + j;
 		num[j] = line[i + j];
 		j++;
 	}
 	num[j] = '\0';
 	// Compare to expected number
 	if (line_num != strtol(num, NULL, 16))
-		return 4;
+		return 1;
 	return 0;
 }
 
 // Execute one command and progess the program
 void step(int volume) {
+	unsigned short temp = 0;
 	// Check for memory overflow
 	if (PC == MEM_SIZE) {
-		printf("%sError:%s Program overran memory\n", C_RED, C_NONE);
+		printf("%s Program overran memory\n", E_ERROR);
 		exit(1);
 	}
 	if (volume > 1)
@@ -124,9 +125,9 @@ void step(int volume) {
 						fgets(input, 64, stdin);
 						// Check length is 4
 						if (strlen(input) > 5) {
-							printf("  Invalid hex input, too long\n");
+							printf("  %s Too long\n", E_INVALID_IN);
 						} else if (strlen(input) < 2) {
-							printf("  Missing hex input\n");
+							printf("  %s\n", E_MISSING_IN);
 						} else {
 							// Check all characters are valid hex
 							char valid = 1;
@@ -141,7 +142,7 @@ void step(int volume) {
 									printf("  [ACC]%04x\n", ACC);
 								break;
 							} else {
-								printf("  Invalid hex input\n");
+								printf("  %s Not hex\n", E_INVALID_IN);
 							}
 						}
 					}
@@ -154,9 +155,9 @@ void step(int volume) {
 						fgets(input, 64, stdin);
 						// Check length is 1
 						if (strlen(input) > 2) {
-							printf("  Invalid char input, multiple characters\n");
+							printf("  %s Multiple characters\n", E_INVALID_IN);
 						} else if (strlen(input) < 2) {
-							printf("  Missing char input\n");
+							printf("  %s\n", E_MISSING_IN);
 						} else {
 							// Read char value
 							ACC = input[0];
@@ -184,8 +185,7 @@ void step(int volume) {
 					break;
 				// Check invalid subcommands
 				default:
-					printf("\n%sError:%s Invalid I/O operation code\n",
-							C_RED, C_NONE);
+					printf("\n%s Invalid I/O operation code\n", E_ERROR);
 					exit(1);
 			}
 			break;
@@ -200,7 +200,6 @@ void step(int volume) {
 			// Get distance value
 			unsigned char distance = MEM[PC] << 4;
 			distance = distance >> 4;
-			unsigned short temp = 0;
 			switch (direction) {
 				// Shift left, insert 0s
 				case 0:
@@ -232,8 +231,7 @@ void step(int volume) {
 					break;
 				// Check invalid subcommands
 				default:
-					printf("\n%sError:%s Invalid shift operation code\n",
-							C_RED, C_NONE);
+					printf("\n%s Invalid shift operation code\n", E_ERROR);
 					exit(1);
 			}
 			ACC = temp;
@@ -252,46 +250,51 @@ void step(int volume) {
 			break;
 		// Add
 		case 5:
+			temp = ACC + MEM[address];
 			if (volume > 1)
 				printf("add   [ACC]%04x = [ACC]%04x + [%03x]%04x\n",
-						ACC + MEM[address], ACC, address, MEM[address]);
-			ACC += MEM[address];
+						temp, ACC, address, MEM[address]);
+			ACC = temp;
 			break;
 		// Subtract
 		case 6:
+			temp = ACC - MEM[address];
 			if (volume > 1)
 				printf("sub   [ACC]%04x = [ACC]%04x - [%03x]%04x\n",
-						ACC - MEM[address], ACC, address, MEM[address]);
-			ACC -= MEM[address];
+						temp, ACC, address, MEM[address]);
+			ACC = temp;
 			break;
 		// AND
 		case 7:
+			temp = ACC & MEM[address];
 			if (volume > 1)
 				printf("and   [ACC]%04x = [ACC]%04x & [%03x]%04x\n",
-						ACC & MEM[address], ACC, address, MEM[address]);
-			ACC &= MEM[address];
+						temp, ACC, address, MEM[address]);
+			ACC = temp;
 			break;
 		// OR
 		case 8:
+			temp = ACC | MEM[address];
 			if (volume > 1)
 				printf("or    [ACC]%04x = [ACC]%04x | [%03x]%04x\n",
-						ACC | MEM[address], ACC, address, MEM[address]);
-			ACC |= MEM[address];
+						temp, ACC, address, MEM[address]);
+			ACC = temp;
 			break;
 		// XOR
 		case 9:
+			temp = ACC ^ MEM[address];
 			if (volume > 1)
 				printf("xor   [ACC]%04x = [ACC]%04x ^ [%03x]%04x\n",
-						ACC ^ MEM[address], ACC, address, MEM[address]);
-			ACC ^= MEM[address];
+						temp, ACC, address, MEM[address]);
+			ACC = temp;
 			break;
 		// NOT
 		case 10:
+			temp = ~ACC;
 			if (volume > 1) {
-				unsigned short temp = ~ACC;
-				printf("not   [ACC]%04x = ~ [ACC]%04x\n", temp, ACC);
+				printf("not   [ACC]%04x = ~[ACC]%04x\n", temp, ACC);
 			}
-			ACC = ~ACC;
+			ACC = temp;
 			break;
 		// Nothing
 		case 11:
@@ -641,8 +644,7 @@ int main(int argc, char **argv) {
 				}
 				// Error for bad formatting
 				if (is_num == 2) {
-					printf("%sError:%s Invalid breakpoint '%s'\n",
-							C_RED, C_NONE, argv[i]);
+					printf("%s Invalid breakpoint '%s'\n", E_ERROR, argv[i]);
 					return 1;
 				} else if (is_num == 1) {
 					char num[4];
@@ -652,8 +654,7 @@ int main(int argc, char **argv) {
 						if (! isxdigit(argv[i][j])) {
 							// Check for adjacent commas
 							if (k == 0) {
-								printf("%sError:%s Invalid breakpoints '%s'\n",
-										C_RED, C_NONE, argv[i]);
+								printf("%s Invalid breakpoints '%s'\n", E_ERROR, argv[i]);
 								return 1;
 							}
 							num[k] = '\0';
@@ -668,7 +669,7 @@ int main(int argc, char **argv) {
 					add_breakpoint(strtol(argv[i], NULL, 16));
 				}
 			} else {
-				printf("%sError:%s Unknown options '%s'\n", C_RED, C_NONE, argv[i]);
+				printf("%s Unknown options '%s'\n", E_ERROR, argv[i]);
 				return 1;
 			}
 		// Get code file path
@@ -676,8 +677,7 @@ int main(int argc, char **argv) {
 			if (src_path[0] == '\0') {
 				src_path = argv[i];
 			} else {
-				printf("%sError:%s Multiple files provided, only one allowed\n",
-						C_RED, C_NONE);
+				printf("%s Multiple files provided, only one allowed\n", E_ERROR);
 				return 1;
 			}
 		}
@@ -685,13 +685,13 @@ int main(int argc, char **argv) {
 
 	// Open code file
 	if (strlen(src_path) == 0) {
-		printf("%sError:%s A code file must be provided\n", C_RED, C_NONE);
+		printf("%s A code file must be provided\n", E_ERROR);
 		return 1;
 	}
 	// Check code file exists
 	FILE *src = fopen(src_path, "r");
 	if (src == NULL) {
-		printf("%sError:%s Code file '%s' not found\n", C_RED, C_NONE, src_path);
+		printf("%s Code file '%s' not found\n", E_ERROR, src_path);
 		return 1;
 	}
 	// Read from code file
@@ -705,18 +705,45 @@ int main(int argc, char **argv) {
 			int j = 0;
 			for (; j < 4; j++) {
 				if (! isxdigit(line[j])) {
-					printf("%sError:%s Invalid operation code on line %d of '%s'\n",
-							C_RED, C_NONE, num + 1, src_path);
-					printf("\n| %s%s%s\n\n", C_YELLOW, line, C_NONE);
+					printf("%s '%s:%d:%d' Invalid operation code\n",
+							//on line %d of '%s'\n",
+							E_ERROR, src_path, num + 1, j + 1);
+					printf("\n    %s\n    ", line);
+					for (int k = 0; k < j; k++)
+						printf(" ");
+					printf("%s^%s\n", C_YELLOW, C_NONE);
 					return 1;
 				}
 			}
 			// Check for invalid line number
 			if (OPT_CHECK) {
-				if (check_line_num(line, num)) {
-					printf("%sError:%s Improper line number on line %d of '%s'\n",
-							C_RED, C_NONE, num + 1, src_path);
-					printf("\n| %s%s%s\n\n", C_YELLOW, line, C_NONE);
+				unsigned char test = check_line_num(line, num);
+				if (test == 1) {
+					printf("%s '%s:%d' Incorrect line number\n",
+							E_ERROR, src_path, num + 1);
+					printf("\n    %s\n        ", line);
+					int k = 4;
+					while ((line[k] == ' ') || (line[k] == '\t')) {
+						printf(" ");
+						k++;
+					}
+					printf("%s", C_YELLOW);
+					//k++;
+					while ((line[k] != ' ') && (line[k] != '\t')) {
+						printf("^");
+						k++;
+					}
+					printf("%s\n", C_NONE);
+					return 1;
+
+				}
+				if (test > 2) {
+					printf("%s '%s:%d:%d' Invalid line number\n",
+							E_ERROR, src_path, num + 1, test + 1);
+					printf("\n    %s\n    ", line);
+					for (int k = 0; k < test; k++)
+						printf(" ");
+					printf("%s^%s\n", C_YELLOW, C_NONE);
 					return 1;
 				}
 			}
@@ -737,9 +764,8 @@ int main(int argc, char **argv) {
 	// Run program
 	while (1) {
 		// Check breakpoints
-		if (is_breakpoint(PC)) {
+		if (is_breakpoint(PC))
 			DEBUG_STEP = 4;
-		}
 		// Get debug command if necessary
 		if (DEBUG_STEP) {
 			printf("[%03x]: ", PC);
