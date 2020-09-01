@@ -4,8 +4,19 @@
 #   pennbauman@protonmail.com
 
 echo -n "Compiling..."
-gcc -O2 ibcmer.c -o ibcmer
-echo "Done"
+temp=".temp"
+script -c "gcc -Wno-unused-result -O2 ibcmer.c -o ibcmer" -e -q --quiet $temp &> /dev/null
+if [ $? -eq 0 ]; then
+	echo "Done"
+	rm $temp
+else
+	echo -e "\033[0;31mError\033[0m"
+	echo ""
+	len=$(cat $temp | wc -l)
+	echo -e "$(cat $temp | tail -n $(($len-1)) | head -n $(($len-3)))"
+	rm $temp
+	exit 1
+fi
 
 echo -n "Testing..."
 output=$(./ibcmer test.ibcm --check --silent <<< a)
