@@ -6,12 +6,18 @@
 #define C_NONE "\33[0m"
 #define C_BOLD "\33[1m"
 #define C_RED "\33[31m"
+#define C_GREEN "\33[32m"
 #define C_YELLOW "\33[33m"
+#define C_BLUE "\33[34m"
 
 // Errors (with color)
 #define E_ERROR "\33[31mError:\33[0m"
 #define E_INVALID_IN "\33[33mInvalid Input:\33[0m"
 #define E_MISSING_IN "\33[33mMissing Input\33[0m"
+// Debug errors
+#define E_UNKNOWN_CMD "\33[33mUnknown Command\33[0m"
+#define E_INVALID_ "\33[33mInvalid"
+#define E_MISSING_ "\33[33mMissing"
 
 // Main help text
 #define HELP "\33[1mIBCMer Usage\33[0m\n\

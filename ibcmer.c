@@ -9,7 +9,7 @@
 // Defines
 #include "text.h"
 #define MEM_SIZE 4096
-#define VERSION "0.6.0"
+#define VERSION "0.7.2"
 
 
 // Global variables
@@ -351,17 +351,17 @@ void debug(char *cmd) {
 		cmd = &cmd[1];
 	// Step command
 	if (0 == strcmp("\n", cmd)) {
-		step(1);
+		step(2);
 	} else if ((cmd[0] == 's') && (cmd[1] == 't') &&
 			(cmd[2] == 'e') && (cmd[3] == 'p')) {
 		i = 4;
 		while (cmd[i] == ' ')
 			i++;
 		if ((cmd[i] != '\n') && (i == 4)) {
-			printf("  Unknown command\n");
+			printf("  %s\n", E_UNKNOWN_CMD);
 			return;
 		}
-		step(1);
+		step(2);
 
 	// Run command
 	} else if ((cmd[0] == 'r') && (cmd[1] == 'u') &&
@@ -370,7 +370,7 @@ void debug(char *cmd) {
 		while (cmd[i] == ' ')
 			i++;
 		if ((cmd[i] != '\n') && (i == 3)) {
-			printf("  Unknown command\n");
+			printf("  %s\n", E_UNKNOWN_CMD);
 			return;
 		}
 		DEBUG_STEP = 0;
@@ -383,7 +383,7 @@ void debug(char *cmd) {
 		while (cmd[i] == ' ')
 			i++;
 		if ((cmd[i] != '\n') && (i == 4)) {
-			printf("  Unknown command\n");
+			printf("  %s\n", E_UNKNOWN_CMD);
 			return;
 		}
 		exit(0);
@@ -397,9 +397,15 @@ void debug(char *cmd) {
 		i = 4;
 		while (cmd[i] == ' ')
 			i++;
+		// Check for missing address
+		if (cmd[i] == '\n') {
+			printf("  %s Address:%s Formats 'all', [address], or %s\n",
+					E_MISSING_, C_NONE, "[address]-[address]");
+			return;
+		}
 		// Check spaces follow 'view'
 		if (i == 4) {
-			printf("  Unknown command\n");
+			printf("  %s\n", E_UNKNOWN_CMD);
 			return;
 		}
 		// Check for view all
@@ -409,24 +415,26 @@ void debug(char *cmd) {
 				i++;
 			// Check additional arguement are not provided
 			if (cmd[i] != '\n') {
-				printf("  Invalid address\n");
-				printf("   Usage: view [all|address|address-address]\n");
+				printf("  %s Address:%s Formats 'all', [address], or %s\n",
+						E_INVALID_, C_NONE, "[address]-[address]");
 				return;
 			}
 			// Find last non-zero memory value
 			unsigned short j = MEM_SIZE - 1;
 			while (MEM[j] == 0)
 				j--;
-			j += 2;
+			j++;
 			// Print memory
 			unsigned char width = 0;
 			unsigned char width_max = 8;
 			char *w = getenv("WIDTH");
 			if (w != NULL)
 				width_max = strtol(w, NULL, 10)/11;
-			for (int k = 0; k <= j; k++) {
+			for (int k = 0; k <= MEM_SIZE; k++) {
 				// Check for line break
 				if (width + 1 > width_max) {
+					if (k > j)
+						break;
 					printf("\n");
 					width = 0;
 				}
@@ -436,17 +444,11 @@ void debug(char *cmd) {
 			printf("\n");
 			return;
 		}
-		// Check for missing address
-		if (cmd[i] == '\n') {
-			printf("  Missing address\n");
-			printf("   Usage: view [all|address|address-address]\n");
-			return;
-		}
 		// Read first address
 		int j = 0;
 		while (isxdigit(cmd[i])) {
 			if (j == 3) {
-				printf("  Invalid address, too long\n");
+				printf("  %s Address:%s Too long\n", E_INVALID_, C_NONE);
 				return;
 			}
 			address1[j] = cmd[i];
@@ -464,12 +466,13 @@ void debug(char *cmd) {
 		}
 		// Check a second address is not provided without a dash
 		if (isxdigit(cmd[i])) {
-			printf("  Invalid format\n   To enter a range use 'address-address'\n");
+			printf("  %s Format:%s To enter a range use [address]-[address]\n",
+					E_INVALID_, C_NONE);
 			return;
 		}
 		// Check if first address is not all hex
 		if ((j == 0) || (cmd[i] != '-')) {
-			printf("  Invalid address, must be hexadecimal\n");
+			printf("  %s Address:%s Must be hexadecimal\n", E_INVALID_, C_NONE);
 			return;
 		}
 		// Move to second address
@@ -480,7 +483,7 @@ void debug(char *cmd) {
 		j = 0;
 		while (isxdigit(cmd[i])) {
 			if (j == 3) {
-				printf("  Invalid address, too long\n");
+				printf("  %s Address:%s Too long\n", E_INVALID_, C_NONE);
 				return;
 			}
 			address2[j] = cmd[i];
@@ -491,7 +494,7 @@ void debug(char *cmd) {
 			i++;
 		// Check if second address is not all hex
 		if ((j == 0) || (cmd[i] != '\n')) {
-			printf("  Invalid address, must be hexadecimal\n");
+			printf("  %s Address:%s Must be hexadecimal\n", E_INVALID_, C_NONE);
 			return;
 		}
 		address2[j] = '\0';
@@ -516,7 +519,7 @@ void debug(char *cmd) {
 			printf("\n");
 			return;
 		} else {
-			printf("  Invalid range\n");
+			printf("  %s Range%s\n", E_INVALID_, C_NONE);
 			return;
 		}
 
@@ -529,19 +532,20 @@ void debug(char *cmd) {
 		i = 3;
 		while (cmd[i] == ' ')
 			i++;
+		// Check for missing address
 		if (cmd[i] == '\n') {
-			printf("  Missing address\n   Usage: set [address] [value]\n");
+			printf("  %s Address:%s Format [address] [value]\n", E_MISSING_, C_NONE);
 			return;
 		}
 		if (i == 3) {
-			printf("  Unknown command\n");
+			printf("  %s\n", E_UNKNOWN_CMD);
 			return;
 		}
 		// Read first arguement (address)
 		int j = 0;
 		while (isxdigit(cmd[i])) {
 			if (j == 3) {
-				printf("  Invalid address, too long\n");
+				printf("  %s Address:%s Too long\n", E_INVALID_, C_NONE);
 				return;
 			}
 			address[j] = cmd[i];
@@ -549,8 +553,8 @@ void debug(char *cmd) {
 			i++;
 		}
 		// Check if first arguement is not all hex
-		if ((j == 0) || (cmd[i] != ' ')) {
-			printf("  Invalid address, must be hexadecimal\n");
+		if ((j == 0) || ((cmd[i] != ' ') && (cmd[i] != '\n'))) {
+			printf("  %s Address:%s Must be hexadecimal\n", E_INVALID_, C_NONE);
 			return;
 		}
 		address[j] = '\0';
@@ -558,14 +562,14 @@ void debug(char *cmd) {
 			i++;
 		// Check second arguement is present
 		if (cmd[i] == '\n') {
-			printf("  Missing value\n   Usage: set [address] [value]\n");
+			printf("  %s Value:%s Format [address] [value]\n", E_MISSING_, C_NONE);
 			return;
 		}
 		// Read second arguement (value)
 		j = 0;
 		while (isxdigit(cmd[i])) {
 			if (j == 4) {
-				printf("  Invalid value, too long\n");
+				printf("  %s Value:%s Too long\n", E_INVALID_, C_NONE);
 				return;
 			}
 			value[j] = cmd[i];
@@ -576,14 +580,14 @@ void debug(char *cmd) {
 			i++;
 		// Check if second arguement is not all hex
 		if ((j == 0) || (cmd[i] != '\n')) {
-			printf("  Invalid value, must be hexadecimal\n");
+			printf("  %s Address:%s Must be hexadecimal\n", E_INVALID_, C_NONE);
 			return;
 		}
 		value[j] = '\0';
 		// Set memory value
 		MEM[strtol(address, NULL, 16)] = strtol(value, NULL, 16);
 	} else {
-		printf("  Unknown command\n");
+		printf("  %s\n", E_UNKNOWN_CMD);
 	}
 }
 
@@ -768,9 +772,13 @@ int main(int argc, char **argv) {
 			DEBUG_STEP = 4;
 		// Get debug command if necessary
 		if (DEBUG_STEP) {
-			printf("[%03x]: ", PC);
+			printf("%sdebug[%s%03x%s]:%s ", C_BLUE, C_NONE, PC, C_BLUE, C_NONE);
 			char input[64];
 			fgets(input, 64, stdin);
+			if (feof(stdin)) {
+				printf("exit\n");
+				return 0;
+			}
 			debug(input);
 		// Otherwise continue program
 		} else {
