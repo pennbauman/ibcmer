@@ -1,15 +1,17 @@
 // IBCMer
-//   Penn Bauman
-//   pennbauman@protonmail.com
+//   URL: https://github.com/pennbauman/ibcmer
+//   License: Creative Commons Attribution Share Alike 4.0 International
+//   Author:
+//     Penn Bauman (pennbauman@protonmail.com)
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
 // Defines
-#include "text.h"
-#define MEM_SIZE 4096
-#define VERSION "0.7.2"
+#include "text.h" // Defines text variables
+#define MEM_SIZE 4096 // Size of IBCM memory
+#define VERSION "0.7.3" // Version number
 
 
 // Global variables
@@ -17,13 +19,16 @@ unsigned short ACC = 0; // Accumulator
 unsigned short PC = 0; // Program counter
 unsigned short MEM[MEM_SIZE]; // Program memory
 // Options
-unsigned char OPT_CHECK = 0;
-unsigned char OPT_VOLUME = 2;
+unsigned char OPT_CHECK = 0; // Option to check line numbers
+unsigned char OPT_VOLUME = 2; // Option to change amount of printing
+	// 0 = completely silent
+	// 1 = print only input prompts and output with newlines
+	// 2 = print everthing (stuff for 1 and command details)
 // Debug variables
-unsigned char DEBUG_STEP = 0;
-unsigned short *DEBUG_BREAKPOINTS;
-unsigned short DEBUG_BREAKS_COUNT = 0;
-unsigned short DEBUG_BREAKS_MAX = 0;
+unsigned char DEBUG_STEP = 0; // If debugging is active
+unsigned short *DEBUG_BREAKPOINTS; // Pointer to breakpoints array
+unsigned short DEBUG_BREAKS_COUNT = 0; // Length of breakpoints list
+unsigned short DEBUG_BREAKS_MAX = 0; // Length if breakpoints array
 
 
 
@@ -534,7 +539,8 @@ void debug(char *cmd) {
 			i++;
 		// Check for missing address
 		if (cmd[i] == '\n') {
-			printf("  %s Address:%s Format [address] [value]\n", E_MISSING_, C_NONE);
+			printf("  %s Address:%s Format [address] [value]\n",
+					E_MISSING_, C_NONE);
 			return;
 		}
 		if (i == 3) {
@@ -658,7 +664,8 @@ int main(int argc, char **argv) {
 						if (! isxdigit(argv[i][j])) {
 							// Check for adjacent commas
 							if (k == 0) {
-								printf("%s Invalid breakpoints '%s'\n", E_ERROR, argv[i]);
+								printf("%s Invalid breakpoints '%s'\n",
+										E_ERROR, argv[i]);
 								return 1;
 							}
 							num[k] = '\0';

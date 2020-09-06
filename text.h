@@ -1,6 +1,8 @@
 // Text - IBCMer
-//   Penn Bauman
-//   pennbauman@protonmail.com
+//   URL: https://github.com/pennbauman/ibcmer
+//   License: Creative Commons Attribution Share Alike 4.0 International
+//   Author:
+//     Penn Bauman (pennbauman@protonmail.com)
 
 // Colors
 #define C_NONE "\33[0m"
@@ -18,6 +20,7 @@
 #define E_UNKNOWN_CMD "\33[33mUnknown Command\33[0m"
 #define E_INVALID_ "\33[33mInvalid"
 #define E_MISSING_ "\33[33mMissing"
+
 
 // Main help text
 #define HELP "\33[1mIBCMer Usage\33[0m\n\
@@ -45,6 +48,7 @@ Debug Commands:\n\
                           two provided addresses (both hex numbers)\n\
   set [address] [value]  Sets the value of a memory slot, both numbers must be\n\
                           provided as hexadecimal"
+
 
 // IBCM information text
 #define HELP_IBCM "\33[1mIBCM Information\33[0m\n\
