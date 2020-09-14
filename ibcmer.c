@@ -11,7 +11,7 @@
 // Defines
 #include "text.h" // Defines text variables
 #define MEM_SIZE 4096 // Size of IBCM memory
-#define VERSION "0.7.3" // Version number
+#define VERSION "0.7.4" // Version number
 
 
 // Global variables
@@ -599,10 +599,8 @@ void debug(char *cmd) {
 
 int main(int argc, char **argv) {
 	// Setup memory
-	for (int i = 0; i < MEM_SIZE; i++) {
+	for (int i = 0; i < MEM_SIZE; i++)
 		MEM[i] = 0;
-	}
-
 	// Read through command line arguements
 	char* src_path = "";
 	for (int i = 1; i < argc; i++) {
@@ -688,7 +686,8 @@ int main(int argc, char **argv) {
 			if (src_path[0] == '\0') {
 				src_path = argv[i];
 			} else {
-				printf("%s Multiple files provided, only one allowed\n", E_ERROR);
+				printf("%s Multiple code files provided, only one allowed\n",
+						E_ERROR);
 				return 1;
 			}
 		}
@@ -717,7 +716,6 @@ int main(int argc, char **argv) {
 			for (; j < 4; j++) {
 				if (! isxdigit(line[j])) {
 					printf("%s '%s:%d:%d' Invalid operation code\n",
-							//on line %d of '%s'\n",
 							E_ERROR, src_path, num + 1, j + 1);
 					printf("\n    %s\n    ", line);
 					for (int k = 0; k < j; k++)
