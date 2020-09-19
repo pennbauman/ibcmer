@@ -36,7 +36,7 @@ Used when in debug mode. If no command is given step in run.
 
 - `run` Exits debugging mode and runs the program normally.
 
-- `step` Executes one step of the program.
+- `step [number]` Executes the provided number of steps of the program and then return to debugging. The number must be in decimal format and if no number is provided 1 is used.
 
 -  `view [all|address|address-address]` Print the contents of memory. If a single hexadecimal address is provided, that memory slot is printed. If two address are provided separated by a `-` the range between them is printed. If `all` is provided then the range of memory containing values is printed.
 

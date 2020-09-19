@@ -11,7 +11,7 @@
 // Defines
 #include "text.h" // Defines text variables
 #define MEM_SIZE 4096 // Size of IBCM memory
-#define VERSION "0.7.4" // Version number
+#define VERSION "0.8.0" // Version number
 
 
 // Global variables
@@ -366,7 +366,39 @@ void debug(char *cmd) {
 			printf("  %s\n", E_UNKNOWN_CMD);
 			return;
 		}
-		step(2);
+		if (cmd[i] == '\n') {
+			step(2);
+			return;
+		}
+		unsigned int j = 0;
+		char numstr[4];
+		while (isdigit(cmd[i])) {
+			if (j == 3) {
+				printf("  %s Number:%s Too long\n", E_INVALID_, C_NONE);
+				return;
+			}
+			numstr[j] = cmd[i];
+			j++;
+			i++;
+		}
+		if ((cmd[i] != ' ') && (cmd[i] != '\n')) {
+			if (isxdigit(cmd[i])) {
+				printf("  %s Number:%s Must be decimal\n", E_INVALID_, C_NONE);
+			} else {
+				printf("  %s Number%s\n", E_INVALID_, C_NONE);
+			}
+			return;
+		}
+		while (cmd[i] == ' ')
+			i++;
+		if (cmd[i] != '\n') {
+			printf("  %s Number:%s Too many provided\n", E_INVALID_, C_NONE);
+			return;
+		}
+		unsigned short num = strtol(numstr, NULL, 10);
+		for (j = 0; j < num; j++)
+			step(2);
+		return;
 
 	// Run command
 	} else if ((cmd[0] == 'r') && (cmd[1] == 'u') &&

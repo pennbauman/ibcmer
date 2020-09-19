@@ -41,7 +41,8 @@ Options:\n\
 Debug Commands:\n\
   exit                   Exits the program\n\
   run                    Exits debugging mode and runs the program normally\n\
-  step (or no command)   Executes one step of the program\n\
+  step (or no command)   Executes one step of the program and returns to debugging\n\
+  step [number]          Executes the provided number of steps (decimal number)\n\
   view all               Prints the contents of all memory containing values\n\
   view [address]         Prints the contents of a memory address (hex number)\n\
   view [addr]-[addr]     Prints the contents of the range of memory between the\n\
