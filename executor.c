@@ -5,6 +5,16 @@
 //     Penn Bauman (pennbauman@protonmail.com)
 #include "executor.h"
 
+// Initialize memory
+ibcmemory init_ibcmemory() {
+	ibcmemory data;
+	for (int i = 0; i < MEM_SIZE; i++)
+		data.mem[i] = 0;
+	data.acc = 0;
+	data.pc = 0;
+	return data;
+}
+
 // Execute one command and progess the program
 void step(ibcmemory *data, int volume) {
 	unsigned short temp = 0;

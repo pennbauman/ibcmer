@@ -59,13 +59,9 @@ signed char check_line_num(char* line, unsigned short line_num) {
 
 
 int main(int argc, char **argv) {
-	// Setup memory
-	for (int i = 0; i < MEM_SIZE; i++)
-		DATA.mem[i] = 0;
-	DATA.acc = 0;
-	DATA.pc = 0;
-	BREAKS.count = 0;
-	BREAKS.max = 0;
+	// Setup global structs
+	BREAKS = init_breakpoints();
+	DATA = init_ibcmemory();
 	// Read through command line arguements
 	char* src_path = "";
 	for (int i = 1; i < argc; i++) {

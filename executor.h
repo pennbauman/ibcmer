@@ -23,6 +23,8 @@ typedef struct ibcmemory {
 	unsigned short mem[MEM_SIZE]; // Program memory
 } ibcmemory;
 
+// Initialize memory
+ibcmemory init_ibcmemory();
 // Execute one command and progess the program
 void step(ibcmemory *data, int volume);
 

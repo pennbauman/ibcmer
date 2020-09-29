@@ -18,6 +18,8 @@ typedef struct breakpoints {
 	unsigned short max; // Length if breakpoints array
 } breakpoints;
 
+// Initialize breakpoints
+breakpoints init_breakpoints();
 // Check if breakpoint exists
 signed char is_breakpoint(breakpoints *breaks, unsigned short num);
 // Add new breakpoint

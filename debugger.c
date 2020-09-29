@@ -5,6 +5,16 @@
 //     Penn Bauman (pennbauman@protonmail.com)
 #include "debugger.h"
 
+
+// Initialize breakpoints
+breakpoints init_breakpoints() {
+	breakpoints breaks;
+	breaks.array = malloc(sizeof(short)*16);
+	breaks.max = 16;
+	breaks.count = 0;
+	return breaks;
+}
+
 // Check if breakpoint exists
 signed char is_breakpoint(breakpoints *breaks, unsigned short num) {
 	for (int i = 0; i < breaks->count; i++) {
@@ -19,11 +29,6 @@ void add_breakpoint(breakpoints *breaks, unsigned short num) {
 	// Skip duplicates
 	if (is_breakpoint(breaks, num))
 		return;
-	// Create breakpoint array if necessary
-	if (breaks->max == 0) {
-		breaks->array = malloc(sizeof(short)*16);
-		breaks->max = 16;
-	}
 	// Grows breakpoint vector possibly copying array
 	breaks->count++;
 	if (breaks->count == breaks->max) {
