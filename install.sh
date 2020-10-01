@@ -7,7 +7,7 @@
 
 echo -n "Compiling..."
 temp_file=".temp"
-script -c "gcc -Wno-unused-result -O2 ibcmer.c executor.c debugger.c -o ibcmer" -e -q --quiet $temp_file &> /dev/null
+script -c "gcc -Wno-unused-result -O2 ibcmer.c src/executor.c src/debugger.c -o ibcmer" -e -q --quiet $temp_file &> /dev/null
 if [ $? -eq 0 ]; then
 	echo "Done"
 	rm $temp_file

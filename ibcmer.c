@@ -9,9 +9,9 @@
 #include <ctype.h>
 
 // Include other components
-#include "text.h" // Defines text variables
-#include "executor.h" // IBCM executor
-#include "debugger.h" // debugging tools
+#include "src/text.h" // Defines text variables
+#include "src/executor.h" // IBCM executor
+#include "src/debugger.h" // debugging tools
 
 // Version number
 #define VERSION "0.8.0"

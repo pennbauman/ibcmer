@@ -4,22 +4,23 @@
 #   Author:
 #     Penn Bauman (pennbauman@protonmail.com)
 CC=clang
-COMP_DIR=compile
+BLD_DIR=build
+SRC_DIR=src
 
-ibcmer: ibcmer.c text.h $(COMP_DIR)/executor.o $(COMP_DIR)/debugger.o
-	$(CC) ibcmer.c $(COMP_DIR)/executor.o $(COMP_DIR)/debugger.o -o ibcmer
+ibcmer: ibcmer.c $(SRC_DIR)/text.h $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o
+	$(CC) ibcmer.c $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o -o ibcmer
 
-$(COMP_DIR)/executor.o: executor.c executor.h
-	@mkdir -p $(COMP_DIR)
-	$(CC) -c executor.c -o $(COMP_DIR)/executor.o
+$(BLD_DIR)/executor.o: $(SRC_DIR)/executor.c $(SRC_DIR)/executor.h
+	@mkdir -p $(BLD_DIR)
+	$(CC) -c $(SRC_DIR)/executor.c -o $(BLD_DIR)/executor.o
 
-$(COMP_DIR)/debugger.o: debugger.c debugger.h
-	@mkdir -p $(COMP_DIR)
-	$(CC) -c debugger.c -o $(COMP_DIR)/debugger.o
+$(BLD_DIR)/debugger.o: $(SRC_DIR)/debugger.c $(SRC_DIR)/debugger.h
+	@mkdir -p $(BLD_DIR)
+	$(CC) -c $(SRC_DIR)/debugger.c -o $(BLD_DIR)/debugger.o
 
 test: ibcmer
 	./ibcmer test.ibcm -s
 
 clean:
-	@rm -rf $(COMP_DIR)
+	@rm -rf $(BLD_DIR)
 	@rm -f ibcmer
