@@ -5,15 +5,122 @@
 //     Penn Bauman (pennbauman@protonmail.com)
 #include "executor.h"
 
-// Initialize memory
-ibcmemory init_ibcmemory() {
-	ibcmemory data;
-	for (int i = 0; i < MEM_SIZE; i++)
-		data.mem[i] = 0;
-	data.acc = 0;
-	data.pc = 0;
-	return data;
+// Check line numbers are properly formatted
+signed char check_line_num(char* line, unsigned short line_num) {
+	int i = 4;
+	// Check there are spaces after the command
+	if ((line[i] != ' ') && (line[i] != '\t'))
+		return i;
+	// Skip over whitespace
+	while ((line[i] == ' ') || (line[i] == '\t'))
+		i++;
+	//Parse number
+	int j = 0;
+	char num[4];
+	while ((line[i+j] != ' ') && (line[i+j] != '\t')) {
+		if (! isxdigit(line[i + j]))
+			return i + j;
+		if (j > 2)
+			return i + j;
+		num[j] = line[i + j];
+		j++;
+	}
+	num[j] = '\0';
+	// Compare to expected number
+	if (line_num != strtol(num, NULL, 16))
+		return 1;
+	return 0;
 }
+
+// Step memory from file
+unsigned char read_file(ibcmemory *data, char* filename, unsigned char num_check) {
+	for (int i = 0; i < MEM_SIZE; i++)
+		data->mem[i] = 0;
+	data->acc = 0;
+	data->pc = 0;
+
+	// Open code file
+	if (strlen(filename) == 0) {
+		printf("%s A code file must be provided\n", E_ERROR);
+		return 1;
+	}
+	// Check code file exists
+	FILE *src = fopen(filename, "r");
+	if (src == NULL) {
+		printf("%s Code file '%s' not found\n", E_ERROR, filename);
+		return 1;
+	}
+
+	// Read from code file
+	char ch, line[256];
+	unsigned int check, num = 0;
+	int i = 0;
+	while ((ch = fgetc(src)) != EOF) {
+		if (ch == '\n') {
+			line[i] = '\0';
+			// Check validity of code line
+			int j = 0;
+			for (; j < 4; j++) {
+				if (! isxdigit(line[j])) {
+					printf("%s '%s:%d:%d' Invalid operation code\n",
+							E_ERROR, filename, num + 1, j + 1);
+					printf("\n    %s\n    ", line);
+					for (int k = 0; k < j; k++)
+						printf(" ");
+					printf("%s^%s\n", C_YELLOW, C_NONE);
+					return 1;
+				}
+			}
+			// Check for invalid line number
+			if (num_check) {
+				unsigned char test = check_line_num(line, num);
+				if (test == 1) {
+					printf("%s '%s:%d' Incorrect line number\n",
+							E_ERROR, filename, num + 1);
+					printf("\n    %s\n        ", line);
+					int k = 4;
+					while ((line[k] == ' ') || (line[k] == '\t')) {
+						printf(" ");
+						k++;
+					}
+					printf("%s", C_YELLOW);
+					//k++;
+					while ((line[k] != ' ') && (line[k] != '\t')) {
+						printf("^");
+						k++;
+					}
+					printf("%s\n", C_NONE);
+					return 1;
+
+				}
+				if (test > 2) {
+					printf("%s '%s:%d:%d' Invalid line number\n",
+							E_ERROR, filename, num + 1, test + 1);
+					printf("\n    %s\n    ", line);
+					for (int k = 0; k < test; k++)
+						printf(" ");
+					printf("%s^%s\n", C_YELLOW, C_NONE);
+					return 1;
+				}
+			}
+
+			// Parse command and save it to memory
+			char hex[5];
+			for (int i = 0; i < 4; i++) {
+				hex[i] = line[i];
+			}
+			hex[4] = '\0';
+			data->mem[num] = strtol(hex, NULL, 16);
+			num++;
+			i = 0;
+		} else {
+			line[i++] = ch;
+		}
+	}
+	return 0;
+}
+
+
 
 // Execute one command and progess the program
 void step(ibcmemory *data, int volume) {

@@ -30,38 +30,10 @@ unsigned char DEBUG_STATE = 0; // If debugging is active
 
 
 
-// Check line numbers are properly formatted
-signed char check_line_num(char* line, unsigned short line_num) {
-	int i = 4;
-	// Check there are spaces after the command
-	if ((line[i] != ' ') && (line[i] != '\t'))
-		return i;
-	// Skip over whitespace
-	while ((line[i] == ' ') || (line[i] == '\t'))
-		i++;
-	//Pasre number
-	int j = 0;
-	char num[4];
-	while ((line[i+j] != ' ') && (line[i+j] != '\t')) {
-		if (! isxdigit(line[i + j]))
-			return i + j;
-		if (j > 2)
-			return i + j;
-		num[j] = line[i + j];
-		j++;
-	}
-	num[j] = '\0';
-	// Compare to expected number
-	if (line_num != strtol(num, NULL, 16))
-		return 1;
-	return 0;
-}
-
-
 int main(int argc, char **argv) {
 	// Setup global structs
 	BREAKS = init_breakpoints();
-	DATA = init_ibcmemory();
+
 	// Read through command line arguements
 	char* src_path = "";
 	for (int i = 1; i < argc; i++) {
@@ -153,83 +125,9 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
-
-	// Open code file
-	if (strlen(src_path) == 0) {
-		printf("%s A code file must be provided\n", E_ERROR);
+	
+	if (read_file(&DATA, src_path, OPT_CHECK))
 		return 1;
-	}
-	// Check code file exists
-	FILE *src = fopen(src_path, "r");
-	if (src == NULL) {
-		printf("%s Code file '%s' not found\n", E_ERROR, src_path);
-		return 1;
-	}
-	// Read from code file
-	char ch, line[256];
-	unsigned int check, num = 0;
-	int i = 0;
-	while ((ch = fgetc(src)) != EOF) {
-		if (ch == '\n') {
-			line[i] = '\0';
-			// Check validity of code line
-			int j = 0;
-			for (; j < 4; j++) {
-				if (! isxdigit(line[j])) {
-					printf("%s '%s:%d:%d' Invalid operation code\n",
-							E_ERROR, src_path, num + 1, j + 1);
-					printf("\n    %s\n    ", line);
-					for (int k = 0; k < j; k++)
-						printf(" ");
-					printf("%s^%s\n", C_YELLOW, C_NONE);
-					return 1;
-				}
-			}
-			// Check for invalid line number
-			if (OPT_CHECK) {
-				unsigned char test = check_line_num(line, num);
-				if (test == 1) {
-					printf("%s '%s:%d' Incorrect line number\n",
-							E_ERROR, src_path, num + 1);
-					printf("\n    %s\n        ", line);
-					int k = 4;
-					while ((line[k] == ' ') || (line[k] == '\t')) {
-						printf(" ");
-						k++;
-					}
-					printf("%s", C_YELLOW);
-					//k++;
-					while ((line[k] != ' ') && (line[k] != '\t')) {
-						printf("^");
-						k++;
-					}
-					printf("%s\n", C_NONE);
-					return 1;
-
-				}
-				if (test > 2) {
-					printf("%s '%s:%d:%d' Invalid line number\n",
-							E_ERROR, src_path, num + 1, test + 1);
-					printf("\n    %s\n    ", line);
-					for (int k = 0; k < test; k++)
-						printf(" ");
-					printf("%s^%s\n", C_YELLOW, C_NONE);
-					return 1;
-				}
-			}
-			// Parse command and save it to memory
-			char hex[5];
-			for (int i = 0; i < 4; i++) {
-				hex[i] = line[i];
-			}
-			hex[4] = '\0';
-			DATA.mem[num] = strtol(hex, NULL, 16);
-			num++;
-			i = 0;
-		} else {
-			line[i++] = ch;
-		}
-	}
 
 	// Run program
 	while (1) {
