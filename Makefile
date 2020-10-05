@@ -18,9 +18,21 @@ $(BLD_DIR)/debugger.o: $(SRC_DIR)/debugger.c $(SRC_DIR)/debugger.h
 	@mkdir -p $(BLD_DIR)
 	$(CC) -c $(SRC_DIR)/debugger.c -o $(BLD_DIR)/debugger.o
 
-test: ibcmer
-	./ibcmer test.ibcm -s
+run: ibcmer
+	./ibcmer test/all-ops.ibcm -s
+
+test: ibcmer test/units FORCE
+	@echo ""
+	@./test/units
+	@echo ""
+	@./test/system.sh
+
+test/units: $(SRC_DIR)/unit_tests.c $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o
+	$(CC) $(SRC_DIR)/unit_tests.c $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o -o test/units
 
 clean:
 	@rm -rf $(BLD_DIR)
 	@rm -f ibcmer
+	@rm -f test/units
+
+FORCE:

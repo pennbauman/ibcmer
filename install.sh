@@ -22,7 +22,7 @@ fi
 
 
 echo -n "Testing..."
-test_output=$(./ibcmer test.ibcm --check --silent <<< a)
+test_output=$(./ibcmer test/all-ops.ibcm --check --silent <<< a)
 if [[ "$test_output" = "19ed!" ]]; then
 	echo "Passed"
 else
