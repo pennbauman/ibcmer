@@ -18,6 +18,9 @@ typedef struct breakpoints {
 	unsigned short max; // Length if breakpoints array
 } breakpoints;
 
+// Split string
+char** split_str(char* src);
+
 // Initialize breakpoints
 breakpoints init_breakpoints();
 // Check if breakpoint exists
