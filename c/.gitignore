@@ -1,5 +1,2 @@
 *.o
-ibcmer
-.temp
-build
-test/units
+*.out

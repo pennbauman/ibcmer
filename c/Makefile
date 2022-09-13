@@ -1,38 +1,36 @@
 # Makefile - IBCMer
 #   URL: https://github.com/pennbauman/ibcmer
 #   License: Creative Commons Attribution Share Alike 4.0 International
-#   Author:
-#     Penn Bauman (pennbauman@protonmail.com)
-CC=clang
-BLD_DIR=build
-SRC_DIR=src
+#   Author: Penn Bauman <me@pennbauman.com>
+CC = clang
+CFLAGS = -g -Wall -std=c17 -O3 -fPIC
+prefix = /usr/local
 
-ibcmer: ibcmer.c $(SRC_DIR)/text.h $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o
-	$(CC) ibcmer.c $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o -o ibcmer
 
-$(BLD_DIR)/executor.o: $(SRC_DIR)/executor.c $(SRC_DIR)/executor.h
-	@mkdir -p $(BLD_DIR)
-	$(CC) -c $(SRC_DIR)/executor.c -o $(BLD_DIR)/executor.o
+ibcmer.out: ibcmer.c src/executor.o src/debugger.o src/text.h
+	$(CC) $(CFLAGS) -pie $< src/*.o -o $@
 
-$(BLD_DIR)/debugger.o: $(SRC_DIR)/debugger.c $(SRC_DIR)/debugger.h
-	@mkdir -p $(BLD_DIR)
-	$(CC) -c $(SRC_DIR)/debugger.c -o $(BLD_DIR)/debugger.o
+src/executor.o: src/executor.c src/executor.h
 
-run: ibcmer
-	./ibcmer test/all-ops.ibcm -s
+src/debugger.o: src/debugger.c src/debugger.h
 
-test: ibcmer test/units FORCE
+test/units.out: test/units.c src/executor.o src/debugger.o
+	$(CC) $(CFLAGS) -pie $< src/*.o -o $@
+
+
+.PHONY: clean test install
+clean:
+	@rm -f *.out */*.out */*.o
+
+test: ibcmer.out test/units.out
 	@echo ""
-	@./test/units
+	@./test/units.out
 	@echo ""
 	@./test/system.sh
 
-test/units: $(SRC_DIR)/unit_tests.c $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o
-	$(CC) $(SRC_DIR)/unit_tests.c $(BLD_DIR)/executor.o $(BLD_DIR)/debugger.o -o test/units
+install: ibcmer.out
+	install -m 0755 -d $(DESTDIR)$(prefix)/bin
+	install -m 0755 ibcmer.out $(DESTDIR)$(prefix)/bin/ibcmer
 
-clean:
-	@rm -rf $(BLD_DIR)
-	@rm -f ibcmer
-	@rm -f test/units
-
-FORCE:
+remove:
+	rm -f $(DESTDIR)$(prefix)/bin/ibcmer

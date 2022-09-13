@@ -1,22 +1,25 @@
-# Penn Bauman
-# pennbauman@protonmail.com
+# Makefile - IBCMer
+#   URL: https://github.com/pennbauman/ibcmer
+#   License: Creative Commons Attribution Share Alike 4.0 International
+#   Author: Penn Bauman <me@pennbauman.com>
+CXX = clang++
+CXXFLAGS = -g -Wall -std=c++17 -O3 -fPIC
+prefix = /usr/local
 
-CXX=clang++
+ibcmer.out: ibcmer.cpp src/program.o src/doubleByte.o
+	$(CXX) $(CXXFLAGS) -pie $< src/*.o -o $@
 
-ibcmer: ibcmer.cpp out/program.o out/doubleByte.o
-	$(CXX) ibcmer.cpp out/*.o
+src/doubleByte.o: src/doubleByte.cpp src/doubleByte.h
 
-final:
-	$(CXX) -O2 ibcmer.cpp program.cpp doubleByte.cpp -o ibcmer
+src/program.o: src/program.cpp src/program.h
 
+.PHONY: clean install
 clean:
-	@rm -f out/*.o a.out ibcmer
+	@rm -f *.out */*.o
 
-out/program.o: program.cpp doubleByte.cpp \
-		program.h doubleByte.h
-	@mkdir -p out
-	$(CXX) -c program.cpp -o out/program.o
+install: ibcmer.out
+	install -m 0755 -d $(DESTDIR)$(prefix)/bin
+	install -m 0755 ibcmer.out $(DESTDIR)$(prefix)/bin/ibcmer
 
-out/doubleByte.o: doubleByte.cpp doubleByte.h
-	@mkdir -p out
-	$(CXX) -c doubleByte.cpp -o out/doubleByte.o
+remove:
+	rm -f $(DESTDIR)$(prefix)/bin/ibcmer

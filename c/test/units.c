@@ -1,12 +1,11 @@
 // Unit Tests - IBCMer
 //   URL: https://github.com/pennbauman/ibcmer
 //   License: Creative Commons Attribution Share Alike 4.0 International
-//   Author:
-//     Penn Bauman (pennbauman@protonmail.com)
+//   Author: Penn Bauman <me@pennbauman.com>
 #include <stdio.h>
 
-#include "executor.h" // IBCM executor
-#include "debugger.h" // debugging tools
+#include "../src/executor.h" // IBCM executor
+#include "../src/debugger.h" // debugging tools
 
 
 unsigned int PASSED = 0;
@@ -24,7 +23,7 @@ void check(unsigned char condition, char *error) {
 }
 
 int main() {
-	printf("\33[32mUNIT TESTS\33[0m\n");
+	printf("UNIT TESTS\n");
 	printf("-------------------------------------------------------------\n");
 	
 	char error[128];
@@ -123,6 +122,7 @@ int main() {
 		unsigned char result;
 		// Pause STDOUT
 		fpos_t pos;
+		FILE *out = stdout;
 		fgetpos(stdout, &pos);
 		fclose(stdout);
 
@@ -145,7 +145,7 @@ int main() {
 		check((data.pc == 13), "debug() does not preform step 12");
 
 		// Restart STDOUT
-		stdout = fdopen(0, "w");
+		stdout = out;
 		fsetpos(stdout, &pos);
 	}
 

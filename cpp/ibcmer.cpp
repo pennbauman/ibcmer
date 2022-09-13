@@ -1,14 +1,15 @@
-/* Penn Bauman
- * pennbauman@protonmail.com
- */
+// IBCMer
+//   URL: https://github.com/pennbauman/ibcmer
+//   License: Creative Commons Attribution Share Alike 4.0 International
+//   Author: Penn Bauman <me@pennbauman.com>
 #define VERSION 0.3
 
 #include <iostream>
 #include <string>
 #include <stack>
 
-#include "program.h"
-#include "doubleByte.h"
+#include "src/program.h"
+#include "src/doubleByte.h"
 using namespace std;
 
 // Check if string is a number

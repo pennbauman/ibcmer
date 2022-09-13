@@ -11,9 +11,13 @@ IBCM runs with 4096 16 bit memory slots (numbered 000 to fff), a 16 bit accumula
 
 
 ## Installation
-On Linux run the following in the ibcmer directory, it requires root access:
+To install in /usr/local (requires root access) run:
 
-	./install.sh
+	make install
+
+To install to another location add `prefix=[location]`, for example:
+
+	make install prefix=~/.local
 
 
 ## Usage

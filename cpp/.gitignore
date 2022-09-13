@@ -1,6 +1,2 @@
-out/**
-uva-pdr/**
-out/**
-test.cpp
-a.out
-ibcmer
+*.o
+*.out

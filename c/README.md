@@ -3,9 +3,13 @@ A command line IBCM executor and debugger written in C
 
 
 ## Installation
-Run the installation script, which requires root privileges.
+To install in /usr/local (requires root access) run:
 
-	./install.sh
+	make install
+
+To install to another location add `prefix=[location]`, for example:
+
+	make install prefix=~/.local
 
 
 ## Usage

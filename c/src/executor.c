@@ -1,8 +1,7 @@
-// IBCMer - IBCM Executor
+// IBCM Executor - IBCMer
 //   URL: https://github.com/pennbauman/ibcmer
 //   License: Creative Commons Attribution Share Alike 4.0 International
-//   Author:
-//     Penn Bauman (pennbauman@protonmail.com)
+//   Author: Penn Bauman <me@pennbauman.com>
 #include "executor.h"
 
 // Check line numbers are properly formatted
@@ -53,7 +52,7 @@ unsigned char read_file(ibcmemory *data, char* filename, unsigned char num_check
 
 	// Read from code file
 	char ch, line[256];
-	unsigned int check, num = 0;
+	unsigned int num = 0;
 	int i = 0;
 	while ((ch = fgetc(src)) != EOF) {
 		if (ch == '\n') {

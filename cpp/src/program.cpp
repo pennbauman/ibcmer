@@ -1,6 +1,7 @@
-/* Penn Bauman
- * pennbauman@protonmail.com
- */
+// Program Class - IBCMer
+//   URL: https://github.com/pennbauman/ibcmer
+//   License: Creative Commons Attribution Share Alike 4.0 International
+//   Author: Penn Bauman <me@pennbauman.com>
 #include "program.h"
 using namespace std;
 
