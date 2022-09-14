@@ -124,7 +124,11 @@ int main() {
 		fpos_t pos;
 		FILE *out = stdout;
 		fgetpos(stdout, &pos);
-		fclose(stdout);
+		stdout = fopen("/dev/null", "a");
+		if (stdout == NULL) {
+			fprintf(stderr, "Cannot open /dev/null\n");
+			exit(1);
+		}
 
 		// Step
 		result = debug(&data, &breaks, "\n", 0);

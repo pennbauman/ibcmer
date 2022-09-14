@@ -22,8 +22,6 @@ typedef struct ibcmemory {
 	unsigned short mem[MEM_SIZE]; // Program memory
 } ibcmemory;
 
-// Check line numbers are properly formatted
-signed char check_line_num(char* line, unsigned short line_num);
 // Step memory from file
 unsigned char read_file(ibcmemory *data, char* filename, unsigned char num_check);
 // Execute one command and progess the program

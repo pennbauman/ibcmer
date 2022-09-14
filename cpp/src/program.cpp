@@ -44,9 +44,11 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 				}
 			} else {
 				// Check if line can be ignored
-				if (!((line == "") || (line.substr(0,4) == "    ")) || strict) {
+				if (!((line.size() == 0) || (line.substr(0,4) == "    ")) || strict) {
 					cerr << "ERROR: Improper instructions at " << hex << i << " '" << line.substr(0,4) << "'" << endl;
 					return false;
+				} else {
+					i--;
 				}
 			}
 			i++;
