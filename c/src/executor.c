@@ -144,7 +144,7 @@ void step(ibcmemory *data, int volume) {
 		// I/O
 		case 1:
 			if (volume > 1)
-				printf("i/o\n");
+				printf("i/o   (ACC)%04x\n", data->acc);
 			unsigned char type = data->mem[data->pc] >> 8;
 			type = type << 4;
 			type = type >> 4;
@@ -155,7 +155,7 @@ void step(ibcmemory *data, int volume) {
 				case 0:
 					while (1) {
 						if (volume > 0)
-							printf("Input hex: ");
+							printf("Input hex:  ");
 						fgets(input, 64, stdin);
 						// Check length is 4
 						if (strlen(input) > 5) {
@@ -172,8 +172,6 @@ void step(ibcmemory *data, int volume) {
 							// Read hex value
 							if (valid) {
 								data->acc = strtol(input, NULL, 16);
-								if (volume > 1)
-									printf("  [ACC]%04x\n", data->acc);
 								break;
 							} else {
 								printf("  %s Not hex\n", E_INVALID_IN);
@@ -195,8 +193,6 @@ void step(ibcmemory *data, int volume) {
 						} else {
 							// Read char value
 							data->acc = input[0];
-							if (volume > 1)
-								printf("  [ACC]%04x\n", data->acc);
 							break;
 						}
 					}
@@ -204,7 +200,7 @@ void step(ibcmemory *data, int volume) {
 				// Hex ouput
 				case 8:
 					if (volume > 1)
-						printf("Output: ");
+						printf("Output hex:  ");
 					printf("%04x", data->acc);
 					if (volume > 0)
 						printf("\n");
@@ -212,7 +208,7 @@ void step(ibcmemory *data, int volume) {
 				// Char ouput
 				case 12:
 					if (volume > 1)
-						printf("Output: ");
+						printf("Output char: ");
 					printf("%c", data->acc);
 					if (volume > 0)
 						printf("\n");
@@ -239,28 +235,28 @@ void step(ibcmemory *data, int volume) {
 				case 0:
 					temp = data->acc << distance;
 					if (volume > 1)
-						printf("[ACC]%04x = [ACC]%04x << %x\n",
+						printf("(ACC)%04x = (ACC)%04x << %x\n",
 								temp, data->acc, distance);
 					break;
 				// Shift right, insert 0s
 				case 4:
 					temp = data->acc >> distance;
 					if (volume > 1)
-						printf("[ACC]%04x = [ACC]%04x >> %x\n",
+						printf("(ACC)%04x = (ACC)%04x >> %x\n",
 								temp, data->acc, distance);
 					break;
 				// Rotate left, wrap
 				case 8:
 					temp = (data->acc << distance) + (data->acc >> (16 - distance));
 					if (volume > 1)
-						printf("[ACC]%04x = [ACC]%04x <= %x\n",
+						printf("(ACC)%04x = (ACC)%04x <= %x\n",
 								temp, data->acc, distance);
 					break;
 				// Rotate right, wrap
 				case 12:
 					temp = (data->acc >> distance) + (data->acc << (16 - distance));
 					if (volume > 1)
-						printf("[ACC]%04x = [ACC]%04x => %x\n",
+						printf("(ACC)%04x = (ACC)%04x => %x\n",
 								temp, data->acc, distance);
 					break;
 				// Check invalid subcommands
@@ -272,21 +268,21 @@ void step(ibcmemory *data, int volume) {
 			break;
 		// Load value
 		case 3:
-			if (volume > 1)
-				printf("load  [ACC]%04x\n", data->acc);
 			data->acc = data->mem[address];
+			if (volume > 1)
+				printf("load  (ACC)%04x = [%03x]%04x\n", data->acc, address, data->acc);
 			break;
 		// Store value
 		case 4:
 			if (volume > 1)
-				printf("store [%03x]%04x\n", address, data->acc);
+				printf("store [%03x]%04x = (ACC)%04x\n", address, data->acc, data->acc);
 			data->mem[address] = data->acc;
 			break;
 		// Add
 		case 5:
 			temp = data->acc + data->mem[address];
 			if (volume > 1)
-				printf("add   [ACC]%04x = [ACC]%04x + [%03x]%04x\n",
+				printf("add   (ACC)%04x = (ACC)%04x + [%03x]%04x\n",
 						temp, data->acc, address, data->mem[address]);
 			data->acc = temp;
 			break;
@@ -294,7 +290,7 @@ void step(ibcmemory *data, int volume) {
 		case 6:
 			temp = data->acc - data->mem[address];
 			if (volume > 1)
-				printf("sub   [ACC]%04x = [ACC]%04x - [%03x]%04x\n",
+				printf("sub   (ACC)%04x = (ACC)%04x - [%03x]%04x\n",
 						temp, data->acc, address, data->mem[address]);
 			data->acc = temp;
 			break;
@@ -302,7 +298,7 @@ void step(ibcmemory *data, int volume) {
 		case 7:
 			temp = data->acc & data->mem[address];
 			if (volume > 1)
-				printf("and   [ACC]%04x = [ACC]%04x & [%03x]%04x\n",
+				printf("and   (ACC)%04x = (ACC)%04x & [%03x]%04x\n",
 						temp, data->acc, address, data->mem[address]);
 			data->acc = temp;
 			break;
@@ -310,7 +306,7 @@ void step(ibcmemory *data, int volume) {
 		case 8:
 			temp = data->acc | data->mem[address];
 			if (volume > 1)
-				printf("or    [ACC]%04x = [ACC]%04x | [%03x]%04x\n",
+				printf("or    (ACC)%04x = (ACC)%04x | [%03x]%04x\n",
 						temp, data->acc, address, data->mem[address]);
 			data->acc = temp;
 			break;
@@ -318,7 +314,7 @@ void step(ibcmemory *data, int volume) {
 		case 9:
 			temp = data->acc ^ data->mem[address];
 			if (volume > 1)
-				printf("xor   [ACC]%04x = [ACC]%04x ^ [%03x]%04x\n",
+				printf("xor   (ACC)%04x = (ACC)%04x ^ [%03x]%04x\n",
 						temp, data->acc, address, data->mem[address]);
 			data->acc = temp;
 			break;
@@ -326,7 +322,7 @@ void step(ibcmemory *data, int volume) {
 		case 10:
 			temp = ~data->acc;
 			if (volume > 1) {
-				printf("not   [ACC]%04x = ~[ACC]%04x\n", temp, data->acc);
+				printf("not   (ACC)%04x = ! (ACC)%04x\n", temp, data->acc);
 			}
 			data->acc = temp;
 			break;
@@ -351,7 +347,7 @@ void step(ibcmemory *data, int volume) {
 				data->pc = address - 1;
 			} else {
 				if (volume > 1)
-					printf("[ACC]%04x\n", data->acc);
+					printf("(ACC)%04x\n", data->acc);
 			}
 			break;
 		// Jump, data->acc < 0
@@ -364,13 +360,13 @@ void step(ibcmemory *data, int volume) {
 				data->pc = address - 1;
 			} else {
 				if (volume > 1)
-					printf("[ACC]%04x\n", data->acc);
+					printf("(ACC)%04x\n", data->acc);
 			}
 			break;
 		// Branch & Link
 		case 15:
 			if (volume > 1)
-				printf("brl   [%03x]  [ACC]%04x\n", address, data->pc + 1);
+				printf("brl   [%03x]  (ACC)%04x\n", address, data->pc + 1);
 			data->acc = data->pc + 1;
 			data->pc = address - 1;
 			break;

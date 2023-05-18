@@ -70,10 +70,10 @@ impl IttyBittyComputingMachine {
                 return Ok(());
             },
             0x1 => {
-                self.log("i/o");
+                self.log(format!("i/o   (ACC){:04x}", self.accumulator));
                 match op & 0x0f00 {
                     0x0000 => {
-                        print!("Input hex: ");
+                        print!("Input hex:  ");
                         io::stdout().flush().unwrap();
                         let mut line = String::new();
                         std::io::stdin().read_line(&mut line)?;
@@ -103,7 +103,7 @@ impl IttyBittyComputingMachine {
                         self.accumulator = buf[0];
                     },
                     0x0800 => {
-                        println!("Output hex: {:04x}", self.accumulator);
+                        println!("Output hex:  {:04x}", self.accumulator);
                     },
                     0x0c00 => {
                         println!("Output char: {}", char::from_u32(self.accumulator as u32).unwrap_or('\0'));
@@ -117,59 +117,59 @@ impl IttyBittyComputingMachine {
                 match op & 0x0f00 {
                     0x0000 => {
                         self.accumulator = self.accumulator << distance;
-                        self.log(format!("shift [ACC]{:04x} = [ACC]{:04x} << {:x}", old, self.accumulator, distance));
+                        self.log(format!("shift (ACC){:04x} = (ACC){:04x} << {:x}", self.accumulator, old, distance));
                     },
                     0x0400 => {
                         self.accumulator = self.accumulator >> distance;
-                        self.log(format!("shift [ACC]{:04x} = [ACC]{:04x} >> {:x}", old, self.accumulator, distance));
+                        self.log(format!("shift (ACC){:04x} = (ACC){:04x} >> {:x}", self.accumulator, old, distance));
                     },
                     0x0800 => {
                         self.accumulator = self.accumulator.rotate_left(distance as u32);
-                        self.log(format!("shift [ACC]{:04x} = [ACC]{:04x} <= {:x}", old, self.accumulator, distance));
+                        self.log(format!("shift (ACC){:04x} = (ACC){:04x} <= {:x}", self.accumulator, old, distance));
                     },
                     0x0c00 => {
                         self.accumulator = self.accumulator.rotate_right(distance as u32);
-                        self.log(format!("shift [ACC]{:04x} = [ACC]{:04x} => {:x}", old, self.accumulator, distance));
+                        self.log(format!("shift (ACC){:04x} = (ACC){:04x} => {:x}", self.accumulator, old, distance));
                     },
                     _ => return Err(Error::IllegalOp(format!("{:04x}", op))),
                 }
             },
             0x3 => {
                 self.accumulator = self.memory[addr];
-                self.log(format!("load  [ACC]{:04x} = [{:03x}]{:04x}", self.accumulator, addr, self.accumulator));
+                self.log(format!("load  (ACC){:04x} = [{:03x}]{:04x}", self.accumulator, addr, self.accumulator));
             },
             0x4 => {
-                self.log(format!("store [{:03x}]{:04x} = [ACC]{:04x}", addr, self.accumulator, self.accumulator));
+                self.log(format!("store [{:03x}]{:04x} = (ACC){:04x}", addr, self.accumulator, self.accumulator));
                 self.memory[addr] = self.accumulator;
             },
             0x5 => {
                 let result = self.accumulator.wrapping_add(self.memory[addr]);
-                self.log(format!("add   [ACC]{:04x} = [ACC]{:04x} + [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
+                self.log(format!("add   (ACC){:04x} = (ACC){:04x} + [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
                 self.accumulator = result;
             },
             0x6 => {
                 let result = self.accumulator.wrapping_sub(self.memory[addr]);
-                self.log(format!("sum   [ACC]{:04x} = [ACC]{:04x} + [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
+                self.log(format!("sub   (ACC){:04x} = (ACC){:04x} - [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
                 self.accumulator = result;
             },
             0x7 => {
                 let result = self.accumulator & self.memory[addr];
-                self.log(format!("and   [ACC]{:04x} = [ACC]{:04x} & [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
+                self.log(format!("and   (ACC){:04x} = (ACC){:04x} & [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
                 self.accumulator = result;
             },
             0x8 => {
                 let result = self.accumulator | self.memory[addr];
-                self.log(format!("or    [ACC]{:04x} = [ACC]{:04x} | [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
+                self.log(format!("or    (ACC){:04x} = (ACC){:04x} | [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
                 self.accumulator = result;
             },
             0x9 => {
                 let result = self.accumulator ^ self.memory[addr];
-                self.log(format!("xor   [ACC]{:04x} = [ACC]{:04x} | [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
+                self.log(format!("xor   (ACC){:04x} = (ACC){:04x} ^ [{:03x}]{:04x}", result, self.accumulator, addr, self.memory[addr]));
                 self.accumulator = result;
             },
             0xa => {
                 let result = !self.accumulator;
-                self.log(format!("not   [ACC]{:04x} = ~[ACC]{:04x}", result, self.accumulator));
+                self.log(format!("not   (ACC){:04x} = ! (ACC){:04x}", result, self.accumulator));
                 self.accumulator = result;
             },
             0xb => {
@@ -186,7 +186,7 @@ impl IttyBittyComputingMachine {
                     self.pc = addr as u16;
                     return Ok(());
                 } else {
-                    self.log(format!("jmpe  [ACC]{:04x}", self.accumulator));
+                    self.log(format!("jmpe  (ACC){:04x}", self.accumulator));
                 }
             },
             0xe => {
@@ -195,13 +195,13 @@ impl IttyBittyComputingMachine {
                     self.pc = addr as u16;
                     return Ok(());
                 } else {
-                    self.log(format!("jmpl  [ACC]{:04x}", self.accumulator));
+                    self.log(format!("jmpl  (ACC){:04x}", self.accumulator));
                 }
             },
             0xf => {
                 self.accumulator = self.pc + 1;
+                self.log(format!("brl   [{:03x}]  (ACC){:04x}", addr, self.accumulator));
                 self.pc = addr as u16;
-                self.log(format!("brl   [{:03x}]  [ACC]{:04x}", addr, self.accumulator));
                 return Ok(());
             },
             _ => panic!("Impossible op code"),
