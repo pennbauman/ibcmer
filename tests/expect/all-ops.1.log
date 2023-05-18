@@ -1,0 +1,27 @@
+[000]b000  nop
+[001]1400  i/o   (ACC)0000
+Input char: [002]400d  store [00d]0061 = (ACC)0061
+[003]1000  i/o   (ACC)0061
+Input hex:  [004]700d  and   (ACC)0000 = (ACC)000a & [00d]0061
+[005]800e  or    (ACC)9f03 = (ACC)0000 | [00e]9f03
+[006]500f  add   (ACC)41bb = (ACC)9f03 + [00f]a2b8
+[007]6010  sub   (ACC)b567 = (ACC)41bb - [010]8c54
+[008]2802  shift (ACC)d59e = (ACC)b567 <= 2
+[009]2c0a  shift (ACC)67b5 = (ACC)d59e => a
+[00a]2001  shift (ACC)cf6a = (ACC)67b5 << 1
+[00b]2403  shift (ACC)19ed = (ACC)cf6a >> 3
+[00c]c011  jmp   [011]
+[011]1800  i/o   (ACC)19ed
+Output hex:  19ed
+[012]dfff  jmpe  (ACC)19ed
+[013]300e  load  (ACC)9f03 = [00e]9f03
+[014]900e  xor   (ACC)0000 = (ACC)9f03 ^ [00e]9f03
+[015]d019  jmpe  [019]
+[019]300d  load  (ACC)0061 = [00d]0061
+[01a]efff  jmpl  (ACC)0061
+[01b]a000  not   (ACC)ff9e = ! (ACC)0061
+[01c]e020  jmpl  [020]
+[020]f024  brl   [024]  (ACC)0021
+[024]1c00  i/o   (ACC)0021
+Output char: !
+[025]0000  halt

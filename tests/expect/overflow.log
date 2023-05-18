@@ -1,0 +1,15 @@
+[000]c010  jmp   [010]
+[010]3001  load  (ACC)8642 = [001]8642
+[011]5002  add   (ACC)1d95 = (ACC)8642 + [002]9753
+[012]1800  i/o   (ACC)1d95
+Output hex:  1d95
+[013]3003  load  (ACC)0005 = [003]0005
+[014]6004  sub   (ACC)ffa5 = (ACC)0005 - [004]0060
+[015]1800  i/o   (ACC)ffa5
+Output hex:  ffa5
+[016]300f  load  (ACC)0000 = [00f]0000
+[017]2803  shift (ACC)0000 = (ACC)0000 <= 3
+[018]2c0b  shift (ACC)0000 = (ACC)0000 => b
+[019]2001  shift (ACC)0000 = (ACC)0000 << 1
+[01a]240e  shift (ACC)0000 = (ACC)0000 >> e
+[01b]0000  halt

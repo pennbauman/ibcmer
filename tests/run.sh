@@ -15,6 +15,8 @@ $ROOT_DIR/examples/summation.ibcm
 $ROOT_DIR/examples/multiply.ibcm
 $ROOT_DIR/examples/array-summation.ibcm
 $ROOT_DIR/examples/turing.ibcm
+$ROOT_DIR/tests/all-ops.ibcm
+$ROOT_DIR/tests/overflow.ibcm
 "
 
 for bin in $EXEC_PATHS; do

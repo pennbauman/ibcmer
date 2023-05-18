@@ -1,0 +1,27 @@
+c010 000 jmp   010
+8642 001 a
+9753 002 b
+0005 003 c
+0060 004 d
+0000 005 e
+0000 006 f
+0000 007 zero
+ffff 008 max
+0000 009
+0000 00a
+0000 00b
+0000 00c
+0000 00d
+0000 00e
+0000 00f
+3001 010 load  a
+5002 011 add   b
+1800 012 print
+3003 013 load  c
+6004 014 sub   d
+1800 015 print
+300f 016 load  max
+2803 017 rotate left
+2c0b 018 rotate right
+2001 019 shift left
+240e 01a shift right
