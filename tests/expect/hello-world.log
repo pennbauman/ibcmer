@@ -1,0 +1,38 @@
+[000]c010  jmp   [010]
+[010]3001  load  (ACC)0048 = [001]0048
+[011]1c00  i/o   (ACC)0048
+Output char: H
+[012]3002  load  (ACC)0065 = [002]0065
+[013]1c00  i/o   (ACC)0065
+Output char: e
+[014]3003  load  (ACC)006c = [003]006c
+[015]1c00  i/o   (ACC)006c
+Output char: l
+[016]3004  load  (ACC)006c = [004]006c
+[017]1c00  i/o   (ACC)006c
+Output char: l
+[018]3005  load  (ACC)006f = [005]006f
+[019]1c00  i/o   (ACC)006f
+Output char: o
+[01a]3006  load  (ACC)0020 = [006]0020
+[01b]1c00  i/o   (ACC)0020
+Output char:  
+[01c]3007  load  (ACC)0077 = [007]0077
+[01d]1c00  i/o   (ACC)0077
+Output char: w
+[01e]3008  load  (ACC)006f = [008]006f
+[01f]1c00  i/o   (ACC)006f
+Output char: o
+[020]3009  load  (ACC)0072 = [009]0072
+[021]1c00  i/o   (ACC)0072
+Output char: r
+[022]300a  load  (ACC)006c = [00a]006c
+[023]1c00  i/o   (ACC)006c
+Output char: l
+[024]300b  load  (ACC)0064 = [00b]0064
+[025]1c00  i/o   (ACC)0064
+Output char: d
+[026]300c  load  (ACC)0021 = [00c]0021
+[027]1c00  i/o   (ACC)0021
+Output char: !
+[028]0000  halt
