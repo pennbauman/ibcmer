@@ -37,7 +37,15 @@ impl IttyBittyComputingMachine {
         let mut addr = 0;
         for l in reader.lines() {
             let line = l?;
+            if line.len() < 4 {
+                return Err(Error::InvalidHex(line));
+            }
             let code = &line[0..4];
+            for c in code.chars() {
+                if !c.is_digit(16) {
+                    return Err(Error::InvalidHex(code.to_string()));
+                }
+            }
             let hex = match u16::from_str_radix(code, 16) {
                 Ok(n) => n,
                 Err(_) => return Err(Error::InvalidHex(code.to_string())),
@@ -281,6 +289,33 @@ mod tests {
         let machine = IttyBittyComputingMachine::from_file("tests/nop.ibcm");
         assert!(machine.is_ok());
         assert!(machine.unwrap().memory[0] == 0xb000);
+    }
+    #[test]
+    fn loading_empty_line() {
+        let machine = IttyBittyComputingMachine::from_file("tests/empty-line.ibcm");
+        assert!(machine.is_err());
+        assert!(match machine.unwrap_err() {
+            Error::InvalidHex(_) => true,
+            _ => false
+        });
+    }
+    #[test]
+    fn loading_nonhex_op() {
+        let machine = IttyBittyComputingMachine::from_file("tests/nonhex-op.ibcm");
+        assert!(machine.is_err());
+        assert!(match machine.unwrap_err() {
+            Error::InvalidHex(_) => true,
+            _ => false
+        });
+    }
+    #[test]
+    fn loading_short_op() {
+        let machine = IttyBittyComputingMachine::from_file("tests/short-op.ibcm");
+        assert!(machine.is_err());
+        assert!(match machine.unwrap_err() {
+            Error::InvalidHex(_) => true,
+            _ => false
+        });
     }
 
     // 0 halt
