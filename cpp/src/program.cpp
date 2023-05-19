@@ -74,6 +74,7 @@ int program::step(bool loud) {
 	}
 	// Load command
 	doubleByte command = doubleByte(mem[counter]);
+	string prev;
 	if (loud)
 		cout << hex << "[" << setfill('0') << setw(3) << counter << "]" << command.str() << "  ";
 	unsigned short int result = 0;
@@ -84,23 +85,18 @@ int program::step(bool loud) {
 			return 0;
 		case '1': // I/O
 			if (loud)
-				cout << "i/o   ";
+				cout << "i/o   (ACC)" << acc.str() << endl;
 			if (command.bat(4)) {
-				if (loud)
-					cout << "(ACC)" << acc.str() << endl;
-				cout << "Output: ";
 				if (command.bat(5)) {
-					cout << acc.ascii() << endl;
+					cout << "Output char: " << acc.ascii() << endl;
 				} else {
-					cout << acc.str() << endl;
+					cout << "Output hex:  " << acc.str() << endl;
 				}
 			} else {
 				string in;
-				if (loud)
-					cout << endl;
 				while (true) {
 					if (command.bat(5)) {
-						cout << "Input ASCII char: ";
+						cout << "Input char: ";
 						getline(cin, in);
 						if (in.size() == 1) {
 							unsigned short int a = in.at(0);
@@ -110,7 +106,7 @@ int program::step(bool loud) {
 							cerr << "  Improper ASCII character." << endl;
 						}
 					} else {
-						cout << "Input 4-digit hex: ";
+						cout << "Input hex:  ";
 						getline(cin, in);
 						if ((checkHex(in)) && (in.size() <= 4)) {
 							acc.setVal(in);
@@ -123,73 +119,78 @@ int program::step(bool loud) {
 			}
 			break;
 		case '2': // shift
-			if (loud)
-				cout << "shift (ACC)" << acc.str() << " -> (ACC)";
+			prev = acc.str();
 			for (int i = 12; i < 16; i++) {
 				if (command.bat(i))
 					result += pow(2, (15-i));
 			}
-			if (command.bat(4)) {
-				acc.shiftRight(result ,command.bat(5));
+			if (command.bat(5)) {
+				acc.shiftRight(result, command.bat(4));
 			} else {
-				acc.shiftLeft(result ,command.bat(5));
+				acc.shiftLeft(result, command.bat(4));
 			}
-			if (loud)
-				cout << acc.str() << endl;
+			if (loud) {
+				cout << "shift (ACC)" << acc.str() << " = (ACC)" << prev ;
+				if (command.bat(5)) {
+					if (command.bat(4)) {
+						cout << " => " << hex << result << endl;
+					} else {
+						cout << " >> " << hex << result << endl;
+					}
+				} else {
+					if (command.bat(4)) {
+						cout << " <= " << hex << result << endl;
+					} else {
+						cout << " << " << hex << result << endl;
+					}
+				}
+			}
 			break;
 		case '3': // load
-			if (loud)
-				cout << "load  [" << hex << setfill('0') << setw(3) << command.addr() << "]";
 			acc.setVal(mem[command.addr()]);
 			if (loud)
-				cout << acc.str() << endl;
+				cout << "load  (ACC)" << acc.str() << " = [" << hex << setfill('0') << setw(3) << command.addr() << "]" << acc.str() << endl;
 			break;
 		case '4': // store
 			if (loud)
-				cout << "store [" << hex << setfill('0') << setw(3) << command.addr() << "]" << acc.str() << endl;
+				cout << "store [" << hex << setfill('0') << setw(3) << command.addr() << "]" << acc.str() << " = (ACC)" << acc.str() << endl;
 			mem[command.addr()] = acc.uint();
 			break;
 		case '5': // add
-			if (loud)
-				cout << "add   " << "(ACC)" << acc.str() << " + [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
+			prev = acc.str();
 			acc.add(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << acc.str() << endl;
+				cout << "add   " << "(ACC)" << acc.str() << " = (ACC)" << prev << " + [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()] << endl;
 			break;
 		case '6': // sub
-			if (loud)
-				cout << "sub   " << "(ACC)" << acc.str() << " - [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
+			prev = acc.str();
 			acc.sub(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << acc.str() << endl;
+				cout << "sub   " << "(ACC)" << acc.str() << " = (ACC)" << prev << " - [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()] << endl;
 			break;
 		case '7': // and
-			if (loud)
-				cout << "and   " << "(ACC)" << acc.str() << " & [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
+			prev = acc.str();
 			acc.band(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << acc.str() << endl;
+				cout << "and   " << "(ACC)" << acc.str() << " = (ACC)" << prev << " & [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()] << endl;
 			break;
 		case '8': // or
-			if (loud)
-				cout << "or    " << "(ACC)" << acc.str() << " | [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
+			prev = acc.str();
 			acc.bor(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << acc.str() << endl;
+				cout << "or    " << "(ACC)" << acc.str() << " = (ACC)" << prev << " | [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()] << endl;
 			break;
 		case '9': // xor
-			if (loud)
-				cout << "xor   " << "(ACC)" << acc.str() << " ^ [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()];
+			prev = acc.str();
 			acc.bxor(mem[command.addr()]);
 			if (loud)
-				cout << " = " << setw(4) << acc.str() << endl;
+				cout << "xor   " << "(ACC)" << acc.str() << " = (ACC)" << prev << " ^ [" << hex << setfill('0') << setw(3) << command.addr() << "]" << setw(4) << mem[command.addr()] << endl;
 			break;
 		case 'a': // not
-			if (loud)
-				cout << "not   " << "(ACC)" << acc.str() << " !";
+			prev = acc.str();
 			acc.bnot();
 			if (loud)
-				cout << " = " << setw(4) << acc.str() << endl;
+				cout << "not   " << "(ACC)" << acc.str() << " = ! (ACC)" << prev << endl;
 			break;
 		case 'b': // nop
 			if (loud)

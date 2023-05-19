@@ -8,6 +8,7 @@ ROOT_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
 INPUT_DIR="$ROOT_DIR/tests/input"
 
 EXEC_PATHS="$ROOT_DIR/c/ibcmer.out
+$ROOT_DIR/cpp/ibcmer.out
 $ROOT_DIR/rust/target/release/ibcmer
 $ROOT_DIR/go/ibcmer
 "
