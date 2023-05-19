@@ -1,3 +1,3 @@
-module github.com/pennbauman/ibcmer.git/go
+module github.com/pennbauman/ibcmer
 
 go 1.18

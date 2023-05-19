@@ -89,13 +89,13 @@ func (e Executor) Step() (Executor, error) {
 	switch e.Mem[e.PC] >> 12 {
 	case 0x0:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x halt\n", e.PC, e.Mem[e.PC])
+			fmt.Printf("[%03x]%04x  halt\n", e.PC, e.Mem[e.PC])
 		}
 		e.Halted = true
 		return e, nil
 	case 0x1:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x i/o   \n", e.PC, e.Mem[e.PC])
+			fmt.Printf("[%03x]%04x  i/o   (ACC)%04x\n", e.PC, e.Mem[e.PC], e.Acc)
 		}
 		switch e.Mem[e.PC] & 0x0f00 {
 		case 0x0000:
@@ -116,38 +116,38 @@ func (e Executor) Step() (Executor, error) {
 			}
 			e.Acc = uint16(in[0])
 		case 0x0800:
-			fmt.Printf("Print hex:  %04x\n", e.Acc)
+			fmt.Printf("Output hex:  %04x\n", e.Acc)
 		case 0x0c00:
-			fmt.Printf("Print char: %s\n", string(e.Acc & 0x7f))
+			fmt.Printf("Output char: %s\n", string(e.Acc & 0x7f))
 		default:
 			return e, errors.New("Invalid i/o type")
 		}
 	case 0x2:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x shift ", e.PC, e.Mem[e.PC])
+			fmt.Printf("[%03x]%04x  shift ", e.PC, e.Mem[e.PC])
 		}
-		distance := e.Mem[e.PC] & 0xf
+		distance := e.Mem[e.PC] & 0x000f
 		var result uint16
 		switch e.Mem[e.PC] & 0x0f00 {
 		case 0x0000:
 			result = e.Acc << distance
 			if e.Logging {
-				fmt.Printf("[ACC]%04x = [ACC]%04x << %x", result, e.Acc, distance)
+				fmt.Printf("(ACC)%04x = (ACC)%04x << %x\n", result, e.Acc, distance)
 			}
 		case 0x0400:
 			result = e.Acc >> distance
 			if e.Logging {
-				fmt.Printf("[ACC]%04x = [ACC]%04x >> %x", result, e.Acc, distance)
+				fmt.Printf("(ACC)%04x = (ACC)%04x >> %x\n", result, e.Acc, distance)
 			}
 		case 0x0800:
-			result = (e.Acc << distance) & (e.Acc >> (0xf - distance))
+			result = (e.Acc << distance) | (e.Acc >> (0x10 - distance))
 			if e.Logging {
-				fmt.Printf("[ACC]%04x = [ACC]%04x <= %x", result, e.Acc, distance)
+				fmt.Printf("(ACC)%04x = (ACC)%04x <= %x\n", result, e.Acc, distance)
 			}
 		case 0x0c00:
-			result = (e.Acc >> distance) & (e.Acc << (0xf - distance))
+			result = (e.Acc >> distance) | (e.Acc << (0x10 - distance))
 			if e.Logging {
-				fmt.Printf("[ACC]%04x = [ACC]%04x => %x", result, e.Acc, distance)
+				fmt.Printf("(ACC)%04x = (ACC)%04x => %x\n", result, e.Acc, distance)
 			}
 		default:
 			return e, errors.New("Invalid shift type")
@@ -156,102 +156,102 @@ func (e Executor) Step() (Executor, error) {
 	case 0x3:
 		result := e.Mem[addr]
 		if e.Logging {
-			fmt.Printf("[%03x]%04x load  [ACC]%04x = [%03x]%04x\n",
+			fmt.Printf("[%03x]%04x  load  (ACC)%04x = [%03x]%04x\n",
 					e.PC, e.Mem[e.PC], result, addr, result)
 		}
 		e.Acc = result
 	case 0x4:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x store [%03x]%04x = [ACC]%04x\n",
+			fmt.Printf("[%03x]%04x  store [%03x]%04x = (ACC)%04x\n",
 					e.PC, e.Mem[e.PC], addr, e.Acc, e.Acc)
 		}
 		e.Mem[addr] = e.Acc
 	case 0x5:
 		result := e.Acc + e.Mem[addr]
 		if e.Logging {
-			fmt.Printf("[%03x]%04x add   [ACC]%04x = [ACC]%04x + [%03x]%04x\n",
+			fmt.Printf("[%03x]%04x  add   (ACC)%04x = (ACC)%04x + [%03x]%04x\n",
 					e.PC, e.Mem[e.PC], result, e.Acc, addr, e.Mem[addr])
 		}
 		e.Acc = result
 	case 0x6:
-		result := e.Acc + e.Mem[addr]
+		result := e.Acc - e.Mem[addr]
 		if e.Logging {
-			fmt.Printf("[%03x]%04x sum   [ACC]%04x = [ACC]%04x - [%03x]%04x\n",
+			fmt.Printf("[%03x]%04x  sub   (ACC)%04x = (ACC)%04x - [%03x]%04x\n",
 					e.PC, e.Mem[e.PC], result, e.Acc, addr, e.Mem[addr])
 		}
 		e.Acc = result
 	case 0x7:
 		result := e.Acc & e.Mem[addr]
 		if e.Logging {
-			fmt.Printf("[%03x]%04x and   [ACC]%04x = [ACC]%04x & [%03x]%04x\n",
+			fmt.Printf("[%03x]%04x  and   (ACC)%04x = (ACC)%04x & [%03x]%04x\n",
 					e.PC, e.Mem[e.PC], result, e.Acc, addr, e.Mem[addr])
 		}
 		e.Acc = result
 	case 0x8:
 		result := e.Acc | e.Mem[addr]
 		if e.Logging {
-			fmt.Printf("[%03x]%04x or    [ACC]%04x = [ACC]%04x | [%03x]%04x\n",
+			fmt.Printf("[%03x]%04x  or    (ACC)%04x = (ACC)%04x | [%03x]%04x\n",
 				e.PC, e.Mem[e.PC], result, e.Acc, addr, e.Mem[addr])
 		}
 		e.Acc = result
 	case 0x9:
 		result := e.Acc ^ e.Mem[addr]
 		if e.Logging {
-			fmt.Printf("[%03x]%04x xor   [ACC]%04x = [ACC]%04x | [%03x]%04x\n",
+			fmt.Printf("[%03x]%04x  xor   (ACC)%04x = (ACC)%04x ^ [%03x]%04x\n",
 					e.PC, e.Mem[e.PC], result, e.Acc, addr, e.Mem[addr])
 		}
 		e.Acc = result
 	case 0xa:
-		result := ^e.Mem[addr]
+		result := 0xffff ^ e.Acc
 		if e.Logging {
-			fmt.Printf("[%03x]%04x not   [ACC]%04x = ~[ACC]%04x\n",
-					e.PC, e.Mem[e.PC], result, e.Acc, addr, e.Mem[addr])
+			fmt.Printf("[%03x]%04x  not   (ACC)%04x = ! (ACC)%04x\n",
+					e.PC, e.Mem[e.PC], result, e.Acc)
 		}
 		e.Acc = result
 	case 0xb:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x nop\n", e.PC, e.Mem[e.PC])
+			fmt.Printf("[%03x]%04x  nop\n", e.PC, e.Mem[e.PC])
 		}
 	case 0xc:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x jmp   [%03x]\n", e.PC, e.Mem[e.PC], addr)
+			fmt.Printf("[%03x]%04x  jmp   [%03x]\n", e.PC, e.Mem[e.PC], addr)
 		}
 		e.PC = addr
 		return e, nil
 	case 0xd:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x jmpe  ", e.PC, e.Mem[e.PC])
+			fmt.Printf("[%03x]%04x  jmpe  ", e.PC, e.Mem[e.PC])
 		}
 		if e.Acc == 0 {
 			if e.Logging {
-				fmt.Printf("[%03x]", addr)
+				fmt.Printf("[%03x]\n", addr)
 			}
 			e.PC = addr
 			return e, nil
 		} else {
 			if e.Logging {
-				fmt.Printf("[ACC]%04x\n", e.Acc)
+				fmt.Printf("(ACC)%04x\n", e.Acc)
 			}
 		}
 	case 0xe:
 		if e.Logging {
-			fmt.Printf("[%03x]%04x jmpl  ", e.PC, e.Mem[e.PC])
+			fmt.Printf("[%03x]%04x  jmpl  ", e.PC, e.Mem[e.PC])
 		}
 		if e.Acc & 0x8000 != 0 {
 			if e.Logging {
-				fmt.Printf("[%03x]", addr)
+				fmt.Printf("[%03x]\n", addr)
 			}
 			e.PC = addr
 			return e, nil
 		} else {
 			if e.Logging {
-				fmt.Printf("[ACC]%04x\n", e.Acc)
+				fmt.Printf("(ACC)%04x\n", e.Acc)
 			}
 		}
 	case 0xf:
 		e.Acc = e.PC + 1
 		if e.Logging {
-			fmt.Printf("[%03x]%04x brl   [%03x]  [ACC]%04x\n", e.PC, e.Mem[e.PC], addr, e.Acc)
+			fmt.Printf("[%03x]%04x  brl   [%03x]  (ACC)%04x\n", e.PC, e.Mem[e.PC], addr, e.Acc)
 		}
 		e.PC = addr
 		return e, nil

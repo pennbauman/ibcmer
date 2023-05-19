@@ -9,6 +9,7 @@ INPUT_DIR="$ROOT_DIR/tests/input"
 
 EXEC_PATHS="$ROOT_DIR/c/ibcmer.out
 $ROOT_DIR/rust/target/release/ibcmer
+$ROOT_DIR/go/ibcmer
 "
 CODE_PATHS="$ROOT_DIR/examples/hello-world.ibcm
 $ROOT_DIR/examples/summation.ibcm
