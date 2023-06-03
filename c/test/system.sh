@@ -38,6 +38,18 @@ else
 	echo "    Received: '$test_output'"
 fi
 
+test_output=$(./ibcmer.out test/overflow.ibcm --check --silent)
+expect_output="1d95ffa50180"
+if [ "$test_output" = "$expect_output" ]; then
+	PASSED=$(($PASSED + 1))
+else
+	FAILED=$(($FAILED + 1))
+	echo ""
+	echo "  All operations code execution failed (all-ops.ibcm)"
+	echo "    Expected: '$expect_output'"
+	echo "    Received: '$test_output'"
+fi
+
 if [ $FAILED -gt 0 ]; then
 	echo ""
 	echo "-------------------------------------------------------------"
@@ -48,6 +60,6 @@ fi
 
 echo "Tests Passed: $PASSED"
 if [ $FAILED -gt 0 ]; then
-	echo -e "Tests Failed: \033[0;31m$FAILED\033[0m"
+	printf "Tests Failed: \033[0;31m$FAILED\033[0m\n\n"
 	exit 1
 fi

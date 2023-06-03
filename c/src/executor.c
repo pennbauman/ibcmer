@@ -8,15 +8,15 @@
 signed char check_line_num(char* line, unsigned short line_num) {
 	int i = 4;
 	// Check there are spaces after the command
-	if ((line[i] != ' ') && (line[i] != '\t'))
+	if (!isspace(line[i]))
 		return i;
 	// Skip over whitespace
-	while ((line[i] == ' ') || (line[i] == '\t'))
+	while (isspace(line[i]))
 		i++;
 	//Parse number
 	int j = 0;
 	char num[4];
-	while ((line[i+j] != ' ') && (line[i+j] != '\t')) {
+	while (!isspace(line[i+j]) && (line[i+j] != 0)) {
 		if (! isxdigit(line[i + j]))
 			return i + j;
 		if (j > 2)

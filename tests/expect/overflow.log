@@ -7,9 +7,11 @@ Output hex:  1d95
 [014]6004  sub   (ACC)ffa5 = (ACC)0005 - [004]0060
 [015]1800  i/o   (ACC)ffa5
 Output hex:  ffa5
-[016]300f  load  (ACC)0000 = [00f]0000
-[017]2803  shift (ACC)0000 = (ACC)0000 <= 3
-[018]2c0b  shift (ACC)0000 = (ACC)0000 => b
-[019]2001  shift (ACC)0000 = (ACC)0000 << 1
-[01a]240e  shift (ACC)0000 = (ACC)0000 >> e
-[01b]0000  halt
+[016]3008  load  (ACC)7fff = [008]7fff
+[017]2803  shift (ACC)fffb = (ACC)7fff <= 3
+[018]2c0b  shift (ACC)ff7f = (ACC)fffb => b
+[019]200e  shift (ACC)c000 = (ACC)ff7f << e
+[01a]2407  shift (ACC)0180 = (ACC)c000 >> 7
+[01b]1800  i/o   (ACC)0180
+Output hex:  0180
+[01c]0000  halt
