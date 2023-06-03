@@ -3,9 +3,10 @@
 #   URL: https://github.com/pennbauman/ibcmer
 #   License: Creative Commons Attribution Share Alike 4.0 International
 #   Author: Penn Bauman <me@pennbauman.com>
-TMP_DIR="$(mktemp -d /tmp/ibcmer-XXXXXX)"
-ROOT_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
-INPUT_DIR="$ROOT_DIR/tests/input"
+ROOT_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
+INPUT_DIR="$(realpath $ROOT_DIR/tests/input | sed "s/$(pwd | tr / .)/./")"
+OUTPUT_DIR="$(realpath $ROOT_DIR/tests/output | sed "s/$(pwd | tr / .)/./")"
+EXPECT_DIR="$(realpath $ROOT_DIR/tests/expect | sed "s/$(pwd | tr / .)/./")"
 
 EXEC_PATHS="$ROOT_DIR/c/ibcmer.out
 $ROOT_DIR/cpp/ibcmer.out
@@ -23,42 +24,64 @@ $ROOT_DIR/tests/all-ops.ibcm
 $ROOT_DIR/tests/overflow.ibcm
 "
 
+runtest () {
+	# setup local variables
+	if [ -z "$3" ]; then
+		test_id="$(basename "$2" | sed -E 's/\.[a-z]+//')"
+	else
+		test_id="$(basename "$2" | sed -E 's/\.[a-z]+//').$3"
+	fi
+	lang="$(echo "$1" | sed -E -e "s/$(echo $ROOT_DIR | tr / .)\///" -e "s/\/.*$//")"
+	expect_file="$ROOT_DIR/tests/expect/$test_id.log"
+	log_file="$OUTPUT_DIR/$lang/$test_id.log"
+	diff_file="$OUTPUT_DIR/$lang/$test_id.diff"
+	input_file="$INPUT_DIR/$test_id.txt"
+
+	printf "\033[1;36m[%s] %s\033[0m\n" "$lang" "$(echo $test_id | sed 's/\./ - /')"
+	mkdir -p "$OUTPUT_DIR/$lang"
+	if [ -f "$input_file" ]; then
+		"$1" "$2" > "$log_file" < "$input_file"
+	else
+		"$1" "$2" > "$log_file"
+	fi
+	diff "$log_file" "$expect_file" > "$diff_file"
+	if [ $? -ne 0 ]; then
+		echo "Test failed (output: $log_file, diff: $diff_file)"
+		return 1
+	fi
+	return 0
+}
+
+
+rm -rf $OUTPUT_DIR
+mkdir -p $OUTPUT_DIR
+
 for bin in $EXEC_PATHS; do
 	if [ ! -f "$bin" ]; then
-		echo "Missing '$bin'"
-		rm -rf $TMP_DIR
+		echo "Missing test executable '$bin'"
 		exit 1
 	fi
-	lang="$(echo "$bin" | sed -E -e "s/$(echo "$ROOT_DIR" | sed 's/\//\\\//g')\///" -e "s/\/.*$//")"
 
 	for file in $CODE_PATHS; do
 		if [ ! -f "$file" ]; then
-			echo "Missing '$file'"
-			rm -rf $TMP_DIR
+			echo "Missing IBCM code file '$file'"
 			exit 1
 		fi
 		test_name="$(basename "$file" | sed -E 's/\.[a-z]+//')"
 
-		if [ -z "$(find "$INPUT_DIR" -name "$test_name*")" ]; then
-			printf "\033[1;36m%s\033[0m\n" "[$lang] $test_name"
-			expect_file="$ROOT_DIR/tests/expect/$test_name.log"
-			tmp_file="$TMP_DIR/$test_name.$lang.log"
-
-			$bin $file > $tmp_file
-			diff $tmp_file $expect_file
-		else
+		if [ -f "$EXPECT_DIR/$test_name.log" ]; then
+			runtest "$bin" "$file"
+		elif [ -f "$EXPECT_DIR/$test_name.1.log" ]; then
 			i=1
-			while [ -e "$INPUT_DIR/$test_name.$i.txt" ]; do
-				printf "\033[1;36m%s\033[0m\n" "[$lang] $test_name - $i"
-				expect_file="$ROOT_DIR/tests/expect/$test_name.$i.log"
-				tmp_file="$TMP_DIR/$test_name.$lang.$i.log"
-
-				$bin $file > $tmp_file < "$INPUT_DIR/$test_name.$i.txt"
-				diff $tmp_file $expect_file
+			while [ -f "$INPUT_DIR/$test_name.$i.txt" ]; do
+				runtest "$bin" "$file" "$i"
+				if [ $? -ne 0 ]; then
+					break
+				fi
 				i=$(($i + 1))
 			done
+		else
+			echo "Expected output '$EXPECT_DIR/$test_name.log' not found"
 		fi
 	done
 done
-
-rm -rf $TMP_DIR
