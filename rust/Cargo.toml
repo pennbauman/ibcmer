@@ -1,8 +1,10 @@
 [package]
 name = "ibcmer"
 version = "0.1.0"
-authors = ["Penn Bauman <pennbauman@protonmail.com>"]
-edition = "2018"
+authors = ["Penn Bauman <me@pennbauman.com>"]
+edition = "2021"
+repository = "https://github.com/pennbauman/ibcmer"
+license = "CC-BY-4.0"
 
 [dependencies]
 thiserror = "1.0"

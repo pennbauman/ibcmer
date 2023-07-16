@@ -1,4 +1,4 @@
-// IBCMer
+// IBCMer - Rust
 //   Author:
 //     Penn Bauman (pennbauman@protonmail.com)
 use std::env;
