@@ -2,7 +2,6 @@
 #   URL: https://github.com/pennbauman/ibcmer
 #   License: Creative Commons Attribution Share Alike 4.0 International
 #   Author: Penn Bauman <me@pennbauman.com>
-CXX = clang++
 CXXFLAGS = -g -Wall -std=c++17 -O3 -fPIC
 prefix = /usr/local
 

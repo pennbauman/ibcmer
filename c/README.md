@@ -2,6 +2,16 @@
 Command line executor and debugger for IBCM written in C
 
 
+## Building and Testing
+To build ibcmer run:
+
+    make
+
+To run tests use:
+
+    make test
+
+
 ## Installation
 To install in /usr/local (requires root access) run:
 
