@@ -14,6 +14,7 @@ $ROOT_DIR/rust/target/release/ibcmer
 $ROOT_DIR/go/ibcmer
 $ROOT_DIR/python/ibcmer.py
 $ROOT_DIR/shell/ibcmer.sh
+$ROOT_DIR/perl/ibcmer.pl
 "
 CODE_PATHS="$ROOT_DIR/examples/hello-world.ibcm
 $ROOT_DIR/examples/summation.ibcm
