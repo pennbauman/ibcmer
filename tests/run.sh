@@ -1,5 +1,5 @@
 #!/bin/sh
-# Test all implementations - IBCMer
+# IBCMer Implementation Testing Script
 #   URL: https://github.com/pennbauman/ibcmer
 #   License: Creative Commons Attribution Share Alike 4.0 International
 #   Author: Penn Bauman <me@pennbauman.com>
@@ -8,21 +8,30 @@ INPUT_DIR="$(realpath $ROOT_DIR/tests/input | sed "s/$(pwd | tr / .)/./")"
 OUTPUT_DIR="$(realpath $ROOT_DIR/tests/output | sed "s/$(pwd | tr / .)/./")"
 EXPECT_DIR="$(realpath $ROOT_DIR/tests/expect | sed "s/$(pwd | tr / .)/./")"
 
-EXEC_PATHS="$ROOT_DIR/c/ibcmer.out
-$ROOT_DIR/cpp/ibcmer.out
-$ROOT_DIR/rust/target/release/ibcmer
-$ROOT_DIR/go/ibcmer
-$ROOT_DIR/python/ibcmer.py
-$ROOT_DIR/shell/ibcmer.sh
-$ROOT_DIR/perl/ibcmer.pl
+EXEC_LIST="c/ibcmer.out
+cpp/ibcmer.out
+rust/target/release/ibcmer
+go/ibcmer
+python/ibcmer.py
+shell/ibcmer.sh
+perl/ibcmer.pl
 "
-CODE_PATHS="$ROOT_DIR/examples/hello-world.ibcm
-$ROOT_DIR/examples/summation.ibcm
-$ROOT_DIR/examples/multiply.ibcm
-$ROOT_DIR/examples/array-summation.ibcm
-$ROOT_DIR/examples/turing.ibcm
-$ROOT_DIR/tests/all-ops.ibcm
-$ROOT_DIR/tests/overflow.ibcm
+CODE_LIST="examples/hello-world.ibcm
+examples/summation.ibcm
+examples/multiply.ibcm
+examples/array-summation.ibcm
+examples/turing.ibcm
+tests/all-ops.ibcm
+tests/overflow.ibcm
+"
+HELP_TEXT="IBCMer Implementation Testing Script
+
+  $0 [OPTIONS]
+
+Options:
+  --langs,-l [LANGS]   Language(s) to test as a comma seperated list
+  --tests,-t [TESTS]   Test(s) to run as a comma seperated list
+  --help,-h            Print this help menu
 "
 
 runtest () {
@@ -52,6 +61,77 @@ runtest () {
 	fi
 	return 0
 }
+
+LANGS=""
+TESTS=""
+# Read command line options
+if [ $# -gt 0 ]; then
+	GET_VALUE=""
+	for arg in "$@"; do
+		if [ ! -z $GET_VALUE ]; then
+			case $GET_VALUE in
+				--langs|-l) LANGS="$arg" ;;
+				--tests|-t) TESTS="$arg" ;;
+				*) echo "UNREACHABLE CODE (\$GET_VALUE case)"; exit 1 ;;
+			esac
+			GET_VALUE=""
+			continue
+		fi
+		#echo "arg: '$arg'"
+		if [ ! -z $(echo $arg | grep -oE '^-*[hH](elp|)$') ]; then
+			echo "$HELP_TEXT"
+			exit 0
+		fi
+
+		case $arg in
+			--langs|-l) GET_VALUE="$arg" ;;
+			--tests|-t) GET_VALUE="$arg" ;;
+			*) echo "Unknown option '$arg'"
+				exit 1 ;;
+		esac
+	done
+	# Check if value for option is still required
+	case $GET_VALUE in
+		"" ) ;;
+		--langs|-l) echo "Missing language(s) for '$GET_VALUE' option" ; exit 1 ;;
+		--tests|-t) echo "Missing test(s) for '$GET_VALUE' option" ; exit 1 ;;
+		*) echo "UNREACHABLE CODE (\$GET_VALUE case)"; exit 1 ;;
+	esac
+fi
+
+# Select languages to test
+EXEC_PATHS=""
+if [ -z "$LANGS" ]; then
+	for f in $EXEC_LIST; do
+		EXEC_PATHS="$EXEC_PATHS $ROOT_DIR/$f"
+	done
+else
+	while read -r l; do
+		if [ ! -z "$(echo "$EXEC_LIST" | grep -oE "^$l/")" ]; then
+			EXEC_PATHS="$EXEC_PATHS $ROOT_DIR/$(echo "$EXEC_LIST" | grep -E "^$l/")"
+		else
+			echo "Unknown language '$l'"
+			exit 1
+		fi
+	done <<< $(echo "$LANGS" | sed 's/,/\n/g')
+fi
+
+# Select tests to run
+CODE_PATHS=""
+if [ -z "$TESTS" ]; then
+	for f in $CODE_LIST; do
+		CODE_PATHS="$CODE_PATHS $ROOT_DIR/$f"
+	done
+else
+	while read -r t; do
+		if [ ! -z "$(echo "$CODE_LIST" | grep -oE "/$t(\.ibcm)?$")" ]; then
+			CODE_PATHS="$CODE_PATHS $ROOT_DIR/$(echo "$CODE_LIST" | grep -E "/$t(\.ibcm)?$")"
+		else
+			echo "Unknown test '$t'"
+			exit 1
+		fi
+	done <<< $(echo "$TESTS" | sed 's/,/\n/g')
+fi
 
 
 rm -rf $OUTPUT_DIR
