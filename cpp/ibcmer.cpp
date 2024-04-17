@@ -14,7 +14,7 @@ using namespace std;
 
 // Check if string is a number
 bool isNum(string s) {
-	for (int i = 0; i < s.size(); i++) {
+	for (unsigned int i = 0; i < s.size(); i++) {
 		if (!isdigit(s.at(i)))
 			return false;
 	}
@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
 					if (input.size() < 7) {
 						cerr << " Set requires an address and a value." << endl;
 					}
-					for (int i = 1; i < input.size()-4; i++) {
+					for (unsigned int i = 1; i < input.size()-4; i++) {
 						if (input.at(4+i) == ' ') {
 							if ((i < 4) && (input.size()-5-i < 5) && checkHex(input.substr(4, i)) && checkHex(input.substr(5+i))) {
 								doubleByte temp1 = doubleByte(input.substr(4, i));

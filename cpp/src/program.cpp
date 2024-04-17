@@ -293,7 +293,7 @@ void program::printMem(unsigned int i, bool formated) const {
 bool checkHex(string s) {
 	if (s.size() == 0)
 		return false;
-	for (int i = 0; i < s.size(); i++) {
+	for (unsigned int i = 0; i < s.size(); i++) {
 		switch(s.at(i)) {
 			case '0': break;
 			case '1': break;
