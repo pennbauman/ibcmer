@@ -16,6 +16,7 @@ python/ibcmer.py
 shell/ibcmer.sh
 perl/ibcmer.pl
 lua/ibcmer.lua
+R/ibcmer.R
 "
 CODE_LIST="examples/hello-world.ibcm
 examples/summation.ibcm
