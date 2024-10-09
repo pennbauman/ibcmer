@@ -24,6 +24,7 @@ examples/array-summation.ibcm
 examples/turing.ibcm
 tests/all-ops.ibcm
 tests/overflow.ibcm
+tests/empty.ibcm
 "
 HELP_TEXT="IBCMer Implementation Testing Script
 

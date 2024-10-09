@@ -53,9 +53,6 @@ impl IttyBittyComputingMachine {
             fin.memory[addr] = hex;
             addr += 1;
         }
-        if addr == 0 {
-            return Err(Error::EmptyFile);
-        }
         return Ok(fin);
     }
 
