@@ -11,8 +11,8 @@ test: all
 clean:
 	make -C c clean
 	make -C cpp clean
-	rm -f go/ibcmer
-	rm -rf rust/target
+	cd go && go clean
+	cd rust && cargo clean
 
 
 c/ibcmer.out: c/ibcmer.c c/src
@@ -22,7 +22,7 @@ cpp/ibcmer.out: cpp/ibcmer.cpp cpp/src
 	make -C cpp ibcmer.out
 
 go/ibcmer: go/go.mod go/*.go
-	go build -C go
+	cd go && go build
 
 rust/target/release/ibcmer: rust/Cargo.toml rust/src
 	cd rust && cargo build --release

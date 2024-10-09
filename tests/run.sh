@@ -1,5 +1,5 @@
 #!/bin/sh
-# IBCMer Implementation Testing Script
+# IBCMer - Implementation Testing Script
 #   URL: https://github.com/pennbauman/ibcmer
 #   License: Creative Commons Attribution Share Alike 4.0 International
 #   Author: Penn Bauman <me@pennbauman.com>
@@ -108,14 +108,14 @@ if [ -z "$LANGS" ]; then
 		EXEC_PATHS="$EXEC_PATHS $ROOT_DIR/$f"
 	done
 else
-	while read -r l; do
+	for l in $(echo "$LANGS" | sed 's/,/ /g'); do
 		if [ ! -z "$(echo "$EXEC_LIST" | grep -oE "^$l/")" ]; then
 			EXEC_PATHS="$EXEC_PATHS $ROOT_DIR/$(echo "$EXEC_LIST" | grep -E "^$l/")"
 		else
 			echo "Unknown language '$l'"
 			exit 1
 		fi
-	done <<< $(echo "$LANGS" | sed 's/,/\n/g')
+	done
 fi
 
 # Select tests to run
@@ -125,14 +125,14 @@ if [ -z "$TESTS" ]; then
 		CODE_PATHS="$CODE_PATHS $ROOT_DIR/$f"
 	done
 else
-	while read -r t; do
+	for t in $(echo "$TESTS" | sed 's/,/ /g'); do
 		if [ ! -z "$(echo "$CODE_LIST" | grep -oE "/$t(\.ibcm)?$")" ]; then
 			CODE_PATHS="$CODE_PATHS $ROOT_DIR/$(echo "$CODE_LIST" | grep -E "/$t(\.ibcm)?$")"
 		else
 			echo "Unknown test '$t'"
 			exit 1
 		fi
-	done <<< $(echo "$TESTS" | sed 's/,/\n/g')
+	done
 fi
 
 
