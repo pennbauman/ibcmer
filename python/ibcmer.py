@@ -30,7 +30,7 @@ class IBCM:
                     self.memory[i] = int(line[0:4], 16)
                     i += 1
                 else:
-                    print("Invalid Line '" + line + "'")
+                    print("Invalid line '" + line + "'")
                     sys.exit(1)
 
     def print(self):

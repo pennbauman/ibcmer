@@ -126,11 +126,11 @@ while true do
 			res = ACC >> distance
 			arrow = ">>"
 		elseif subopcode == 0x8 then
-			res = ((ACC << distance) | (ACC >> (16 - distance))) & 0xffff;
-			arrow = "<=";
+			res = ((ACC << distance) | (ACC >> (16 - distance))) & 0xffff
+			arrow = "<="
 		elseif subopcode == 0xC then
-			res = ((ACC >> distance) | (ACC << (16 - distance))) & 0xffff;
-			arrow = "=>";
+			res = ((ACC >> distance) | (ACC << (16 - distance))) & 0xffff
+			arrow = "=>"
 		else
 			print(string.format("Unknown shift sub-opcode '%x'", subopcode))
 			os.exit(2)
