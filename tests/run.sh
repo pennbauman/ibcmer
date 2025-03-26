@@ -18,6 +18,7 @@ perl/ibcmer.pl
 lua/ibcmer.lua
 R/ibcmer.R
 ruby/ibcmer.rb
+zig/zig-out/bin/ibcmer
 "
 CODE_LIST="examples/hello-world.ibcm
 examples/summation.ibcm
