@@ -2,12 +2,23 @@
 Executors and debuggers for the IBCM mock ISA implemented in various languages
 
 
+## Building & Testing
+Dependencies can be install for Fedora (or for Debian although missing Zig) by running:
+
+    ./dependencies.sh
+
+To build all implementations and run all tests use:
+
+    make
+    make test
+
+For running specific tests you can use `./tests/run.sh` directly, for more information run:
+
+    ./tests/run.sh --help
+
+
 ## Purpose
 I wrote the first implementation of IBCMer (in C++) while taking [CS 2150](https://uva-cs.github.io/pdr) at [UVA](https://www.virginia.edu). The IBCM executor provided by the class was cumbersome and required internet access, so I created this tool to allow for quick local testing of IBCM programs. Since then I have reimplemented IBCMer in several languages for fun and to help practice new languages I am learning.
-
-
-## Building & Testing
-All implementations that require compilation can be built by running `make` in the root directory, and all tests can be run with either `make test` or `./tests/run.sh`. For more selective testing see the options detailed by `./tests/run.sh --help`.
 
 
 ## IBCM

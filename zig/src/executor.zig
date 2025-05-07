@@ -1,8 +1,11 @@
+// IBCMer - Zig
+//   URL: https://github.com/pennbauman/ibcmer
+//   License: Creative Commons Attribution Share Alike 4.0 International
+//   Author: Penn Bauman <me@pennbauman.com>
 const std = @import("std");
-// const fs = std.fs;
-// const print = std.debug.print;
 
 const MEM_SIZE = 4096;
+
 
 pub const IBCMError = error {
     InvalidHex,
