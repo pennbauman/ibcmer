@@ -1,0 +1,24 @@
+{
+  "name": "ibcmer",
+  "version": "1.0.0",
+  "description": "Tools for the Itty Bitty Computing Machine (IBCM) mock ISA",
+  "main": "ibcm.js",
+  "bin": "ibcmer.js",
+  "scripts": {
+    "test": "../tests/run.sh -l javascript"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pennbauman/ibcmer.git",
+    "directory": "js"
+  },
+  "keywords": [
+    "ibcm"
+  ],
+  "author": "Penn Bauman <me@pennbauman.com>",
+  "license": "CC-BY-SA-4.0",
+  "dependencies": {
+    "async-channel": "^0.2.0"
+  }
+}

@@ -3,7 +3,7 @@
 #   License: Creative Commons Attribution Share Alike 4.0 International
 #   Author: Penn Bauman <me@pennbauman.com>
 
-all: c/ibcmer.out cpp/ibcmer.out go/ibcmer rust/target/release/ibcmer zig/zig-out/bin/ibcmer
+all: c/ibcmer.out cpp/ibcmer.out go/ibcmer rust/target/release/ibcmer zig/zig-out/bin/ibcmer javascript/node_modules
 
 test: all
 	./tests/run.sh
@@ -14,6 +14,7 @@ clean:
 	cd go && go clean
 	cd rust && cargo clean
 	rm -rf zig/.zig-cache zig/zig-out
+	rm -rf js/node_modules
 
 
 c/ibcmer.out: c/ibcmer.c c/src
@@ -30,3 +31,6 @@ rust/target/release/ibcmer: rust/Cargo.toml rust/src
 
 zig/zig-out/bin/ibcmer: zig/src/* zig/build.zig*
 	cd zig && zig build --release=fast
+
+javascript/node_modules: javascript/package-lock.json
+	cd javascript && npm clean-install
