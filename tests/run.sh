@@ -46,7 +46,7 @@ runtest () {
 	else
 		test_id="$(basename "$2" | sed -E 's/\.[a-z]+//').$3"
 	fi
-	lang="$(echo "$1" | sed -E -e "s/$(echo $ROOT_DIR | tr / .)\///" -e "s/\/.*$//")"
+	lang="$(echo "$1" | sed  -e "s/$(echo $ROOT_DIR | tr / .)\///" -e "s/\/.*$//")"
 	expect_file="$ROOT_DIR/tests/expect/$test_id.log"
 	log_file="$OUTPUT_DIR/$lang/$test_id.log"
 	diff_file="$OUTPUT_DIR/$lang/$test_id.diff"
