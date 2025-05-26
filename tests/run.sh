@@ -20,6 +20,7 @@ R/ibcmer.R
 ruby/ibcmer.rb
 zig/zig-out/bin/ibcmer
 javascript/ibcmer.js
+swift/.build/release/ibcmer
 "
 CODE_LIST="examples/hello-world.ibcm
 examples/summation.ibcm
@@ -47,7 +48,7 @@ runtest () {
 	else
 		test_id="$(basename "$2" | sed -E 's/\.[a-z]+//').$3"
 	fi
-	lang="$(echo "$1" | sed  -e "s/$(echo $ROOT_DIR | tr / .)\///" -e "s/\/.*$//")"
+	lang="$(realpath -s --relative-to="$ROOT_DIR" "$1" | sed -E -e "s/\/.*$//")"
 	expect_file="$ROOT_DIR/tests/expect/$test_id.log"
 	log_file="$OUTPUT_DIR/$lang/$test_id.log"
 	diff_file="$OUTPUT_DIR/$lang/$test_id.diff"
