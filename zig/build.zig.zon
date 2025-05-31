@@ -3,7 +3,8 @@
 //   License: Creative Commons Attribution Share Alike 4.0 International
 //   Author: Penn Bauman <me@pennbauman.com>
 .{
-    .name = "ibcmer",
+    .name = .ibcmer,
+    .fingerprint = 0xb2d65470acd6bedc,
     .version = "0.1.0",
 
     .paths = .{

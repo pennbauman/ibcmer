@@ -122,7 +122,7 @@ func (e Executor) Step() (Executor, error) {
 		case 0x0800:
 			fmt.Printf("Output hex:  %04x\n", e.Acc)
 		case 0x0c00:
-			fmt.Printf("Output char: %s\n", string(e.Acc & 0x7f))
+			fmt.Printf("Output char: %s\n", string(rune(e.Acc & 0x7f)))
 		default:
 			return e, errors.New("Invalid i/o type")
 		}

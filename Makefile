@@ -6,13 +6,16 @@
 all: c/ibcmer.out cpp/ibcmer.out go/ibcmer rust/target/release/ibcmer zig/zig-out/bin/ibcmer javascript/node_modules swift/.build/release/ibcmer
 
 test: all
+	make -C c test
+	cd rust && cargo test --release
+	cd zig && zig test src/main.zig
 	./tests/run.sh
 
 clean:
 	make -C c clean
 	make -C cpp clean
-	cd go && go clean
-	cd rust && cargo clean
+	rm -f go/ibcmer
+	rm -rf rust/target
 	rm -rf zig/.zig-cache zig/zig-out
 	rm -rf js/node_modules
 	rm -rf swift/.build

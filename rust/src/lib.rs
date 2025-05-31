@@ -260,8 +260,6 @@ impl IttyBittyComputingMachine {
 pub enum Error {
     #[error("IO Error")]
     IO(#[from] std::io::Error),
-    #[error("Empty file")]
-    EmptyFile,
     #[error("Invalid input '{0}'")]
     InvalidInput(String),
     #[error("Invalid hexidecimal '{0}'")]
@@ -280,7 +278,8 @@ mod tests {
     #[test]
     fn loading_empty_file() {
         let machine = IttyBittyComputingMachine::from_file("tests/empty-file.ibcm");
-        assert!(machine.is_err());
+        assert!(machine.is_ok());
+        assert!(machine.unwrap().memory[0] == 0x0000);
     }
     #[test]
     fn loading_nop_file() {
