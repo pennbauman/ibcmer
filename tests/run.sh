@@ -21,6 +21,7 @@ ruby/ibcmer.rb
 zig/zig-out/bin/ibcmer
 javascript/ibcmer.js
 swift/.build/release/ibcmer
+fish/ibcmer.fish
 "
 CODE_LIST="examples/hello-world.ibcm
 examples/summation.ibcm
