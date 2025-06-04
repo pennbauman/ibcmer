@@ -40,13 +40,13 @@ unsigned char read_file(ibcmemory *data, char* filename, unsigned char num_check
 
 	// Open code file
 	if (strlen(filename) == 0) {
-		printf("%s A code file must be provided\n", E_ERROR);
+		fprintf(stderr, "%s A code file must be provided\n", E_ERROR);
 		return 1;
 	}
 	// Check code file exists
 	FILE *src = fopen(filename, "r");
 	if (src == NULL) {
-		printf("%s Code file '%s' not found\n", E_ERROR, filename);
+		fprintf(stderr, "%s Code file '%s' not found\n", E_ERROR, filename);
 		return 1;
 	}
 
@@ -61,12 +61,12 @@ unsigned char read_file(ibcmemory *data, char* filename, unsigned char num_check
 			int j = 0;
 			for (; j < 4; j++) {
 				if (! isxdigit(line[j])) {
-					printf("%s '%s:%d:%d' Invalid operation code\n",
+					fprintf(stderr, "%s '%s:%d:%d' Invalid operation code\n",
 							E_ERROR, filename, num + 1, j + 1);
-					printf("\n    %s\n    ", line);
+					fprintf(stderr, "\n    %s\n    ", line);
 					for (int k = 0; k < j; k++)
-						printf(" ");
-					printf("%s^%s\n", C_YELLOW, C_NONE);
+						fprintf(stderr, " ");
+					fprintf(stderr, "%s^%s\n", C_YELLOW, C_NONE);
 					return 1;
 				}
 			}
@@ -74,42 +74,37 @@ unsigned char read_file(ibcmemory *data, char* filename, unsigned char num_check
 			if (num_check) {
 				unsigned char test = check_line_num(line, num);
 				if (test == 1) {
-					printf("%s '%s:%d' Incorrect line number\n",
+					fprintf(stderr, "%s '%s:%d' Incorrect line number\n",
 							E_ERROR, filename, num + 1);
-					printf("\n    %s\n        ", line);
+					fprintf(stderr, "\n    %s\n        ", line);
 					int k = 4;
 					while ((line[k] == ' ') || (line[k] == '\t')) {
-						printf(" ");
+						fprintf(stderr, " ");
 						k++;
 					}
-					printf("%s", C_YELLOW);
-					//k++;
+					fprintf(stderr, "%s", C_YELLOW);
 					while ((line[k] != ' ') && (line[k] != '\t')) {
-						printf("^");
+						fprintf(stderr, "^");
 						k++;
 					}
-					printf("%s\n", C_NONE);
+					fprintf(stderr, "%s\n", C_NONE);
 					return 1;
 
 				}
 				if (test > 2) {
-					printf("%s '%s:%d:%d' Invalid line number\n",
+					fprintf(stderr, "%s '%s:%d:%d' Invalid line number\n",
 							E_ERROR, filename, num + 1, test + 1);
-					printf("\n    %s\n    ", line);
+					fprintf(stderr, "\n    %s\n    ", line);
 					for (int k = 0; k < test; k++)
-						printf(" ");
-					printf("%s^%s\n", C_YELLOW, C_NONE);
+						fprintf(stderr, " ");
+					fprintf(stderr, "%s^%s\n", C_YELLOW, C_NONE);
 					return 1;
 				}
 			}
 
 			// Parse command and save it to memory
-			char hex[5];
-			for (int i = 0; i < 4; i++) {
-				hex[i] = line[i];
-			}
-			hex[4] = '\0';
-			data->mem[num] = strtol(hex, NULL, 16);
+			line[4] = '\0';
+			data->mem[num] = strtol(line, NULL, 16);
 			num++;
 			i = 0;
 		} else {
@@ -126,7 +121,7 @@ void step(ibcmemory *data, int volume) {
 	unsigned short temp = 0;
 	// Check for memory overflow
 	if (data->pc == MEM_SIZE) {
-		printf("%s Program overran memory\n", E_ERROR);
+		fprintf(stderr, "%s Memory overflow (PC = 0x%04x)\n", E_ERROR, data->pc);
 		exit(1);
 	}
 	if (volume > 1)
@@ -159,9 +154,9 @@ void step(ibcmemory *data, int volume) {
 						fgets(input, 64, stdin);
 						// Check length is 4
 						if (strlen(input) > 5) {
-							printf("  %s Too long\n", E_INVALID_IN);
+							fprintf(stderr, "  %s Too long\n", E_INVALID_IN);
 						} else if (strlen(input) < 2) {
-							printf("  %s\n", E_MISSING_IN);
+							fprintf(stderr, "  %s\n", E_MISSING_IN);
 						} else {
 							// Check all characters are valid hex
 							char valid = 1;
@@ -174,7 +169,7 @@ void step(ibcmemory *data, int volume) {
 								data->acc = strtol(input, NULL, 16);
 								break;
 							} else {
-								printf("  %s Not hex\n", E_INVALID_IN);
+								fprintf(stderr, "  %s Not hexadecimal\n", E_INVALID_IN);
 							}
 						}
 					}
@@ -187,9 +182,9 @@ void step(ibcmemory *data, int volume) {
 						fgets(input, 64, stdin);
 						// Check length is 1
 						if (strlen(input) > 2) {
-							printf("  %s Multiple characters\n", E_INVALID_IN);
+							fprintf(stderr, "  %s Multiple characters\n", E_INVALID_IN);
 						} else if (strlen(input) < 2) {
-							printf("  %s\n", E_MISSING_IN);
+							fprintf(stderr, "  %s\n", E_MISSING_IN);
 						} else {
 							// Read char value
 							data->acc = input[0];
@@ -215,7 +210,7 @@ void step(ibcmemory *data, int volume) {
 					break;
 				// Check invalid subcommands
 				default:
-					printf("\n%s Invalid I/O operation code\n", E_ERROR);
+					fprintf(stderr, "\n%s Invalid I/O sub-opcode '%x'\n", E_ERROR, type);
 					exit(1);
 			}
 			break;
@@ -261,7 +256,7 @@ void step(ibcmemory *data, int volume) {
 					break;
 				// Check invalid subcommands
 				default:
-					printf("\n%s Invalid shift operation code\n", E_ERROR);
+					fprintf(stderr, "\n%s Invalid shift sub-opcode '%x'\n", E_ERROR, direction);
 					exit(1);
 			}
 			data->acc = temp;

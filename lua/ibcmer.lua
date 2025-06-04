@@ -42,7 +42,7 @@ end
 
 -- Check code file argument
 if (#arg < 1) then
-	print("Missing code file")
+	io.stderr:write("Error: Missing code file\n")
 	os.exit(1)
 end
 
@@ -54,18 +54,18 @@ if checkfile(arg[1]) then
 	for line in io.lines(arg[1]) do
 		opcode = string.sub(line, 1, 4)
 		if not checkhex(opcode, 4, 4) then
-			print(string.format("Invalid opcode '%s' on line %d", opcode, i + 1))
+			io.stderr:write(string.format("Error: Invalid opcode '%s' on line %d\n", opcode, i + 1))
 			os.exit(1)
 		end
 		MEM[i] = tonumber(opcode, 16)
 		if MEM[i] == nil then
-			print(string.format("Invalid opcode '%s' on line %d", opcode, i + 1))
+			io.stderr:write(string.format("Error: Invalid opcode '%s' on line %d\n", opcode, i + 1))
 			os.exit(1)
 		end
 		i = i + 1
 	end
 else
-	print(string.format("Code file '%s' not found", arg[1]))
+	io.stderr:write(string.format("Error: Code file '%s' not found\n", arg[1]))
 	os.exit(1)
 end
 -- Fill rest of memory
@@ -112,7 +112,7 @@ while true do
 		elseif subopcode == 0xC then
 			print(string.format("Output char: %c", ACC))
 		else
-			print(string.format("Unknown i/o sub-opcode '%x'", subopcode))
+			io.stderr:write(string.format("Unknown i/o sub-opcode '%x'\n", subopcode))
 			os.exit(2)
 		end
 	-- shift
@@ -132,7 +132,7 @@ while true do
 			res = ((ACC >> distance) | (ACC << (16 - distance))) & 0xffff
 			arrow = "=>"
 		else
-			print(string.format("Unknown shift sub-opcode '%x'", subopcode))
+			io.stderr:write(string.format("Unknown shift sub-opcode '%x'\n", subopcode))
 			os.exit(2)
 		end
 		print(string.format("shift (ACC)%04x = (ACC)%04x %s %x", res, ACC, arrow, distance))
@@ -212,13 +212,13 @@ while true do
 		PC = address - 1
 		print(string.format("brl   [%03x]  (ACC)%04x", address, ACC))
 	else
-		print(string.format("Unknown opcode '%04x'", opcode))
+		io.stderr:write(string.format("Error: Unknown opcode '%04x\n'", opcode))
 		os.exit(2)
 	end
 	PC = PC + 1
 
 	if PC > 0xfff then
-		print("PC overflow")
+		io.stderr:write("PC overflow\n")
 		os.exit(3)
 	end
 end

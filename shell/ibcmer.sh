@@ -7,15 +7,11 @@ MEM_SIZE=4096
 
 # Check arguments, expect one code file
 if [ $# -eq 0 ]; then
-	echo "Missing code file"
+	printf "\033[31mError:\033[0m %s\n" "A code file must be provided" >&2
 	exit 1
 fi
 if [ ! -f "$1" ]; then
-	if [ -e "$1" ]; then
-		echo "Code file '$1' not a file"
-	else
-		echo "Code file '$1' does not exist"
-	fi
+	printf "\033[31mError:\033[0m %s\n" "Code file '$1' not found" >&2
 	exit 1
 fi
 
@@ -25,7 +21,7 @@ i=0
 while read -r l; do
 	opcode="$(echo "$l" | grep -oE '^[0-9a-fA-F]{4}')"
 	if [ -z "$opcode" ]; then
-		echo "Invalid opcode on line $i"
+		printf "\033[31mError:\033[0m %s\n" "Invalid opcode on line $i" >&2
 		rm -f $MEM
 		exit 1
 	fi
@@ -59,7 +55,7 @@ while true; do
 				0) printf "Input hex:  "
 					read in
 					if [ -z "$(echo "$in" | grep -oE '^[0-9a-fA-F]{1,4}$')" ]; then
-						echo "Invalid hex input '$in'"
+						echo "  Invalid hex input '$in'" >&2
 						rm -f $MEM
 						exit 1
 					else
@@ -68,7 +64,7 @@ while true; do
 				4) printf "Input char: "
 					read in
 					if [ -z "$(echo "$in" | grep -oE '^.$')" ]; then
-						echo "Invalid char input"
+						echo "  Invalid char input '$in'" >&2
 						rm -f $MEM
 						exit 1
 					else
@@ -77,7 +73,7 @@ while true; do
 				8) printf "Output hex:  %04x\n" 0x$ACC ;;
 				c|C) out=$(printf '%03o' "0x$(echo $ACC | grep -oE '..$')")
 					printf "Output char: \\$out\n" ;;
-				*) echo "Unknown i/o sub-opcode '$subopcode'"
+				*) printf "\033[31mError:\033[0m Invalid I/O sub-opcode '%x'\n" 0x$subopcode >&2
 					rm -f $MEM
 					exit 1 ;;
 			esac ;;
@@ -97,7 +93,7 @@ while true; do
 					b=$((0x$ACC << (16-0x$distance)))
 					res=$(printf '%04X' $(($a | $b)) | grep -oE '.{1,4}$')
 					arrow="=>" ;;
-				*) echo "Unknown shift sub-opcode '$subopcode'"
+				*) printf "\033[31mError:\033[0m Invalid shift sub-opcode '%x'\n" 0x$subopcode >&2
 					rm -f $MEM
 					exit 1 ;;
 			esac
@@ -107,7 +103,7 @@ while true; do
 		3) val=$(sed -n "$((0x$address + 1))p" $MEM)
 			printf "load  (ACC)%04x = [%03x]%04x\n" 0x$val 0x$address 0x$val
 			if [ -z "$(echo "$val" | grep -oE '^[0-9a-fA-F]{4}$')" ]; then
-				echo "Invalid load '$val' at 0x$address"
+				printf "\033[31mError:\033[0m %s\n" "Invalid load '$val' at 0x$address" >&2
 				rm -f $MEM
 				exit 1
 			fi
@@ -173,13 +169,13 @@ while true; do
 		f|F) ACC=$(printf "%04x" $((PC + 1)) | tr 'a-f' 'A-F')
 			PC=$((0x$address - 1))
 			printf "brl   [%03x]  (ACC)%04x\n" 0x$address 0x$ACC ;;
-		*) echo "Unknown opcode '$opcode'"
+		*) printf "\033[31mError:\033[0m %s\n" "Invalid opcode '$opcode'" >&2
 			rm -f $MEM
 			exit 1 ;;
 	esac
 	PC=$(($PC + 1))
 	if [ $PC -ge $MEM_SIZE ]; then
-		echo "Memory overflow (PC = $PC)"
+		printf "\033[31mError:\033[0m Memory overflow (PC = 0x%04x)\n" "$PC" >&2
 		rm -f $MEM
 		exit 1
 	fi

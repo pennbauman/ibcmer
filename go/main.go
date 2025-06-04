@@ -27,6 +27,6 @@ func main() {
 
 	err = ibcm.Run()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Error:", err)
 	}
 }

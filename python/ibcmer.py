@@ -180,4 +180,8 @@ if (len(sys.argv) < 2):
 
 executor = IBCM(sys.argv[1])
 while (True):
-    executor.step()
+    try:
+        executor.step()
+    except ValueError as e:
+        print("Error:", e, file=sys.stderr)
+        sys.exit(1)

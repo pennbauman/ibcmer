@@ -14,7 +14,7 @@ my @MEM = ();
 # Check arguments
 if ($#ARGV < 0) {
 	print STDERR "Missing code file\n";
-	exit 0;
+	exit 1;
 }
 my $filename = $ARGV[0];
 if (! -f $filename) {
@@ -23,6 +23,7 @@ if (! -f $filename) {
 	} else {
 		print STDERR "Code file '$filename' does not exist\n";
 	}
+	exit 1;
 }
 
 # Load memory from file
@@ -78,7 +79,8 @@ while (1) {
 		} elsif ($subopcode == 0xC) {
 			printf("Output char: %c\n", $ACC);
 		} else {
-			die "Unknown i/o sub-opcode '$subopcode'"
+			print STDERR sprintf("Error: Unknown i/o sub-opcode '%04x'\n", $subopcode);
+			exit 1;
 		}
 	# shift
 	} elsif ($opcode == 0x2) {
@@ -99,7 +101,8 @@ while (1) {
 			$res = (($ACC >> $distance) | ($ACC << (16 - $distance))) & 0xffff;
 			$arrow = "=>";
 		} else {
-			die "Unknown shift sub-opcode '$subopcode'"
+			print STDERR sprintf("Error: Unknown shift sub-opcode '%04x'\n", $subopcode);
+			exit 1;
 		}
 		printf("shift (ACC)%04x = (ACC)%04x %s %x\n", $res, $ACC, $arrow, $distance);
 		$ACC = $res;
@@ -180,10 +183,12 @@ while (1) {
 		$PC = $address - 1;
 		printf("brl   [%03x]  (ACC)%04x\n", $address, $ACC);
 	} else {
-		die "Unknown opcode '$opcode'";
+		print STDERR sprintf("Error: Unknown opcode '%04x'\n", $opcode);
+		exit 1;
 	}
 	$PC = $PC + 1;
 	if ($PC > 0xfff) {
-		die "PC overflow $PC";
+		print STDERR sprintf("Error: Memory overflow (PC = 0x%04x)\n", $PC);
+		exit 1;
 	}
 }

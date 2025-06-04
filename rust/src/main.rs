@@ -12,8 +12,19 @@ fn main() -> Result<(), ibcmer::Error> {
         println!("Missing code file");
         return Ok(());
     }
-    let mut machine = IttyBittyComputingMachine::from_file(&args[1])?;
-    machine.run()?;
+    match IttyBittyComputingMachine::from_file(&args[1]) {
+        Ok(mut machine) => match machine.run() {
+            Ok(()) => (),
+            Err(e) => {
+                eprintln!("Error: {}", e);
+                std::process::exit(1);
+            },
+        },
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            std::process::exit(1);
+        },
+    };
 
     Ok(())
 }

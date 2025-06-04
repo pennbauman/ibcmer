@@ -8,15 +8,11 @@ set -gx MEM_SIZE 4096
 
 # Check arguments, expect one code file
 if test (count $argv) -eq 0
-	echo "Missing code file"
+	printf "\033[31mError:\033[0m %s\n" "A code file must be provided" >&2
 	exit 1
 end
 if test ! -f $argv[1]
-	if test -e $argv[1]
-		echo "Code file '$argv[1]' not a file"
-	else
-		echo "Code file '$argv[1]' does not exist"
-	end
+	printf "\033[31mError:\033[0m %s\n" "Code file '$argv[1]' not found" >&2
 	exit 1
 end
 
@@ -26,13 +22,13 @@ set -f i 1
 cat $argv[1] | while read -L l
 	set -f opcode (echo "$l" | grep -oE '^[0-9a-fA-F]{4}')
 	if test -z $opcode
-		echo "Invalid opcode on line $i"
+		printf "\033[31mError:\033[0m %s\n" "'$argv[1]:$(math $i):$(math $j + 1)' Invalid operation code" >&2
 		exit 1
 	end
 	set -gx MEM[$i] (string lower $opcode)
 	set -f i (math $i + 1)
 	if test $i -gt (math 0xfff)
-		echo "Code file has too many lines"
+		printf "\033[31mError:\033[0m %s\n" "Code file overflows memory ($MEM_SIZE lines max)" >&2
 		exit 1
 	end
 end
@@ -64,7 +60,7 @@ while true
 					printf "Input hex:  "
 					read -L in
 					if test -z (echo $in | grep -oE '^[0-9a-fA-F]{1,4}$')
-						echo "Invalid hex input '$in'"
+						echo "  Invalid hex input '$in'" >&2
 						exit 1
 					else
 						set -gx ACC (printf "%04x" "0x$in")
@@ -73,7 +69,7 @@ while true
 					printf "Input char: "
 					read -L in
 					if test (string length $in) -ne 1
-						echo "Invalid char input"
+						echo "  Invalid char input" >&2
 						exit 1
 					else
 						set -gx ACC (printf "%04x" "'$in")
@@ -84,7 +80,7 @@ while true
 					set -f out (printf '%03o' 0x$(string sub -s 3 $ACC))
 					printf "Output char: \\$out\n" ;;
 				case "*"
-					echo "Unknown i/o sub-opcode '$(string sub -e 1 $address)'"
+					printf "\033[31mError:\033[0m Invalid I/O sub-opcode '$(string sub -e 1 $address)'\n" >&2
 					exit 1
 			end
 		case "2" # shift
@@ -104,7 +100,7 @@ while true
 					set -f res (string sub -s -$distance $bits)$(string sub -e (math 16 - $distance) $bits)
 					set -f arrow "=>"
 				case "*"
-					echo "Unknown shift sub-opcode '$(string sub -e 1 $address)'"
+					printf "\033[31mError:\033[0m Invalid shift sub-opcode '$(string sub -e 1 $address)'\n" >&2
 					exit 1
 			end
 			set -f res (string pad -c 0 -w 4 (string lower (echo "obase=16; ibase=2; $res" | bc)))
@@ -180,14 +176,14 @@ while true
 			printf "brl   [%s]  (ACC)%s\n" $address $ACC
 			continue
 		case "*"
-			echo "Unknown opcode '$opcode'"
+			printf "\033[31mError:\033[0m Invalid opcode '$opcode'\n" >&2
 			exit 1
 	end
 
 	# Increment program counter
 	set -gx PC (string sub -s 3 (math --base=hex 0x$PC + 1))
 	if test (math 0x$PC) -ge $MEM_SIZE
-		echo "Memory overflow (PC = $PC)"
+		printf "\033[31mError:\033[0m Memory overflow (PC = 0x$PC)\n" >&2
 		exit 1
 	end
 end

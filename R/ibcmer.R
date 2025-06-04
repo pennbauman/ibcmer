@@ -55,7 +55,8 @@ while (TRUE) {
 		} else if (subopcode == 0xc) {
 			cat(sprintf("Output char: %s\n", intToUtf8(ACC)))
 		} else {
-			stop(sprintf("Unknown i/o sub-opcode '%x'", subopcode))
+			write(sprintf("Unknown i/o sub-opcode '%x'", subopcode), stderr())
+			quit(status = 1)
 		}
 	# shift
 	} else if (opcode == 0x2) {
@@ -74,7 +75,8 @@ while (TRUE) {
 			res = bitwAnd(bitwOr(bitShiftR(ACC, distance), bitShiftL(ACC, (16 - distance))), 0xffff)
 			arrow <- "=>"
 		} else {
-			stop(sprintf("Unknown shift sub-opcode '%x'", subopcode))
+			write(sprintf("Unknown shift sub-opcode '%x'", subopcode), stderr())
+			quit(status = 1)
 		}
 		cat(sprintf("shift (ACC)%04x = (ACC)%04x %s %x\n", res, ACC, arrow, distance))
 		ACC <- res
@@ -153,11 +155,13 @@ while (TRUE) {
 		PC <- address
 		cat(sprintf("brl   [%03x]  (ACC)%04x\n", address, ACC))
 	} else {
-		stop("Unknown opcode")
+		write("Unknown opcode", stderr())
+		quit(status = 1)
 	}
 
 	PC <- PC + 1
 	if (PC > MEM_SIZE) {
-		stop("PC: ", PC - 1, " >= ", MEM_SIZE)
+		write(sprintf("Error: Memory overflow (PC = 0x%04x)", PC - 1), stderr())
+		quit(status = 1)
 	}
 }

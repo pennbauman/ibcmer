@@ -11,7 +11,7 @@ import { IBCM } from './ibcm.js';
 
 // Get code file
 if (process.argv.length === 2) {
-	console.log("Missing code file arguments");
+	console.error("Missing code file arguments");
 	process.exit(1);
 }
 var machine = new IBCM();
@@ -35,7 +35,7 @@ process.stdin.on('data', (d) => {
 // Ask for input and get stdin lines from channel
 async function inputBuffered(query, message) {
 	if (message) {
-		console.log("ERROR:", message);
+		console.error("ERROR:", message);
 	}
 	process.stdout.write(query);
 	return await chan;
@@ -43,7 +43,12 @@ async function inputBuffered(query, message) {
 
 // Run IBCM machine
 while (!machine.halted) {
-	await machine.step(inputBuffered, console.log, console.log);
+	try {
+		await machine.step(inputBuffered, console.log, console.log);
+	} catch (e) {
+		console.error("Error:", e);
+		process.exit(1)
+	}
 }
 
 // Close stdin

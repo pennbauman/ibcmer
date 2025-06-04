@@ -26,12 +26,12 @@ $PC = 0
 
 # Read code file
 if ARGV.length < 1
-  puts "Missing code file"
+  STDERR.puts "Missing code file"
   exit(1)
 else
   i = 0
   if not File.file?(ARGV[0])
-    puts "File not found '" + ARGV[0] + "'"
+    STDERR.puts "File not found '" + ARGV[0] + "'"
     exit(1)
   end
 
@@ -39,7 +39,7 @@ else
     if checkhex(line[0..3], 4)
       $MEM[i] = Integer("0x" + line[0..3])
     else
-      puts "Invalid line '" + line[0..3] + "'"
+      STDERR.puts "Invalid line '" + line[0..3] + "'"
       exit(1)
     end
     i += 1
@@ -85,7 +85,7 @@ loop do
     when 0xC
       puts "Output char: %c" % $ACC
     else
-      puts "Unknown i/o sub-opcode '%x'" % subopcode
+      STDERR.puts "Unknown i/o sub-opcode '%x'" % subopcode
       exit(2)
     end
   # shift
@@ -106,7 +106,7 @@ loop do
       res = (($ACC >> distance) | ($ACC << (16 - distance))) & 0xffff;
       arrow = "=>";
     else
-      puts "Unknown shift sub-opcode '%x'" % subopcode
+      STDERR.puts "Unknown shift sub-opcode '%x'" % subopcode
       exit(2)
     end
     puts "shift (ACC)%04x = (ACC)%04x %s %x" % [res, $ACC, arrow, distance]
@@ -186,13 +186,13 @@ loop do
     $PC = address - 1
     puts "brl   [%03x]  (ACC)%04x" % [address, $ACC]
   else
-    puts "Unknown opcode '%04x'" % opcode
+    STDERR.puts "Unknown opcode '%04x'" % opcode
     os.exit(2)
   end
 
   $PC += 1
   if $PC > 0xfff
-    puts "PC overflow"
+    STDERR.puts "PC overflow"
     exit(3)
   end
 end

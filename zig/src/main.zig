@@ -11,14 +11,20 @@ pub fn main() anyerror!void {
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
     // Process cli arguements
-    const stdout = std.io.getStdOut().writer();
+    const stderr = std.io.getStdErr().writer();
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
     if (args.len <= 1) {
-        try stdout.print("Missing code file\n", .{});
+        try stderr.print("Missing code file\n", .{});
         std.os.linux.exit(1);
     }
 
-    var ibcm = try executor.IBCM.from_file(&args[1]);
-    try ibcm.run();
+    var ibcm = executor.IBCM.from_file(&args[1]) catch |err| {
+        try stderr.print("Error: {:0}\n", .{err});
+        std.os.linux.exit(1);
+    };
+    ibcm.run() catch |err| {
+        try stderr.print("Error: {:0}\n", .{err});
+        std.os.linux.exit(1);
+    };
 }
