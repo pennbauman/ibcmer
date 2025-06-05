@@ -12,6 +12,7 @@ test: all
 	./tests/run.sh
 
 clean:
+	rm -rf tests/output
 	make -C c clean
 	make -C cpp clean
 	rm -f go/ibcmer

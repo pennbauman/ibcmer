@@ -4,9 +4,17 @@
 #   License: Creative Commons Attribution Share Alike 4.0 International
 #   Author: Penn Bauman <me@pennbauman.com>
 ROOT_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
-INPUT_DIR="$(realpath $ROOT_DIR/tests/input | sed "s/$(pwd | tr / .)/./")"
-OUTPUT_DIR="$(realpath $ROOT_DIR/tests/output | sed "s/$(pwd | tr / .)/./")"
-EXPECT_DIR="$(realpath $ROOT_DIR/tests/expect | sed "s/$(pwd | tr / .)/./")"
+cd $ROOT_DIR
+# Directories
+INPUT_DIR="./tests/input"
+EXPECT_DIR="./tests/expect"
+OUTPUT_DIR="./tests/output"
+mkdir -p "$OUTPUT_DIR"
+OUTPUT_DIR="$(mktemp -d "$OUTPUT_DIR/XXXX")"
+# Results files
+SUCCESS_FILE="$OUTPUT_DIR/successes"
+FAILURE_FILE="$OUTPUT_DIR/failures"
+echo 0 | tee "$SUCCESS_FILE" > "$FAILURE_FILE"
 
 EXEC_LIST="c/ibcmer.out
 cpp/ibcmer.out
@@ -44,18 +52,17 @@ Options:
 
 runtest () {
 	# setup local variables
-	if [ -z "$3" ]; then
-		test_id="$(basename "$2" | sed -E 's/\.[a-z]+//')"
-	else
-		test_id="$(basename "$2" | sed -E 's/\.[a-z]+//').$3"
+	test_id="$(basename "$2" | sed -E 's/\.[a-z]+//')"
+	if [ ! -z "$3" ]; then
+		test_id="$test_id.$3"
 	fi
 	lang="$(realpath -s --relative-to="$ROOT_DIR" "$1" | sed -E -e "s/\/.*$//")"
-	expect_file="$ROOT_DIR/tests/expect/$test_id.log"
+	expect_file="$EXPECT_DIR/$test_id.log"
 	log_file="$OUTPUT_DIR/$lang/$test_id.log"
 	diff_file="$OUTPUT_DIR/$lang/$test_id.diff"
 	input_file="$INPUT_DIR/$test_id.txt"
 
-	printf "\033[1;36m[%s] %s\033[0m\n" "$lang" "$(echo $test_id | sed 's/\./ - /')"
+	printf "\033[1;35m[%s] %s\033[0m\n" "$lang" "$(echo $test_id | sed 's/\./ - /')"
 	mkdir -p "$OUTPUT_DIR/$lang"
 	if [ -f "$input_file" ]; then
 		"$1" "$2" > "$log_file" < "$input_file"
@@ -64,9 +71,17 @@ runtest () {
 	fi
 	diff "$log_file" "$expect_file" > "$diff_file"
 	if [ $? -ne 0 ]; then
-		echo "Test failed (output: $log_file, diff: $diff_file)"
+		echo "Test failed"
+		echo "  output: $log_file"
+		echo "  diff: $diff_file"
+		# Increment failures
+		n="$(cat "$FAILURE_FILE")"
+		echo $(($n + 1)) > "$FAILURE_FILE"
 		return 1
 	fi
+	# Increment successes
+	n="$(cat "$SUCCESS_FILE")"
+	echo $(($n + 1)) > "$SUCCESS_FILE"
 	return 0
 }
 
@@ -110,13 +125,11 @@ fi
 # Select languages to test
 EXEC_PATHS=""
 if [ -z "$LANGS" ]; then
-	for f in $EXEC_LIST; do
-		EXEC_PATHS="$EXEC_PATHS $ROOT_DIR/$f"
-	done
+	EXEC_PATHS="$EXEC_LIST"
 else
 	for l in $(echo "$LANGS" | sed 's/,/ /g'); do
 		if [ ! -z "$(echo "$EXEC_LIST" | grep -oE "^$l/")" ]; then
-			EXEC_PATHS="$EXEC_PATHS $ROOT_DIR/$(echo "$EXEC_LIST" | grep -E "^$l/")"
+			EXEC_PATHS="$EXEC_PATHS $(echo "$EXEC_LIST" | grep -E "^$l/")"
 		else
 			echo "Unknown language '$l'"
 			exit 1
@@ -127,13 +140,11 @@ fi
 # Select tests to run
 CODE_PATHS=""
 if [ -z "$TESTS" ]; then
-	for f in $CODE_LIST; do
-		CODE_PATHS="$CODE_PATHS $ROOT_DIR/$f"
-	done
+	CODE_PATHS="$CODE_LIST"
 else
 	for t in $(echo "$TESTS" | sed 's/,/ /g'); do
 		if [ ! -z "$(echo "$CODE_LIST" | grep -oE "/$t(\.ibcm)?$")" ]; then
-			CODE_PATHS="$CODE_PATHS $ROOT_DIR/$(echo "$CODE_LIST" | grep -E "/$t(\.ibcm)?$")"
+			CODE_PATHS="$CODE_PATHS $(echo "$CODE_LIST" | grep -E "/$t(\.ibcm)?$")"
 		else
 			echo "Unknown test '$t'"
 			exit 1
@@ -142,15 +153,14 @@ else
 fi
 
 
-rm -rf $OUTPUT_DIR
-mkdir -p $OUTPUT_DIR
-
+# Iterate over languanges to test
 for bin in $EXEC_PATHS; do
 	if [ ! -f "$bin" ]; then
 		echo "Missing test executable '$bin'"
 		exit 1
 	fi
 
+	# Iterate over code files to test
 	for file in $CODE_PATHS; do
 		if [ ! -f "$file" ]; then
 			echo "Missing IBCM code file '$file'"
@@ -174,3 +184,9 @@ for bin in $EXEC_PATHS; do
 		fi
 	done
 done
+
+printf "\n\033[1;35mSuccesses: \033[0;32m%2d\033[0m\n" "$(cat "$SUCCESS_FILE")"
+if [ "$(cat "$FAILURE_FILE")" -gt 0 ]; then
+	printf "\033[1;35mFailures:  \033[1;31m%2d\033[0m\n" "$(cat "$FAILURE_FILE")"
+	exit 1
+fi
