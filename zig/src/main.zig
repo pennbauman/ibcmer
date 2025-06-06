@@ -24,7 +24,10 @@ pub fn main() anyerror!void {
         std.os.linux.exit(1);
     };
     ibcm.run() catch |err| {
-        try stderr.print("Error: {:0}\n", .{err});
+        switch (err) {
+            executor.IBCMError.PCOverflow => try stderr.print("Error: Memory overflow (PC = 0x1000)\n", .{}),
+            else => try stderr.print("Error: {:0}\n", .{err}),
+        }
         std.os.linux.exit(1);
     };
 }

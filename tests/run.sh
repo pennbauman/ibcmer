@@ -39,6 +39,8 @@ examples/turing.ibcm
 tests/all-ops.ibcm
 tests/overflow.ibcm
 tests/empty.ibcm
+tests/halt-on-last.ibcm
+tests/pc-overflow.ibcm
 "
 HELP_TEXT="IBCMer Implementation Testing Script
 
@@ -50,6 +52,12 @@ Options:
   --help,-h            Print this help menu
 "
 
+
+incfailures () {
+	n="$(cat "$FAILURE_FILE")"
+	echo $(($n + 1)) > "$FAILURE_FILE"
+}
+
 runtest () {
 	# setup local variables
 	test_id="$(basename "$2" | sed -E 's/\.[a-z]+//')"
@@ -58,26 +66,54 @@ runtest () {
 	fi
 	lang="$(realpath -s --relative-to="$ROOT_DIR" "$1" | sed -E -e "s/\/.*$//")"
 	expect_file="$EXPECT_DIR/$test_id.log"
+	err_expect_file="$EXPECT_DIR/$test_id.err"
 	log_file="$OUTPUT_DIR/$lang/$test_id.log"
+	err_file="$OUTPUT_DIR/$lang/$test_id.err"
 	diff_file="$OUTPUT_DIR/$lang/$test_id.diff"
 	input_file="$INPUT_DIR/$test_id.txt"
 
 	printf "\033[1;35m[%s] %s\033[0m\n" "$lang" "$(echo $test_id | sed 's/\./ - /')"
 	mkdir -p "$OUTPUT_DIR/$lang"
 	if [ -f "$input_file" ]; then
-		"$1" "$2" > "$log_file" < "$input_file"
+		"$1" "$2" > "$log_file" < "$input_file" 2> "$err_file"
 	else
-		"$1" "$2" > "$log_file"
+		"$1" "$2" > "$log_file" 2> "$err_file"
 	fi
-	diff "$log_file" "$expect_file" > "$diff_file"
-	if [ $? -ne 0 ]; then
-		echo "Test failed"
-		echo "  output: $log_file"
-		echo "  diff: $diff_file"
-		# Increment failures
-		n="$(cat "$FAILURE_FILE")"
-		echo $(($n + 1)) > "$FAILURE_FILE"
-		return 1
+	sed -i "s,\x1B\[[0-9;]*[a-zA-Z],,g" "$OUTPUT_DIR/$lang/$test_id."*
+	if [ -f "$err_expect_file" ]; then
+		diff "$err_file" "$err_expect_file" > "$diff_file"
+		if [ $? -ne 0 ]; then
+			echo "Test failed error checks"
+			echo "  errors: $err_file"
+			echo "  diff: $diff_file"
+			incfailures
+			return 1
+		fi
+	else
+		if [ "$(cat $err_file | wc -l)" -ne 0 ]; then
+			echo "Test failed with unexpected errors"
+			echo "  output: $log_file"
+			echo "  errors: $err_file"
+			incfailures
+			return 1
+		fi
+	fi
+	if [ -f "$expect_file" ]; then
+		diff "$log_file" "$expect_file" > "$diff_file"
+		if [ $? -ne 0 ]; then
+			echo "Test failed"
+			echo "  output: $log_file"
+			echo "  diff: $diff_file"
+			incfailures
+			return 1
+		fi
+	else
+		if [ "$(cat $log_file | wc -l)" -ne 0 ]; then
+			echo "Test failed with unexpected output"
+			echo "  output: $log_file"
+			incfailures
+			return 1
+		fi
 	fi
 	# Increment successes
 	n="$(cat "$SUCCESS_FILE")"

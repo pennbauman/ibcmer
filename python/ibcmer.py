@@ -44,6 +44,8 @@ class IBCM:
             print("[{:03x}] {:04x}".format(i, self.memory[i]))
 
     def step(self):
+        if (self.pc >= MEM_SIZE):
+            raise ValueError("Memory overflow (PC = 0x{:04x})".format(self.pc))
         opcode = self.memory[self.pc] >> 12
         address = self.memory[self.pc] & 0xfff
         print("[{:03x}]{:04x}  ".format(self.pc, self.memory[self.pc]), end="")

@@ -20,6 +20,10 @@ end
 # Read in code file
 set -f i 1
 cat $argv[1] | while read -L l
+	if test $i -gt $MEM_SIZE
+		printf "\033[31mError:\033[0m %s\n" "Code file overflows memory ($MEM_SIZE lines max)" >&2
+		exit 1
+	end
 	set -f opcode (echo "$l" | grep -oE '^[0-9a-fA-F]{4}')
 	if test -z $opcode
 		printf "\033[31mError:\033[0m %s\n" "'$argv[1]:$(math $i):$(math $j + 1)' Invalid operation code" >&2
@@ -27,10 +31,6 @@ cat $argv[1] | while read -L l
 	end
 	set -gx MEM[$i] (string lower $opcode)
 	set -f i (math $i + 1)
-	if test $i -gt (math 0xfff)
-		printf "\033[31mError:\033[0m %s\n" "Code file overflows memory ($MEM_SIZE lines max)" >&2
-		exit 1
-	end
 end
 # Fill the rest of memory with zeros
 while test $i -le $MEM_SIZE

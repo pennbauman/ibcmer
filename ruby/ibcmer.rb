@@ -192,7 +192,7 @@ loop do
 
   $PC += 1
   if $PC > 0xfff
-    STDERR.puts "PC overflow"
+    STDERR.puts "Error: Memory overflow (PC = 0x%04x)" % $PC
     exit(3)
   end
 end

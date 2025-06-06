@@ -261,6 +261,9 @@ func (e Executor) Step() (Executor, error) {
 		return e, nil
 	}
 	e.PC += 1
+	if e.PC >= MEM_SIZE {
+		return e, errors.New(fmt.Sprintf("Memory overflow (PC = 0x%04x)", e.PC))
+	}
 	return e, nil
 }
 

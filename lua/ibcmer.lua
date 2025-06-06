@@ -218,7 +218,7 @@ while true do
 	PC = PC + 1
 
 	if PC > 0xfff then
-		io.stderr:write("PC overflow\n")
+		io.stderr:write(string.format("Error: Memory overflow (PC = 0x%04x)\n", PC))
 		os.exit(3)
 	end
 end

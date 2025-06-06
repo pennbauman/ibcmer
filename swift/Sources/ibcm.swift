@@ -7,12 +7,27 @@ import Foundation
 let MEM_SIZE = 4096
 let PRINT_COLUMNS = 8
 
-enum IBCMError: Error, Equatable {
+enum IBCMError: Error, Equatable, CustomStringConvertible {
     case fileError
-    case memoryOverflow
+    case memoryOverflow(pc: Int)
     case parseError(line: Int, text: String)
     case invalidHex
     case invalidOpcode
+
+    var description: String {
+        switch self {
+            case .fileError:
+                return "File Error"
+            case .memoryOverflow(let pc):
+                return String(format: "Memory overflow (PC = 0x%04x)", pc)
+            case .parseError(let line, let text):
+                return String(format: "Parsing Error in line %d '%s'", line, text)
+            case .invalidHex:
+                return "Invalid hexadecimal"
+            case .invalidOpcode:
+                return "Invalid opcode"
+        }
+    }
 }
 
 
@@ -52,7 +67,7 @@ struct IBCM {
                         continue
                     }
                     if (i == MEM_SIZE) {
-                        throw IBCMError.memoryOverflow
+                        throw IBCMError.memoryOverflow(pc: i)
                     }
                     if (line.count < 4) {
                         throw IBCMError.parseError(line: i, text: String(line))
@@ -240,7 +255,7 @@ struct IBCM {
         }
         self.pc += 1
         if self.pc >= MEM_SIZE {
-            throw IBCMError.memoryOverflow
+            throw IBCMError.memoryOverflow(pc: Int(self.pc))
         }
     }
 

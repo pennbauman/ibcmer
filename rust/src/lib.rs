@@ -63,7 +63,7 @@ impl IttyBittyComputingMachine {
 
     fn step(&mut self) -> Result<(), Error> {
         if self.pc as usize >= MEM_SIZE {
-            return Err(Error::MemoryOverflow);
+            return Err(Error::MemoryOverflow(self.pc));
         }
         let op = self.memory[self.pc as usize];
         let addr = (op & 0x0fff) as usize;
@@ -266,8 +266,8 @@ pub enum Error {
     InvalidHex(String),
     #[error("Illegal operation '{0}'")]
     IllegalOp(String),
-    #[error("Memory overflow")]
-    MemoryOverflow,
+    #[error("Memory overflow (PC = 0x{0:04x})")]
+    MemoryOverflow(u16),
 }
 
 

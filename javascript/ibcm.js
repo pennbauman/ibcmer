@@ -228,5 +228,8 @@ export class IBCM {
 				throw "Impossible opcode " + opcode;
 		}
 		this.pc++;
+		if (this.pc >= MEM_SIZE) {
+			throw "Memory overflow (PC = 0x" + this.pc.toString(16).padStart(4, 0) + ")";
+		}
 	}
 }

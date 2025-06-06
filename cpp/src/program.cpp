@@ -69,7 +69,7 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 // Run Time
 int program::step(bool loud) {
 	if (counter == ADDR) {
-		cerr << "ERROR: Program overran memory." << endl;
+		cerr << "Error: Memory overflow (PC = 0x" << hex << setfill('0') << setw(3) << counter << ")"<< endl;
 		return 3;
 	}
 	// Load command

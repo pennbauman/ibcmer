@@ -1,0 +1,2 @@
+[000]cfff  jmp   [fff]
+[fff]0000  halt
