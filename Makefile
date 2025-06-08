@@ -18,7 +18,7 @@ clean:
 	rm -f go/ibcmer
 	rm -rf rust/target
 	rm -rf zig/.zig-cache zig/zig-out
-	rm -rf js/node_modules
+	rm -rf javascript/node_modules
 	rm -rf swift/.build
 
 

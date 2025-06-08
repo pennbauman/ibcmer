@@ -33,7 +33,7 @@ if [ "$test_output" = "$expect_output" ]; then
 else
 	FAILED=$(($FAILED + 1))
 	echo ""
-	echo "  All operations code execution failed (all-ops.ibcm)"
+	echo "  All operations code execution failed (all-ops.ibcm < 0 ffff)"
 	echo "    Expected: '$expect_output'"
 	echo "    Received: '$test_output'"
 fi
@@ -45,7 +45,7 @@ if [ "$test_output" = "$expect_output" ]; then
 else
 	FAILED=$(($FAILED + 1))
 	echo ""
-	echo "  All operations code execution failed (all-ops.ibcm)"
+	echo "  Overflow code execution failed (overflow.ibcm)"
 	echo "    Expected: '$expect_output'"
 	echo "    Received: '$test_output'"
 fi
