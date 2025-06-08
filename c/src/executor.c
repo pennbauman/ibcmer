@@ -56,12 +56,16 @@ unsigned char read_file(ibcmemory *data, char* filename, unsigned char num_check
 	int i = 0;
 	while ((ch = fgetc(src)) != EOF) {
 		if (ch == '\n') {
+			if (num >= MEM_SIZE) {
+				fprintf(stderr, "%s Code file overflows memory (%d lines max)\n", E_ERROR, MEM_SIZE);
+				return 1;
+			}
 			line[i] = '\0';
 			// Check validity of code line
 			int j = 0;
 			for (; j < 4; j++) {
 				if (! isxdigit(line[j])) {
-					fprintf(stderr, "%s '%s:%d:%d' Invalid operation code\n",
+					fprintf(stderr, "%s '%s:%d:%d' Invalid opcode hexadecimal\n",
 							E_ERROR, filename, num + 1, j + 1);
 					fprintf(stderr, "\n    %s\n    ", line);
 					for (int k = 0; k < j; k++)

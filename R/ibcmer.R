@@ -16,6 +16,20 @@ PC <- 1
 input_file <- commandArgs(trailingOnly=TRUE)
 i <- 1
 for (l in readLines(input_file)) {
+	if (i > MEM_SIZE) {
+		write(sprintf("Error: Code file overflows memory (%d lines max)", MEM_SIZE), stderr())
+		quit(status = 1)
+	}
+	if (nchar(l) < 4) {
+		write(sprintf("Error: '%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", input_file, i, nchar(l) + 1, l, strrep(" ", nchar(l))), stderr())
+		quit(status = 1)
+	}
+	for (j in 1:4) {
+		if (!grepl(substr(l, j, j), "12345678990abcdefABCDEF", fixed=TRUE)) {
+			write(sprintf("Error: '%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", input_file, i, j, l, strrep(" ", j - 1)), stderr())
+			quit(status = 1)
+		}
+	}
 	MEMORY[i] <- strtoi(substr(l, 0, 4), 16)
 	i <- i + 1
 }

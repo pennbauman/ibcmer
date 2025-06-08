@@ -52,14 +52,23 @@ MEM = {}
 i = 0
 if checkfile(arg[1]) then
 	for line in io.lines(arg[1]) do
+		if i >= MEM_SIZE then
+			io.stderr:write(string.format("Error: Code file overflows memory (%d lines max)\n", MEM_SIZE))
+			os.exit(1)
+		end
 		opcode = string.sub(line, 1, 4)
 		if not checkhex(opcode, 4, 4) then
-			io.stderr:write(string.format("Error: Invalid opcode '%s' on line %d\n", opcode, i + 1))
+			j = 1
+			while checkhex(string.sub(line, j, j), 1, 1) do
+				j = j + 1
+			end
+			io.stderr:write(string.format("Error: '%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    ", arg[1], i + 1, j, line))
+			io.stderr:write(string.format(string.format("%%%ds\n", j), "^"))
 			os.exit(1)
 		end
 		MEM[i] = tonumber(opcode, 16)
 		if MEM[i] == nil then
-			io.stderr:write(string.format("Error: Invalid opcode '%s' on line %d\n", opcode, i + 1))
+			io.stderr:write(string.format("Error: Failed to parse '%s' to int\n", opcode))
 			os.exit(1)
 		end
 		i = i + 1

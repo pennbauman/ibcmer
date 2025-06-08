@@ -37,19 +37,40 @@ impl IttyBittyComputingMachine {
         let mut fin = Self::new();
         let mut addr = 0;
         for l in reader.lines() {
+            if addr >= MEM_SIZE {
+                return Err(Error::CodeFileOverflow)
+            }
             let line = l?;
             if line.len() < 4 {
-                return Err(Error::InvalidHex(line));
+                let len = line.len();
+                return Err(Error::InvalidHex {
+                    file_name: name.to_string(),
+                    line_text: line,
+                    line_num: addr,
+                    char_idx: len
+                });
             }
             let code = &line[0..4];
+            let mut i = 0;
             for c in code.chars() {
                 if !c.is_digit(16) {
-                    return Err(Error::InvalidHex(code.to_string()));
+                    return Err(Error::InvalidHex {
+                        file_name: name.to_string(),
+                        line_text: line,
+                        line_num: addr,
+                        char_idx: i
+                    });
                 }
+                i += 1;
             }
             let hex = match u16::from_str_radix(code, 16) {
                 Ok(n) => n,
-                Err(_) => return Err(Error::InvalidHex(code.to_string())),
+                Err(_) => return Err(Error::InvalidHex {
+                    file_name: name.to_string(),
+                    line_text: line,
+                    line_num: addr,
+                    char_idx: 6
+                }),
             };
             fin.memory[addr] = hex;
             addr += 1;
@@ -262,8 +283,15 @@ pub enum Error {
     IO(#[from] std::io::Error),
     #[error("Invalid input '{0}'")]
     InvalidInput(String),
-    #[error("Invalid hexidecimal '{0}'")]
-    InvalidHex(String),
+    #[error("'{file_name}:{0}:{1}' Invalid opcode hexadecimal\n\n    {line_text}\n    {2:char_idx$}^", line_num + 1, char_idx + 1, "")]
+    InvalidHex{
+        file_name: String,
+        line_text: String,
+        line_num: usize,
+        char_idx: usize
+    },
+    #[error("Code file overflows memory ({0} lines max)", MEM_SIZE)]
+    CodeFileOverflow,
     #[error("Illegal operation '{0}'")]
     IllegalOp(String),
     #[error("Memory overflow (PC = 0x{0:04x})")]
@@ -292,7 +320,7 @@ mod tests {
         let machine = IttyBittyComputingMachine::from_file("tests/empty-line.ibcm");
         assert!(machine.is_err());
         assert!(match machine.unwrap_err() {
-            Error::InvalidHex(_) => true,
+            Error::InvalidHex { file_name: _, line_text: _, line_num: _, char_idx: _ } => true,
             _ => false
         });
     }
@@ -301,7 +329,7 @@ mod tests {
         let machine = IttyBittyComputingMachine::from_file("tests/nonhex-op.ibcm");
         assert!(machine.is_err());
         assert!(match machine.unwrap_err() {
-            Error::InvalidHex(_) => true,
+            Error::InvalidHex { file_name: _, line_text: _, line_num: _, char_idx: _ } => true,
             _ => false
         });
     }
@@ -310,7 +338,7 @@ mod tests {
         let machine = IttyBittyComputingMachine::from_file("tests/short-op.ibcm");
         assert!(machine.is_err());
         assert!(match machine.unwrap_err() {
-            Error::InvalidHex(_) => true,
+            Error::InvalidHex { file_name: _, line_text: _, line_num: _, char_idx: _ } => true,
             _ => false
         });
     }

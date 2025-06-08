@@ -1,0 +1,4 @@
+Error: 'tests/codefile-short-opcode.ibcm:2:4' Invalid opcode hexadecimal
+
+    abc
+       ^

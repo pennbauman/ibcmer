@@ -10,7 +10,8 @@ let PRINT_COLUMNS = 8
 enum IBCMError: Error, Equatable, CustomStringConvertible {
     case fileError
     case memoryOverflow(pc: Int)
-    case parseError(line: Int, text: String)
+    case parseError(file: String, line: String, lineNum: Int, charIdx: Int)
+    case parseOverflow
     case invalidHex
     case invalidOpcode
 
@@ -20,8 +21,11 @@ enum IBCMError: Error, Equatable, CustomStringConvertible {
                 return "File Error"
             case .memoryOverflow(let pc):
                 return String(format: "Memory overflow (PC = 0x%04x)", pc)
-            case .parseError(let line, let text):
-                return String(format: "Parsing Error in line %d '%s'", line, text)
+            case .parseError(let file, let line, let lineNum, let charIdx):
+                let padding = String(repeating: " ", count: charIdx)
+                return String(format: "'%@:%d:%d' Invalid opcode hexadecimal\n\n    %@\n    %@^", file, lineNum + 1, charIdx + 1, line, padding)
+            case .parseOverflow:
+                return String(format: "Code file overflows memory (%d lines max)", MEM_SIZE)
             case .invalidHex:
                 return "Invalid hexadecimal"
             case .invalidOpcode:
@@ -59,18 +63,17 @@ struct IBCM {
             }
             let data = try handle.readToEnd() ?? Data()
             if let content = String(data: data, encoding: .utf8) {
-                let lines = content.split(separator: "\n", omittingEmptySubsequences: false)
+                var lines = content.split(separator: "\n", omittingEmptySubsequences: false)
+                if (lines.last == "") {
+                    lines.removeLast()
+                }
                 var i = 0
                 for line in lines {
-                    // Check for short lines
-                    if (line.count == 0) {
-                        continue
-                    }
-                    if (i == MEM_SIZE) {
-                        throw IBCMError.memoryOverflow(pc: i)
+                    if (i >= MEM_SIZE) {
+                        throw IBCMError.parseOverflow
                     }
                     if (line.count < 4) {
-                        throw IBCMError.parseError(line: i, text: String(line))
+                        throw IBCMError.parseError(file: path, line: String(line), lineNum: i, charIdx: line.count)
                     }
                     // Parse opcode
                     let index = line.index(line.startIndex, offsetBy: 3)
@@ -79,7 +82,15 @@ struct IBCM {
                         let num = try hexToInt(hex: opcode)
                         ret.memory[i] = num
                     } catch {
-                        throw IBCMError.parseError(line: i, text: String(opcode))
+                        var j = 0
+                        while (j < 4) {
+                            let c: Character = line[line.index(line.startIndex, offsetBy: j)]
+                            if (!c.isHexDigit) {
+                                break;
+                            }
+                            j += 1
+                        }
+                        throw IBCMError.parseError(file: path, line: String(line), lineNum: i, charIdx: j)
                     }
                     i += 1
                 }

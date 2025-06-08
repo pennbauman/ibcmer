@@ -24,13 +24,22 @@ class IBCM:
         self.memory = [0]*MEM_SIZE
 
         with open(filepath) as source:
-            i = 0
+            addr = 0
             for line in source.readlines():
+                if addr >= MEM_SIZE:
+                    print("Error: Code file overflows memory (" + str(MEM_SIZE) + " lines max)", file=sys.stderr)
+                    sys.exit(1)
                 if is_hex(line[0:4]):
-                    self.memory[i] = int(line[0:4], 16)
-                    i += 1
+                    self.memory[addr] = int(line[0:4], 16)
+                    addr += 1
                 else:
-                    print("Invalid line '" + line + "'")
+                    i = 0
+                    while line[i] in string.hexdigits:
+                        i += 1
+                    print("Error: '" + filepath + ":" + str(addr + 1) + ":" + str(i + 1) + "' Invalid opcode hexadecimal", file=sys.stderr)
+                    print(file=sys.stderr)
+                    print("    " + line, end="", file=sys.stderr)
+                    print("    " + " "*i + "^", file=sys.stderr)
                     sys.exit(1)
 
     def print(self):

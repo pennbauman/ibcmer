@@ -41,6 +41,9 @@ tests/overflow.ibcm
 tests/empty.ibcm
 tests/halt-on-last.ibcm
 tests/pc-overflow.ibcm
+tests/codefile-invalid-hex.ibcm
+tests/codefile-short-opcode.ibcm
+tests/codefile-overflow.ibcm
 "
 HELP_TEXT="IBCMer Implementation Testing Script
 
@@ -204,7 +207,7 @@ for bin in $EXEC_PATHS; do
 		fi
 		test_name="$(basename "$file" | sed -E 's/\.[a-z]+//')"
 
-		if [ -f "$EXPECT_DIR/$test_name.log" ]; then
+		if [ -f "$EXPECT_DIR/$test_name.log" ] || [ -f "$EXPECT_DIR/$test_name.err" ]; then
 			runtest "$bin" "$file"
 		elif [ -f "$EXPECT_DIR/$test_name.1.log" ]; then
 			i=1
@@ -221,8 +224,8 @@ for bin in $EXEC_PATHS; do
 	done
 done
 
-printf "\n\033[1;35mSuccesses: \033[0;32m%2d\033[0m\n" "$(cat "$SUCCESS_FILE")"
+printf "\n\033[1;35mSuccesses: \033[0;32m%3d\033[0m\n" "$(cat "$SUCCESS_FILE")"
 if [ "$(cat "$FAILURE_FILE")" -gt 0 ]; then
-	printf "\033[1;35mFailures:  \033[1;31m%2d\033[0m\n" "$(cat "$FAILURE_FILE")"
+	printf "\033[1;35mFailures:  \033[1;31m%3d\033[0m\n" "$(cat "$FAILURE_FILE")"
 	exit 1
 fi

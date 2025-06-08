@@ -11,7 +11,7 @@ def checkhex(str, min)
     return false
   end
   begin
-    return Integer("0x" + str.chomp)
+    return Integer("0x" + str)
   rescue
     return false
   end
@@ -29,17 +29,28 @@ if ARGV.length < 1
   STDERR.puts "Missing code file"
   exit(1)
 else
-  i = 0
   if not File.file?(ARGV[0])
     STDERR.puts "File not found '" + ARGV[0] + "'"
     exit(1)
   end
 
+  i = 0
   File.open(ARGV[0]).each do |line|
-    if checkhex(line[0..3], 4)
-      $MEM[i] = Integer("0x" + line[0..3])
+    if i >= MEM_SIZE
+      STDERR.puts "Error: Code file overflows memory (%d lines max)" % MEM_SIZE
+      exit(1)
+    end
+    if checkhex(line[0..3].chomp, 4)
+      $MEM[i] = Integer("0x" + line[0..3].chomp)
     else
-      STDERR.puts "Invalid line '" + line[0..3] + "'"
+      j = 0
+      while checkhex(line[j..(j + 1)], 1)
+        j += 1
+      end
+      STDERR.puts "Error: '%s:%d:%d' Invalid opcode hexadecimal" % [ARGV[0], (i + 1), j + 1]
+      STDERR.puts ""
+      STDERR.puts "    " + line
+      STDERR.puts "    " + (" " * j) + "^"
       exit(1)
     end
     i += 1

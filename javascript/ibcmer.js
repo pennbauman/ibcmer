@@ -19,9 +19,10 @@ var machine = new IBCM();
 // Setup IBCM machine
 try {
 	const data = fs.readFileSync(process.argv[2], 'utf8');
-	await machine.fromString(data);
+	await machine.fromString(data, process.argv[2]);
 } catch (err) {
-	console.error(err);
+	console.error("Error:", err);
+	process.exit(1);
 }
 // machine.print();
 
@@ -35,7 +36,8 @@ process.stdin.on('data', (d) => {
 // Ask for input and get stdin lines from channel
 async function inputBuffered(query, message) {
 	if (message) {
-		console.error("ERROR:", message);
+		console.error("Error:", message);
+		process.exit(1);
 	}
 	process.stdout.write(query);
 	return await chan;

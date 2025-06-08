@@ -39,34 +39,33 @@ func (e Executor) FromFile(path string) (Executor, error) {
 
 	scanner.Split(bufio.ScanLines)
 
-	var line uint64
+	var addr uint64
 	for scanner.Scan() {
-		// fmt.Println(scanner.Text())
-		words := strings.Fields(scanner.Text())
-		for i, w := range words {
-			if i == 0 {
-				x, err := strconv.ParseUint(w, 16, 16)
-				if err != nil {
-					file.Close()
-					return e, err
-				}
-				// fmt.Println("hex", w, x)
-				e.Mem[line] = uint16(x)
-			} else {
-				x, err := strconv.ParseUint(w, 16, 16)
-				if err != nil {
-					file.Close()
-					return e, err
-				}
-				// fmt.Println("num", w, x)
-				if x != line {
-					file.Close()
-					return e, errors.New("Incorrent line number")
-				}
-				break
-			}
+		if addr >= MEM_SIZE {
+			return e, errors.New(fmt.Sprintf("Code file overflows memory (%d lines max)", MEM_SIZE))
 		}
-		line++
+
+		var line = scanner.Text()
+		if len(line) < 4 {
+			return e, errors.New(fmt.Sprintf("'%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", path, addr + 1, len(line) + 1, line, strings.Repeat(" ", len(line))))
+		}
+		// Check hex opcode
+		x, err := strconv.ParseUint(line[0:4], 16, 16)
+		if err != nil {
+			file.Close()
+				// Find location of invalid hex
+				var i = 0
+				for i < 4 {
+					_, err := strconv.ParseUint(line[i:i + 1], 16, 16)
+					if err != nil {
+						break;
+					}
+					i++;
+				}
+				return e, errors.New(fmt.Sprintf("'%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", path, addr + 1, i + 1, line, strings.Repeat(" ", i)))
+		}
+		e.Mem[addr] = uint16(x)
+		addr++
 	}
 	file.Close()
 	return e, nil

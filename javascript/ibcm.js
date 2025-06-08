@@ -13,7 +13,7 @@ export class IBCM {
 	}
 
 	// Load from string
-	async fromString(txt) {
+	async fromString(txt, fileName) {
 		this.acc = 0;
 		this.pc = 0;
 		this.mem = Array(MEM_SIZE).fill(0);
@@ -23,14 +23,23 @@ export class IBCM {
 		}
 		let lines = txt.trim().split("\n");
 		for (let i in lines) {
+			if (i >= MEM_SIZE) {
+				throw `Code file overflows memory (${MEM_SIZE} lines max)`;
+			}
 			let opcode = lines[i].substring(0, 4).trim();
 			if (opcode.length != 4) {
-				throw `Invalid hex '${opcode}' on line ${i}: too short`;
+				throw `'${fileName}:${Number(i) + 1}:${opcode.length + 1}' Invalid opcode hexadecimal\n\n    ${lines[i]}\n    ` + " ".repeat(opcode.length) + "^";
+			}
+			for (var j = 0; j < 4; j++) {
+				let re = /^[0-9a-fA-F]$/g
+				if (!re.test(opcode[j])) {
+					throw `'${fileName}:${Number(i) + 1}:${j + 1}' Invalid opcode hexadecimal\n\n    ${lines[i]}\n    ` + " ".repeat(j) + "^";
+				}
 			}
 			try {
 				this.mem[i] = parseInt(Number("0x" + opcode), 10);
 			} catch (e) {
-				throw `Invalid hex '${opcode}' on line ${i}`;
+				throw `Parsing hex '${opcode}' failed`;
 			}
 			i++;
 		}

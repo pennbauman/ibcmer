@@ -26,7 +26,14 @@ cat $argv[1] | while read -L l
 	end
 	set -f opcode (echo "$l" | grep -oE '^[0-9a-fA-F]{4}')
 	if test -z $opcode
-		printf "\033[31mError:\033[0m %s\n" "'$argv[1]:$(math $i):$(math $j + 1)' Invalid operation code" >&2
+		set -f j 0
+		while test ! -z "$(echo "$l" | grep -oE "^.{$j}[0-9a-fA-F]")"
+			set -f j (math $j + 1)
+		end
+		printf "\033[31mError:\033[0m %s\n" "'$argv[1]:$(math $i):$(math $j + 1)' Invalid opcode hexadecimal" >&2
+		echo >&2
+		echo "    $l" >&2
+		printf "    %$(math $j + 1)s\n" "^" >&2
 		exit 1
 	end
 	set -gx MEM[$i] (string lower $opcode)

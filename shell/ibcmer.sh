@@ -19,9 +19,20 @@ fi
 MEM=$(mktemp /tmp/ibcmer-XXXXXXXXXXXX)
 i=0
 while read -r l; do
+	if [ $i -ge $MEM_SIZE ]; then
+		printf "\033[31mError:\033[0m %s\n" "Code file overflows memory ($MEM_SIZE lines max)"  >&2
+		exit 1
+	fi
 	opcode="$(echo "$l" | grep -oE '^[0-9a-fA-F]{4}')"
 	if [ -z "$opcode" ]; then
-		printf "\033[31mError:\033[0m %s\n" "Invalid opcode on line $i" >&2
+		j=0
+		while [ ! -z "$(echo "$l" | grep -oE "^.{$j}[0-9a-fA-F]")" ]; do
+			j=$(($j + 1))
+		done
+		printf "\033[31mError:\033[0m %s\n" "'$1:$(($i + 1)):$(($j + 1))' Invalid opcode hexadecimal" >&2
+		echo >&2
+		echo "    $l" >&2
+		printf "    %$(($j + 1))s\n" "^" >&2
 		rm -f $MEM
 		exit 1
 	fi

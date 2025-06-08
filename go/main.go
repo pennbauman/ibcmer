@@ -20,7 +20,7 @@ func main() {
 
 	ibcm, err := ibcm.FromFile(os.Args[1])
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		return
 	}
 	// ibcm.Print()

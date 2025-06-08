@@ -30,11 +30,24 @@ if (! -f $filename) {
 my $i = 0;
 open(my $fh, "<", $filename) or die "Can't open file: $!";
 while (my $line = readline($fh)) {
+	if ($i >= $MEM_SIZE) {
+		print STDERR "Error: Code file overflows memory ($MEM_SIZE lines max)\n";
+		exit 1;
+	}
 	if ($line =~ /^([0-9a-fA-F]{4})/) {
 		# print "$1\n";
 		push(@MEM, hex($1));
 	} else {
-		print STDERR "Invalid opcode on line $i\n";
+		$i = $i + 1;
+		my $j = 0;
+		while ((substr $line, $j, 1) =~ /^[0-9a-fA-F]/) {
+			$j = $j + 1;
+		}
+		$j = $j + 1;
+		print STDERR "Error: '$filename:$i:$j' Invalid opcode hexadecimal\n";
+		print STDERR "\n    $line";
+		print STDERR " " x $j;
+		print STDERR "   ^\n";
 		exit 1;
 	}
 	$i = $i + 1;

@@ -11,7 +11,18 @@ pub const IBCMError = error {
     InvalidHex,
     PCOverflow,
     InvalidOpcode,
+    parseOverflow,
     Internal,
+};
+
+// Result from parsing hex, u16 result or error index
+const HexResultTag = enum {
+    parsed,
+    err,
+};
+const HexResult = union(HexResultTag) {
+    parsed: u16,
+    err: usize,
 };
 
 pub const IBCM = struct {
@@ -33,6 +44,7 @@ pub const IBCM = struct {
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = gpa.deinit();
         const allocator = gpa.allocator();
+        const stderr = std.io.getStdErr().writer();
         // open file
         var file = try std.fs.cwd().openFile(filepath.*, .{});
         defer file.close();
@@ -45,25 +57,55 @@ pub const IBCM = struct {
         var ret = IBCM.init();
         var i: usize = 0;
         while (reader.streamUntilDelimiter(writer, '\n', null)) {
+            if (i >= MEM_SIZE) {
+                try stderr.print("Error: Code file overflows memory ({d} lines max)\n", .{MEM_SIZE});
+                return IBCMError.parseOverflow;
+            }
             defer line.clearRetainingCapacity();
-            try line_to_mem(&ret, line.items, i);
+            if (line_to_mem(&ret, line.items, i)) |index| {
+                try parse_err_print(filepath, i, index, line.items);
+                return IBCMError.InvalidOpcode;
+            }
             i += 1;
         } else |err| switch (err) {
             error.EndOfStream => { // end of file
                 if (line.items.len > 0) {
-                    try line_to_mem(&ret, line.items, i);
+                    if (line_to_mem(&ret, line.items, i)) |index| {
+                        try parse_err_print(filepath, i, index, line.items);
+                        return IBCMError.InvalidOpcode;
+                    }
                     i += 1;
                 }
             },
             else => return err,
         }
-
         return ret;
     }
-    fn line_to_mem(self: *IBCM, line: []u8, number: usize) anyerror!void {
-        const int = try hex_to_int(line);
+    // Populates memory from hex string, return error index on failure
+    fn line_to_mem(self: *IBCM, line: []u8, number: usize) ?usize {
+        if (line.len < 4) {
+            return line.len;
+        }
+        const int = switch (hex_to_int(line)) {
+            .parsed => |n| n,
+            .err => |i| return i,
+        };
         self.memory[number] = int;
-        // std.debug.print("{x:0>3}: {x:0>4} {x:0>4} {x}{x}{x}{x} {s}\n", .{number, mem[number], int, hex[0], hex[1], hex[2], hex[3], line});
+        return null;
+    }
+    fn parse_err_print(file: *const [:0]u8, line: usize, index: usize, text: []u8) anyerror!void {
+        const stderr = std.io.getStdErr().writer();
+        try stderr.print("Error: '{s}:{d}:{d}' Invalid opcode hexadecimal\n\n    ", .{file.*, line + 1, index + 1});
+        for (text) |c| {
+            try stderr.print("{c}", .{c});
+        }
+        try stderr.print("\n    ", .{});
+        var j: usize = 0;
+        while (j < index) {
+            try stderr.print(" ", .{});
+            j += 1;
+        }
+        try stderr.print("^\n", .{});
     }
 
     pub fn print(self: IBCM) anyerror!void {
@@ -87,6 +129,7 @@ pub const IBCM = struct {
 
     fn step(self: *IBCM) anyerror!bool {
         const stdout = std.io.getStdOut().writer();
+        const stderr = std.io.getStdErr().writer();
         const opcode = self.memory[self.pc] >> 12;
         const address = self.memory[self.pc] & 0xfff;
 
@@ -138,9 +181,12 @@ pub const IBCM = struct {
                                 hex[i] = '0';
                                 i += 1;
                             }
-                            const val = hex_to_int(&hex) catch {
-                                try stdout.print("Invalid hex input\n", .{});
-                                continue;
+                            const val = switch (hex_to_int(&hex)) {
+                                .parsed => |n| n,
+                                .err => {
+                                    try stdout.print("Invalid hex input\n", .{});
+                                    continue;
+                                },
                             };
                             // std.debug.print("{s}", .{hex});
                             self.accumulator = val;
@@ -168,7 +214,10 @@ pub const IBCM = struct {
                         const char: u8 = @truncate(self.accumulator);
                         try stdout.print("Output char: {c}\n", .{char});
                     },
-                    else => return IBCMError.InvalidOpcode,
+                    else => {
+                        try stderr.print("Error: Invalid i/o subopcode\n", .{});
+                        return IBCMError.InvalidOpcode;
+                    },
                 }
             },
             0x2 => { // shift
@@ -193,7 +242,10 @@ pub const IBCM = struct {
                         self.accumulator = (self.accumulator >> distance) | (self.accumulator << (0 -% distance));
                         arrow = "=>";
                     },
-                    else => return IBCMError.InvalidOpcode,
+                    else => {
+                        try stderr.print("Error: Invalid shift subopcode\n", .{});
+                        return IBCMError.InvalidOpcode;
+                    },
                 }
                 try stdout.print("shift (ACC){x:0>4} = (ACC){x:0>4} {s} {x}\n", .{self.accumulator, prev, arrow, distance});
             },
@@ -263,10 +315,14 @@ pub const IBCM = struct {
                 self.accumulator = self.pc + 1;
                 self.pc = address - 1;
             },
-            else => return IBCMError.Internal,
+            else => {
+                try stderr.print("Error: Invalid opcode\n", .{});
+                return IBCMError.Internal;
+            }
         }
         self.pc += 1;
         if (self.pc >= MEM_SIZE) {
+            try stderr.print("Error: Memory overflow (PC = 0x{x:0>4})\n", .{MEM_SIZE});
             return IBCMError.PCOverflow;
         }
         return true;
@@ -283,9 +339,10 @@ fn get_stdin() anyerror![4096]u8 {
     return buf;
 }
 
-fn hex_to_int(line: []u8) anyerror!u16 {
+// Parses hex string to u16, if it fails returns the index of the error
+fn hex_to_int(line: []u8) HexResult {
     if (line.len < 4) {
-        return IBCMError.InvalidHex;
+        return HexResult{ .err = line.len };
     }
     var hex: [4]u16 = undefined;
     for (0..4) |i| {
@@ -293,10 +350,11 @@ fn hex_to_int(line: []u8) anyerror!u16 {
             '0'...'9' => line[i] - '0',
             'A'...'F' => line[i] - 'A' + 10,
             'a'...'f' => line[i] - 'a' + 10,
-            else => return IBCMError.InvalidHex,
+            else => return HexResult{ .err = i },
         };
     }
-    return hex[3] + (hex[2] << 4) + (hex[1] << 8) + (hex[0] << 12);
+    const res = hex[3] + (hex[2] << 4) + (hex[1] << 8) + (hex[0] << 12);
+    return HexResult{ .parsed = res };
 }
 
 // Tests

@@ -20,12 +20,12 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 	int i = 0;
 	doubleByte temp;
 	if (file.is_open()) {
-		while (getline(file,line)) {
+		while (getline(file, line)) {
 			if (i == ADDR) {
-				cerr << "ERROR: Instructions overflow memory." << endl;
+				cerr << "Error: Code file overflows memory (" << ADDR << " lines max)" << endl;
 				return false;
 			}
-			if (checkHex(line.substr(0,4))) {
+			if ((line.length() >= 4) && (checkHex(line.substr(0,4)))) {
 				// Set memory
 				temp.setVal(line.substr(0,4));
 				mem[i] = temp.uint();
@@ -45,7 +45,16 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 			} else {
 				// Check if line can be ignored
 				if (!((line.size() == 0) || (line.substr(0,4) == "    ")) || strict) {
-					cerr << "ERROR: Improper instructions at " << hex << i << " '" << line.substr(0,4) << "'" << endl;
+					int j = 0;
+					while (std::isxdigit(line[j])) {
+						j++;
+					}
+					cerr << "Error: '" << codeFile << ":" << (i + 1) << ":" << (j + 1) << "' Invalid opcode hexadecimal" << endl;
+					cerr << endl << "    " << line << endl << "    ";
+					for (int k = 0; k < j; k++) {
+						cerr << " ";
+					}
+					cerr << "^" << endl;
 					return false;
 				} else {
 					i--;
