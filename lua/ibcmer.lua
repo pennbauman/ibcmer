@@ -121,7 +121,8 @@ while true do
 		elseif subopcode == 0xC then
 			print(string.format("Output char: %c", ACC))
 		else
-			io.stderr:write(string.format("Unknown i/o sub-opcode '%x'\n", subopcode))
+			print("")
+			io.stderr:write(string.format("Error: Invalid I/O sub-opcode '%x'\n", subopcode))
 			os.exit(2)
 		end
 	-- shift
@@ -141,7 +142,8 @@ while true do
 			res = ((ACC >> distance) | (ACC << (16 - distance))) & 0xffff
 			arrow = "=>"
 		else
-			io.stderr:write(string.format("Unknown shift sub-opcode '%x'\n", subopcode))
+			print("shift ")
+			io.stderr:write(string.format("Error: Invalid shift sub-opcode '%x'\n", subopcode))
 			os.exit(2)
 		end
 		print(string.format("shift (ACC)%04x = (ACC)%04x %s %x", res, ACC, arrow, distance))

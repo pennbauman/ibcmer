@@ -84,7 +84,8 @@ while true; do
 				8) printf "Output hex:  %04x\n" 0x$ACC ;;
 				c|C) out=$(printf '%03o' "0x$(echo $ACC | grep -oE '..$')")
 					printf "Output char: \\$out\n" ;;
-				*) printf "\033[31mError:\033[0m Invalid I/O sub-opcode '%x'\n" 0x$subopcode >&2
+				*) echo
+					printf "\033[31mError:\033[0m Invalid I/O sub-opcode '%x'\n" 0x$subopcode >&2
 					rm -f $MEM
 					exit 1 ;;
 			esac ;;
@@ -104,7 +105,8 @@ while true; do
 					b=$((0x$ACC << (16-0x$distance)))
 					res=$(printf '%04X' $(($a | $b)) | grep -oE '.{1,4}$')
 					arrow="=>" ;;
-				*) printf "\033[31mError:\033[0m Invalid shift sub-opcode '%x'\n" 0x$subopcode >&2
+				*) echo "shift "
+					printf "\033[31mError:\033[0m Invalid shift sub-opcode '%x'\n" 0x$subopcode >&2
 					rm -f $MEM
 					exit 1 ;;
 			esac

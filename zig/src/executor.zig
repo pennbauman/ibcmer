@@ -215,7 +215,8 @@ pub const IBCM = struct {
                         try stdout.print("Output char: {c}\n", .{char});
                     },
                     else => {
-                        try stderr.print("Error: Invalid i/o subopcode\n", .{});
+                        try stdout.print("\n", .{});
+                        try stderr.print("Error: Invalid I/O sub-opcode '{x}'\n", .{subopcode});
                         return IBCMError.InvalidOpcode;
                     },
                 }
@@ -243,7 +244,8 @@ pub const IBCM = struct {
                         arrow = "=>";
                     },
                     else => {
-                        try stderr.print("Error: Invalid shift subopcode\n", .{});
+                        try stdout.print("shift \n", .{});
+                        try stderr.print("Error: Invalid shift sub-opcode '{x}'\n", .{subopcode});
                         return IBCMError.InvalidOpcode;
                     },
                 }

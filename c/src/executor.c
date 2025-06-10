@@ -214,7 +214,8 @@ void step(ibcmemory *data, int volume) {
 					break;
 				// Check invalid subcommands
 				default:
-					fprintf(stderr, "\n%s Invalid I/O sub-opcode '%x'\n", E_ERROR, type);
+					printf("\n");
+					fprintf(stderr, "%s Invalid I/O sub-opcode '%x'\n", E_ERROR, type);
 					exit(1);
 			}
 			break;
@@ -260,7 +261,8 @@ void step(ibcmemory *data, int volume) {
 					break;
 				// Check invalid subcommands
 				default:
-					fprintf(stderr, "\n%s Invalid shift sub-opcode '%x'\n", E_ERROR, direction);
+					printf("\n");
+					fprintf(stderr, "%s Invalid shift sub-opcode '%x'\n", E_ERROR, direction);
 					exit(1);
 			}
 			data->acc = temp;

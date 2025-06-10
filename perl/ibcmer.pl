@@ -92,7 +92,8 @@ while (1) {
 		} elsif ($subopcode == 0xC) {
 			printf("Output char: %c\n", $ACC);
 		} else {
-			print STDERR sprintf("Error: Unknown i/o sub-opcode '%04x'\n", $subopcode);
+			print "\n";
+			print STDERR sprintf("Error: Invalid I/O sub-opcode '%x'\n", $subopcode);
 			exit 1;
 		}
 	# shift
@@ -114,7 +115,8 @@ while (1) {
 			$res = (($ACC >> $distance) | ($ACC << (16 - $distance))) & 0xffff;
 			$arrow = "=>";
 		} else {
-			print STDERR sprintf("Error: Unknown shift sub-opcode '%04x'\n", $subopcode);
+			print "shift \n";
+			print STDERR sprintf("Error: Invalid shift sub-opcode '%x'\n", $subopcode);
 			exit 1;
 		}
 		printf("shift (ACC)%04x = (ACC)%04x %s %x\n", $res, $ACC, $arrow, $distance);

@@ -135,7 +135,8 @@ export class IBCM {
 						output("Output char: " + String.fromCharCode(this.acc));
 						break;
 					default:
-						throw "Invalid i/o subopcode " + (addr >> 8);
+						log("")
+						throw "Invalid I/O sub-opcode '" + (addr >> 8).toString(16) + "'";
 				}
 				break;
 			case 0x2: // shift
@@ -159,7 +160,8 @@ export class IBCM {
                         log(log_prefix + "shift (ACC)" + this.acc.toString(16).padStart(4, 0) + " = (ACC)" + old + " => " + distance.toString(16));
 						break;
 					default:
-						throw "Invalid shift subopcode " + (addr >> 8);
+						log(log_prefix + "shift ")
+						throw "Invalid shift sub-opcode '" + (addr >> 8).toString(16) + "'";
 				}
 				break;
 			case 0x3: // load

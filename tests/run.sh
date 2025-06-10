@@ -44,6 +44,7 @@ tests/pc-overflow.ibcm
 tests/codefile-invalid-hex.ibcm
 tests/codefile-short-opcode.ibcm
 tests/codefile-overflow.ibcm
+tests/invalid-subopcode.ibcm
 "
 HELP_TEXT="IBCMer Implementation Testing Script
 

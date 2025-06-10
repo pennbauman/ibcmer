@@ -69,7 +69,8 @@ while (TRUE) {
 		} else if (subopcode == 0xc) {
 			cat(sprintf("Output char: %s\n", intToUtf8(ACC)))
 		} else {
-			write(sprintf("Unknown i/o sub-opcode '%x'", subopcode), stderr())
+			cat("\n")
+			write(sprintf("Error: Invalid I/O sub-opcode '%x'", subopcode), stderr())
 			quit(status = 1)
 		}
 	# shift
@@ -89,7 +90,8 @@ while (TRUE) {
 			res = bitwAnd(bitwOr(bitShiftR(ACC, distance), bitShiftL(ACC, (16 - distance))), 0xffff)
 			arrow <- "=>"
 		} else {
-			write(sprintf("Unknown shift sub-opcode '%x'", subopcode), stderr())
+			cat("shift \n")
+			write(sprintf("Error: Invalid shift sub-opcode '%x'", subopcode), stderr())
 			quit(status = 1)
 		}
 		cat(sprintf("shift (ACC)%04x = (ACC)%04x %s %x\n", res, ACC, arrow, distance))

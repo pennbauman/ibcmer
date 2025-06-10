@@ -95,6 +95,11 @@ int program::step(bool loud) {
 		case '1': // I/O
 			if (loud)
 				cout << "i/o   (ACC)" << acc.str() << endl;
+			if (command.bat(6) || command.bat(7)) {
+				cout << endl;
+				cerr << "Error: Invalid I/O sub-opcode '" << command.cat(1) << "'" << endl;
+				return 3;
+			}
 			if (command.bat(4)) {
 				if (command.bat(5)) {
 					cout << "Output char: " << acc.ascii() << endl;
@@ -137,6 +142,11 @@ int program::step(bool loud) {
 				acc.shiftRight(result, command.bat(4));
 			} else {
 				acc.shiftLeft(result, command.bat(4));
+			}
+			if (command.bat(6) || command.bat(7)) {
+				cout << "shift " << endl;
+				cerr << "Error: Invalid shift sub-opcode '" << command.cat(1) << "'" << endl;
+				return 3;
 			}
 			if (loud) {
 				cout << "shift (ACC)" << acc.str() << " = (ACC)" << prev ;

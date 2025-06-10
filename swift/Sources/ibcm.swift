@@ -13,7 +13,7 @@ enum IBCMError: Error, Equatable, CustomStringConvertible {
     case parseError(file: String, line: String, lineNum: Int, charIdx: Int)
     case parseOverflow
     case invalidHex
-    case invalidOpcode
+    case invalidOpcode(kind: String?, code: String)
 
     var description: String {
         switch self {
@@ -28,8 +28,14 @@ enum IBCMError: Error, Equatable, CustomStringConvertible {
                 return String(format: "Code file overflows memory (%d lines max)", MEM_SIZE)
             case .invalidHex:
                 return "Invalid hexadecimal"
-            case .invalidOpcode:
-                return "Invalid opcode"
+            case .invalidOpcode(let kind, let code):
+                var txt = ""
+                if let a = kind {
+                    txt = a + " sub-"
+                } else {
+                    txt = ""
+                }
+                return "Invalid " + txt + "opcode '" + code + "'"
         }
     }
 }
@@ -183,7 +189,8 @@ struct IBCM {
                         let c = Character(UnicodeScalar(self.accumulator) ?? "#")
                         Swift.print("Output char: " + String(c))
                     default:
-                        throw IBCMError.invalidOpcode
+                        Swift.print("")
+                        throw IBCMError.invalidOpcode(kind: "I/O", code: String(format: "%x", addr >> 8))
                 }
             case 0x2: // shift
                 let old = self.accumulator
@@ -202,7 +209,8 @@ struct IBCM {
                         self.accumulator = (self.accumulator >> distance) | (self.accumulator << (16 - distance))
                         Swift.print(String(format: "shift (ACC)%04x = (ACC)%04x => %x", self.accumulator, old, distance))
                     default:
-                        throw IBCMError.invalidOpcode
+                        Swift.print("shift ")
+                        throw IBCMError.invalidOpcode(kind: "shift", code: String(format: "%x", addr >> 8))
                 }
             case 0x3: // load
                 self.accumulator = self.memory[Int(addr)]
@@ -262,7 +270,7 @@ struct IBCM {
                 self.pc = addr
                 return
             default:
-                throw IBCMError.invalidOpcode
+                throw IBCMError.invalidOpcode(kind: nil, code: String(format: "%04x", op))
         }
         self.pc += 1
         if self.pc >= MEM_SIZE {

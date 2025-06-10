@@ -87,6 +87,7 @@ while true
 					set -f out (printf '%03o' 0x$(string sub -s 3 $ACC))
 					printf "Output char: \\$out\n" ;;
 				case "*"
+					echo
 					printf "\033[31mError:\033[0m Invalid I/O sub-opcode '$(string sub -e 1 $address)'\n" >&2
 					exit 1
 			end
@@ -107,6 +108,7 @@ while true
 					set -f res (string sub -s -$distance $bits)$(string sub -e (math 16 - $distance) $bits)
 					set -f arrow "=>"
 				case "*"
+					echo "shift "
 					printf "\033[31mError:\033[0m Invalid shift sub-opcode '$(string sub -e 1 $address)'\n" >&2
 					exit 1
 			end

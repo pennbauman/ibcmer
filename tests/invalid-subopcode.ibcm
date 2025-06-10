@@ -1,0 +1,5 @@
+1000 000 read hex
+d004 001 jmpe
+1f00 002 read invalid
+0000 003
+2f00 004 shift invalid

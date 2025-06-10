@@ -96,7 +96,8 @@ loop do
     when 0xC
       puts "Output char: %c" % $ACC
     else
-      STDERR.puts "Unknown i/o sub-opcode '%x'" % subopcode
+      puts ""
+      STDERR.puts "Error: Invalid I/O sub-opcode '%x'" % subopcode
       exit(2)
     end
   # shift
@@ -117,7 +118,8 @@ loop do
       res = (($ACC >> distance) | ($ACC << (16 - distance))) & 0xffff;
       arrow = "=>";
     else
-      STDERR.puts "Unknown shift sub-opcode '%x'" % subopcode
+      puts "shift "
+      STDERR.puts "Error: Invalid shift sub-opcode '%x'" % subopcode
       exit(2)
     end
     puts "shift (ACC)%04x = (ACC)%04x %s %x" % [res, $ACC, arrow, distance]

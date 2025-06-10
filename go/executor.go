@@ -123,7 +123,8 @@ func (e Executor) Step() (Executor, error) {
 		case 0x0c00:
 			fmt.Printf("Output char: %s\n", string(rune(e.Acc & 0x7f)))
 		default:
-			return e, errors.New("Invalid i/o type")
+			fmt.Printf("\n")
+			return e, errors.New(fmt.Sprintf("Invalid I/O sub-opcode '%x'", e.Mem[e.PC] >> 8 & 0xf))
 		}
 	case 0x2:
 		if e.Logging {
@@ -153,7 +154,8 @@ func (e Executor) Step() (Executor, error) {
 				fmt.Printf("(ACC)%04x = (ACC)%04x => %x\n", result, e.Acc, distance)
 			}
 		default:
-			return e, errors.New("Invalid shift type")
+			fmt.Printf("\n")
+			return e, errors.New(fmt.Sprintf("Invalid shift sub-opcode '%x'", e.Mem[e.PC] >> 8 & 0xf))
 		}
 		e.Acc = result
 	case 0x3:

@@ -83,7 +83,8 @@ class IBCM:
             elif (action == 0xC):
                 print("Output char: " + chr(self.acc))
             else:
-                print("\nInvalid I/O operation code", E_ERROR);
+                print("")
+                raise ValueError("Invalid I/O sub-opcode '{:x}'".format(action))
         # shift
         elif (opcode == 0x2):
             prev_acc = self.acc
@@ -106,7 +107,8 @@ class IBCM:
                 print("shift (ACC){:04x} = (ACC){:04x} => {:x}".format(
                         self.acc, prev_acc, distance))
             else:
-                print("\nInvalid shift operation code", E_ERROR);
+                print("shift ")
+                raise ValueError("Invalid shift sub-opcode '{:x}'".format(action))
         # load
         elif (opcode == 0x3):
             self.acc = self.memory[address]

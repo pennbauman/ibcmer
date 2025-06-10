@@ -135,7 +135,10 @@ impl IttyBittyComputingMachine {
                     0x0c00 => {
                         println!("Output char: {}", char::from_u32(self.accumulator as u32).unwrap_or('\0'));
                     },
-                    _ => return Err(Error::IllegalOp(format!("{:04x}", op))),
+                    _ => {
+                        println!("");
+                        return Err(Error::IllegalSubOpcode("I/O", op >> 8 & 0xf));
+                    }
                 }
             },
             0x2 => {
@@ -158,7 +161,10 @@ impl IttyBittyComputingMachine {
                         self.accumulator = self.accumulator.rotate_right(distance as u32);
                         self.log(format!("shift (ACC){:04x} = (ACC){:04x} => {:x}", self.accumulator, old, distance));
                     },
-                    _ => return Err(Error::IllegalOp(format!("{:04x}", op))),
+                    _ => {
+                        self.log(format!("shift "));
+                        return Err(Error::IllegalSubOpcode("shift", op >> 8 & 0xf));
+                    },
                 }
             },
             0x3 => {
@@ -231,7 +237,7 @@ impl IttyBittyComputingMachine {
                 self.pc = addr as u16;
                 return Ok(());
             },
-            _ => panic!("Impossible op code"),
+            _ => panic!("Impossible opcode"),
         };
         self.pc += 1;
         return Ok(());
@@ -292,8 +298,8 @@ pub enum Error {
     },
     #[error("Code file overflows memory ({0} lines max)", MEM_SIZE)]
     CodeFileOverflow,
-    #[error("Illegal operation '{0}'")]
-    IllegalOp(String),
+    #[error("Invalid {0} sub-opcode '{1:x}'")]
+    IllegalSubOpcode(&'static str, u16),
     #[error("Memory overflow (PC = 0x{0:04x})")]
     MemoryOverflow(u16),
 }
