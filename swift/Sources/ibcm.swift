@@ -8,7 +8,7 @@ let MEM_SIZE = 4096
 let PRINT_COLUMNS = 8
 
 enum IBCMError: Error, Equatable, CustomStringConvertible {
-    case fileError
+    case fileNotFound(path: String)
     case memoryOverflow(pc: Int)
     case parseError(file: String, line: String, lineNum: Int, charIdx: Int)
     case parseOverflow
@@ -17,8 +17,8 @@ enum IBCMError: Error, Equatable, CustomStringConvertible {
 
     var description: String {
         switch self {
-            case .fileError:
-                return "File Error"
+            case .fileNotFound(let path):
+                return String(format: "Code file '%@' not found", path)
             case .memoryOverflow(let pc):
                 return String(format: "Memory overflow (PC = 0x%04x)", pc)
             case .parseError(let file, let line, let lineNum, let charIdx):
@@ -101,10 +101,10 @@ struct IBCM {
                     i += 1
                 }
             } else {
-                throw IBCMError.fileError
+                throw IBCMError.fileNotFound(path: path)
             }
         } else {
-            throw IBCMError.fileError
+            throw IBCMError.fileNotFound(path: path)
         }
         return ret
     }

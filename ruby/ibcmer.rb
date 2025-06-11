@@ -26,11 +26,11 @@ $PC = 0
 
 # Read code file
 if ARGV.length < 1
-  STDERR.puts "Missing code file"
+  STDERR.puts "Error: A code file must be provided"
   exit(1)
 else
   if not File.file?(ARGV[0])
-    STDERR.puts "File not found '" + ARGV[0] + "'"
+    STDERR.puts "Error: Code file '" + ARGV[0] + "' not found"
     exit(1)
   end
 

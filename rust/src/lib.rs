@@ -32,7 +32,14 @@ impl IttyBittyComputingMachine {
         }
     }
     pub fn from_file<S: ToString>(name: S) -> Result<Self, Error> {
-        let file = File::open(name.to_string()).unwrap();
+        let file = match File::open(name.to_string()) {
+            Ok(f) => f,
+            Err(e) => match e.kind() {
+                io::ErrorKind::NotFound => return Err(Error::FileNotFound(name.to_string())),
+                io::ErrorKind::NotADirectory => return Err(Error::FileNotFound(name.to_string())),
+                _ => return Err(Error::IO(e)),
+            },
+        };
         let reader = BufReader::new(file);
         let mut fin = Self::new();
         let mut addr = 0;
@@ -285,8 +292,10 @@ impl IttyBittyComputingMachine {
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("IO Error")]
+    #[error("IO Error {:?}", &.0.kind())]
     IO(#[from] std::io::Error),
+    #[error("Code file '{0}' not found")]
+    FileNotFound(String),
     #[error("Invalid input '{0}'")]
     InvalidInput(String),
     #[error("'{file_name}:{0}:{1}' Invalid opcode hexadecimal\n\n    {line_text}\n    {2:char_idx$}^", line_num + 1, char_idx + 1, "")]

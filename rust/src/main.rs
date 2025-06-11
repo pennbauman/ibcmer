@@ -9,7 +9,7 @@ use ibcmer::IttyBittyComputingMachine;
 fn main() -> Result<(), ibcmer::Error> {
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
-        println!("Missing code file");
+        eprintln!("Error: A code file must be provided");
         return Ok(());
     }
     match IttyBittyComputingMachine::from_file(&args[1]) {

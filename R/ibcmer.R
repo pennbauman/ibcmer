@@ -12,21 +12,29 @@ ACC <- 0
 PC <- 1
 
 
+args <- commandArgs(trailingOnly=TRUE)
+if (length(args) < 1) {
+	write(sprintf("Error: A code file must be provided"), stderr())
+	quit(status = 1)
+}
+if (!file.exists(args[1]) || dir.exists(args[1])) {
+	write(sprintf("Error: Code file '%s' not found", args[1]), stderr())
+	quit(status = 1)
+}
 # Read code file
-input_file <- commandArgs(trailingOnly=TRUE)
 i <- 1
-for (l in readLines(input_file)) {
+for (l in readLines(args[1])) {
 	if (i > MEM_SIZE) {
 		write(sprintf("Error: Code file overflows memory (%d lines max)", MEM_SIZE), stderr())
 		quit(status = 1)
 	}
 	if (nchar(l) < 4) {
-		write(sprintf("Error: '%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", input_file, i, nchar(l) + 1, l, strrep(" ", nchar(l))), stderr())
+		write(sprintf("Error: '%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", args[1], i, nchar(l) + 1, l, strrep(" ", nchar(l))), stderr())
 		quit(status = 1)
 	}
 	for (j in 1:4) {
 		if (!grepl(substr(l, j, j), "12345678990abcdefABCDEF", fixed=TRUE)) {
-			write(sprintf("Error: '%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", input_file, i, j, l, strrep(" ", j - 1)), stderr())
+			write(sprintf("Error: '%s:%d:%d' Invalid opcode hexadecimal\n\n    %s\n    %s^", args[1], i, j, l, strrep(" ", j - 1)), stderr())
 			quit(status = 1)
 		}
 	}

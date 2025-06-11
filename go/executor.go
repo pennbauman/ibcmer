@@ -32,8 +32,7 @@ func (e Executor) WithLogging(settings bool) Executor {
 func (e Executor) FromFile(path string) (Executor, error) {
 	var file, err = os.OpenFile(path, os.O_RDONLY, 0644)
 	if err != nil {
-		fmt.Println(err)
-		return e, err
+		return e, errors.New(fmt.Sprintf("Code file '%s' not found", path))
 	}
 	scanner := bufio.NewScanner(file)
 

@@ -23,24 +23,30 @@ class IBCM:
         self.pc = 0
         self.memory = [0]*MEM_SIZE
 
-        with open(filepath) as source:
-            addr = 0
-            for line in source.readlines():
-                if addr >= MEM_SIZE:
-                    print("Error: Code file overflows memory (" + str(MEM_SIZE) + " lines max)", file=sys.stderr)
-                    sys.exit(1)
-                if is_hex(line[0:4]):
-                    self.memory[addr] = int(line[0:4], 16)
-                    addr += 1
-                else:
-                    i = 0
-                    while line[i] in string.hexdigits:
-                        i += 1
-                    print("Error: '" + filepath + ":" + str(addr + 1) + ":" + str(i + 1) + "' Invalid opcode hexadecimal", file=sys.stderr)
-                    print(file=sys.stderr)
-                    print("    " + line, end="", file=sys.stderr)
-                    print("    " + " "*i + "^", file=sys.stderr)
-                    sys.exit(1)
+        try:
+            with open(filepath) as source:
+                lines = source.readlines()
+        except:
+            print("Error: Code file '" + filepath + "' not found", file=sys.stderr)
+            sys.exit(1)
+
+        addr = 0
+        for line in lines:
+            if addr >= MEM_SIZE:
+                print("Error: Code file overflows memory (" + str(MEM_SIZE) + " lines max)", file=sys.stderr)
+                sys.exit(1)
+            if is_hex(line[0:4]):
+                self.memory[addr] = int(line[0:4], 16)
+                addr += 1
+            else:
+                i = 0
+                while line[i] in string.hexdigits:
+                    i += 1
+                print("Error: '" + filepath + ":" + str(addr + 1) + ":" + str(i + 1) + "' Invalid opcode hexadecimal", file=sys.stderr)
+                print(file=sys.stderr)
+                print("    " + line, end="", file=sys.stderr)
+                print("    " + " "*i + "^", file=sys.stderr)
+                sys.exit(1)
 
     def print(self):
         print("ACC = {:04x}".format(self.acc))
@@ -188,7 +194,7 @@ class IBCM:
 
 # Load and Run Program
 if (len(sys.argv) < 2):
-    print("Missing code file")
+    print("Error: A code file must be provided", file=sys.stderr)
     sys.exit(1)
 
 executor = IBCM(sys.argv[1])

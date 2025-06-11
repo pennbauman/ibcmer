@@ -11,7 +11,7 @@ import (
 
 func main() {
 	if len(os.Args) == 1 {
-		fmt.Println("Missing IBCM code file")
+		fmt.Fprintln(os.Stderr, "Error: A code file must be provided")
 		return
 	}
 

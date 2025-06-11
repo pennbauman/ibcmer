@@ -15,7 +15,7 @@ pub fn main() anyerror!void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
     if (args.len <= 1) {
-        try stderr.print("Missing code file\n", .{});
+        try stderr.print("Error: A code file must be provided\n", .{});
         std.os.linux.exit(1);
     }
 

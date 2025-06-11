@@ -13,16 +13,12 @@ my @MEM = ();
 
 # Check arguments
 if ($#ARGV < 0) {
-	print STDERR "Missing code file\n";
+	print STDERR "Error: A code file must be provided\n";
 	exit 1;
 }
 my $filename = $ARGV[0];
 if (! -f $filename) {
-	if (! -e $filename) {
-		print STDERR "Code file '$filename' not a file\n";
-	} else {
-		print STDERR "Code file '$filename' does not exist\n";
-	}
+	print STDERR "Error: Code file '$filename' not found\n";
 	exit 1;
 }
 

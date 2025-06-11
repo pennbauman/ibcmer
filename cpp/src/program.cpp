@@ -34,11 +34,11 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 					if (checkHex(line.substr(5,3))) {
 						temp.setVal(line.substr(5,3));
 						if (temp.uint() != i) {
-							cerr << "ERROR: Improper line number at line " << i << "." << endl;
+							cerr << "Error: Improper line number at line " << i << endl;
 							return false;
 						}
 					} else {
-						cerr << "ERROR: Improper line number at line " << i << "." << endl;
+						cerr << "Error: Improper line number at line " << i << endl;
 						return false;
 					}
 				}
@@ -63,7 +63,7 @@ bool program::init(string codeFile, stack<int>* b, bool strict, bool check) {
 			i++;
 		}
 	} else {
-		cerr << "ERROR: " << codeFile << " not openable." << endl;
+		cerr << "Error: Code file '" << codeFile << "' not found" << endl;
 		return false;
 	}
 	file.close();
@@ -250,7 +250,7 @@ int program::step(bool loud) {
 			counter = command.addr() - 1;
 			break;
 		default: // unknown op code
-			cerr << "ERROR: Unknown operation code." << endl;
+			cerr << "Error: Invalid opcode" << endl;
 			return 3;
 	}
 	counter++;

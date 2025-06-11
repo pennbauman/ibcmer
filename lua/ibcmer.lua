@@ -42,7 +42,7 @@ end
 
 -- Check code file argument
 if (#arg < 1) then
-	io.stderr:write("Error: Missing code file\n")
+	io.stderr:write("Error: A code file must be provided\n")
 	os.exit(1)
 end
 

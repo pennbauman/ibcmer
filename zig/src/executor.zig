@@ -8,10 +8,11 @@ const MEM_SIZE = 4096;
 
 
 pub const IBCMError = error {
+    FileNotFound,
     InvalidHex,
     PCOverflow,
     InvalidOpcode,
-    parseOverflow,
+    ParseOverflow,
     Internal,
 };
 
@@ -20,7 +21,7 @@ const HexResultTag = enum {
     parsed,
     err,
 };
-const HexResult = union(HexResultTag) {
+const HexResult = union(enum) {
     parsed: u16,
     err: usize,
 };
@@ -46,7 +47,10 @@ pub const IBCM = struct {
         const allocator = gpa.allocator();
         const stderr = std.io.getStdErr().writer();
         // open file
-        var file = try std.fs.cwd().openFile(filepath.*, .{});
+        var file = std.fs.cwd().openFile(filepath.*, .{}) catch {
+            try stderr.print("Error: Code file '{s}' not found\n", .{filepath.*});
+            return IBCMError.FileNotFound;
+        };
         defer file.close();
         var buf_reader = std.io.bufferedReader(file.reader());
         const reader = buf_reader.reader();
@@ -59,7 +63,7 @@ pub const IBCM = struct {
         while (reader.streamUntilDelimiter(writer, '\n', null)) {
             if (i >= MEM_SIZE) {
                 try stderr.print("Error: Code file overflows memory ({d} lines max)\n", .{MEM_SIZE});
-                return IBCMError.parseOverflow;
+                return IBCMError.ParseOverflow;
             }
             defer line.clearRetainingCapacity();
             if (line_to_mem(&ret, line.items, i)) |index| {

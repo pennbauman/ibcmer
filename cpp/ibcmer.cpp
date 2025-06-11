@@ -49,9 +49,7 @@ int main(int argc, char* argv[]) {
 	}
 	// Check parameters are given
 	if (argc < 2) {
-		cerr << "ERROR: Requires parameters." << endl;
-		cerr << endl;
-		printHelp();
+		cerr << "Error: A code file must be provided" << endl;
 		return 1;
 	}
 	// Check for stand alone parameters
@@ -83,7 +81,7 @@ int main(int argc, char* argv[]) {
 			check = true;
 		} else if (current == "-b") {
 			if (!checkHex(argv[i+1])) {
-				cerr << "ERROR: -b requires at least one break-point, break-points must be numbers." << endl;
+				cerr << "Error: -b requires at least one break-point, break-points must be numbers" << endl;
 				return 1;
 			}
 			do {
@@ -98,7 +96,7 @@ int main(int argc, char* argv[]) {
 		} else if ((current == "--quiet") || (current == "-q")) {
 			loud = false;
 		} else {
-			cerr << "ERROR: Unknown parameter '" << argv[i] << "'" << endl;
+			cerr << "Error: Unknown parameter '" << argv[i] << "'" << endl;
 			return 1;
 		}
 	}

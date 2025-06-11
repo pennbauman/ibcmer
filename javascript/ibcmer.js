@@ -11,7 +11,7 @@ import { IBCM } from './ibcm.js';
 
 // Get code file
 if (process.argv.length === 2) {
-	console.error("Missing code file arguments");
+	console.error("Error: A code file must be provided");
 	process.exit(1);
 }
 var machine = new IBCM();
@@ -21,7 +21,11 @@ try {
 	const data = fs.readFileSync(process.argv[2], 'utf8');
 	await machine.fromString(data, process.argv[2]);
 } catch (err) {
-	console.error("Error:", err);
+	if ((err.code == "ENOTDIR") || (err.code == "ENOENT")) {
+		console.error(`Error: Code file '${process.argv[2]}' not found`);
+	} else {
+		console.error("Error:", err);
+	}
 	process.exit(1);
 }
 // machine.print();

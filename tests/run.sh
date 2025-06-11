@@ -45,6 +45,9 @@ tests/codefile-invalid-hex.ibcm
 tests/codefile-short-opcode.ibcm
 tests/codefile-overflow.ibcm
 tests/invalid-subopcode.ibcm
+tests/missing-file.ibcm
+/dev/null/missing-dir.ibcm
+/dev/null/no-file.ibcm
 "
 HELP_TEXT="IBCMer Implementation Testing Script
 
@@ -81,7 +84,11 @@ runtest () {
 	if [ -f "$input_file" ]; then
 		"$1" "$2" > "$log_file" < "$input_file" 2> "$err_file"
 	else
-		"$1" "$2" > "$log_file" 2> "$err_file"
+		if [ $test_id = "no-file" ]; then
+			"$1" > "$log_file" 2> "$err_file"
+		else
+			"$1" "$2" > "$log_file" 2> "$err_file"
+		fi
 	fi
 	sed -i "s,\x1B\[[0-9;]*[a-zA-Z],,g" "$OUTPUT_DIR/$lang/$test_id."*
 	if [ -f "$err_expect_file" ]; then
@@ -203,8 +210,10 @@ for bin in $EXEC_PATHS; do
 	# Iterate over code files to test
 	for file in $CODE_PATHS; do
 		if [ ! -f "$file" ]; then
-			echo "Missing IBCM code file '$file'"
-			exit 1
+			if [ -z "$(basename "$file" | grep -oE '^(missing-[a-z]*|no-file)\.ibcm$')" ]; then
+				echo "Missing IBCM code file '$file'"
+				exit 1
+			fi
 		fi
 		test_name="$(basename "$file" | sed -E 's/\.[a-z]+//')"
 

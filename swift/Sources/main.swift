@@ -15,7 +15,7 @@ struct StandardError: TextOutputStream, Sendable {
 var stderr = StandardError()
 
 if (Swift.CommandLine.arguments.count < 2) {
-    Swift.print("Missing code file")
+    Swift.print("Error: A code file must be provided", to: &stderr)
 } else {
     do {
         var machine = try IBCM.fromFile(path: Swift.CommandLine.arguments[1])
